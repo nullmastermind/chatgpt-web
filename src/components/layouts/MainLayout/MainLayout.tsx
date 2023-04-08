@@ -1,12 +1,25 @@
-import { Navbar, TextInput, Code, UnstyledButton, Badge, Text, Group, ActionIcon, Tooltip, rem } from "@mantine/core";
+import {
+  Navbar,
+  TextInput,
+  Code,
+  UnstyledButton,
+  Badge,
+  Text,
+  Group,
+  ActionIcon,
+  Tooltip,
+  rem,
+  MantineProvider,
+} from "@mantine/core";
 import { IconBulb, IconSearch, IconPlus, IconSelector, IconSettings2, IconSettings } from "@tabler/icons-react";
 import React, { useEffect, useMemo, useState } from "react";
 import { UserButton } from "@/components/UserButton/UserButton";
 import { useStyles } from "@/components/pages/MainPage/MainPage.style";
 import { useLocalStorage } from "react-use";
-import { useDebouncedValue } from "@mantine/hooks";
+import { useAddCollectionAction, useCollections, useCurrentTool } from "@/states/states";
+import { Notifications } from "@mantine/notifications";
 
-type CollectionItem = {
+export type CollectionItem = {
   emoji: string;
   label: string;
   parent: string;
@@ -16,9 +29,11 @@ const links: Array<{
   key: string;
   label: string;
   notifications?: string | number;
+  canAddCollections: boolean;
+  collectionsLabel: string;
 }> = [
-  { icon: IconBulb, label: "NullGPT", key: "nullgpt" },
-  { icon: IconSettings, label: "Settings", key: "settings" },
+  { icon: IconBulb, label: "NullGPT", key: "nullgpt", canAddCollections: true, collectionsLabel: "Prompt templates" },
+  { icon: IconSettings, label: "Settings", key: "settings", canAddCollections: false, collectionsLabel: "Settings" },
 ];
 
 export type MainLayoutProps = {
@@ -27,32 +42,24 @@ export type MainLayoutProps = {
 
 const MainLayout = ({ children }: MainLayoutProps) => {
   const { classes } = useStyles();
-  const [collections, setCollections] = useState<CollectionItem[]>([]);
+  const [collections, setCollections] = useCollections();
   const [currentTool, setCurrentTool] = useLocalStorage(":currentTool", links[0].key);
   const currentLink = useMemo(() => {
     return links.find(v => v.key === currentTool);
   }, [currentTool]);
+  const [, setGlobalCurrentTool] = useCurrentTool();
+  const [addAction] = useAddCollectionAction();
 
   useEffect(() => {
-    if (currentTool === "settings") {
-      setCollections([
-        {
-          emoji: "⚙️",
-          label: "API",
-          parent: "settings",
-        },
-      ]);
-    } else if (currentTool === "nullgpt") {
-      setCollections([]);
-    }
+    setGlobalCurrentTool(currentTool);
   }, [currentTool]);
 
   const mainLinks = links.map(link => (
     <UnstyledButton key={link.label} className={classes.mainLink} onClick={() => setCurrentTool(link.key)}>
-      <div className={classes.mainLinkInner}>
+      <Text color={currentTool === link.key ? "blue" : "dimmed"} className={classes.mainLinkInner}>
         <link.icon size={20} className={classes.mainLinkIcon} stroke={1.5} />
         <span>{link.label}</span>
-      </div>
+      </Text>
       {link.notifications && (
         <Badge size="sm" variant="filled" className={classes.mainLinkBadge}>
           {link.notifications}
@@ -61,50 +68,53 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     </UnstyledButton>
   ));
   const collectionLinks = collections.map((collection: CollectionItem) => (
-    <a href="/" onClick={event => event.preventDefault()} key={collection.label} className={classes.collectionLink}>
+    <Text onClick={event => event.preventDefault()} key={collection.label} className={classes.collectionLink}>
       <span style={{ marginRight: rem(9), fontSize: rem(16) }}>{collection.emoji}</span> {collection.label}
-    </a>
+    </Text>
   ));
 
   return (
-    <div className="flex">
-      <Navbar height={"100vh"} width={{ sm: 300 }} p="md" className={classes.navbar}>
-        <Navbar.Section className={classes.section}>
-          <UserButton
-            image={`https://avatars.githubusercontent.com/u/22487014?v=${Date.now()}`}
-            name="Null Mastermind"
-            email="thenullmastermind@gmail.com"
-            icon={<IconSelector size="0.9rem" stroke={1.5} />}
+    <MantineProvider withNormalizeCSS withGlobalStyles>
+      <Notifications />
+      <div className="flex">
+        <Navbar height={"100vh"} width={{ sm: 300 }} p="md" className={classes.navbar}>
+          <Navbar.Section className={classes.section}>
+            <UserButton
+              image={`https://avatars.githubusercontent.com/u/22487014?v=${Date.now()}`}
+              name="Null Mastermind"
+              email="thenullmastermind@gmail.com"
+              icon={<IconSelector size="0.9rem" stroke={1.5} />}
+            />
+          </Navbar.Section>
+          <TextInput
+            placeholder="Search"
+            size="xs"
+            icon={<IconSearch size="1rem" />}
+            rightSectionWidth={40}
+            rightSection={<Code className={classes.searchCode}>^K</Code>}
+            styles={{ rightSection: { pointerEvents: "none" } }}
+            mb="sm"
           />
-        </Navbar.Section>
-        <TextInput
-          placeholder="Search"
-          size="xs"
-          icon={<IconSearch size="0.8rem" stroke={1.5} />}
-          rightSectionWidth={70}
-          rightSection={<Code className={classes.searchCode}>Ctrl + K</Code>}
-          styles={{ rightSection: { pointerEvents: "none" } }}
-          mb="sm"
-        />
-        <Navbar.Section className={classes.section}>
-          <div className={classes.mainLinks}>{mainLinks}</div>
-        </Navbar.Section>
-        <Navbar.Section className={classes.section}>
-          <Group className={classes.collectionsHeader} position="apart">
-            <Text size="xs" weight={500} color="dimmed">
-              Collections ({currentLink!.label})
-            </Text>
-            <Tooltip label="Create collection" withArrow position="right">
-              <ActionIcon variant="default" size={18}>
-                <IconPlus size="0.8rem" stroke={1.5} />
-              </ActionIcon>
-            </Tooltip>
-          </Group>
-          <div className={classes.collections}>{collectionLinks}</div>
-        </Navbar.Section>
-      </Navbar>
-      <div className="flex-grow">{children}</div>
-    </div>
+          <Navbar.Section className={classes.section}>
+            <div className={classes.mainLinks}>{mainLinks}</div>
+          </Navbar.Section>
+          <Navbar.Section className={classes.section}>
+            <Group className={classes.collectionsHeader} position="apart">
+              <Text size="xs" weight={500} color="dimmed">
+                {currentLink?.collectionsLabel}
+              </Text>
+              {currentLink?.canAddCollections && (
+                <ActionIcon variant="default" size={18} onClick={addAction}>
+                  <IconPlus size="1rem" stroke={1.5} />
+                </ActionIcon>
+              )}
+            </Group>
+            <div className={classes.collections}>{collectionLinks}</div>
+          </Navbar.Section>
+        </Navbar>
+        <div className="flex-grow">{children}</div>
+      </div>
+    </MantineProvider>
   );
 };
 
