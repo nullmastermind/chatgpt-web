@@ -3,6 +3,7 @@ import { createStyles, rem } from "@mantine/core";
 export const useStyles = createStyles(theme => ({
   navbar: {
     paddingTop: 0,
+    zIndex: 1,
   },
 
   section: {
