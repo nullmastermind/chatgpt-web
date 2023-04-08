@@ -1,5 +1,3 @@
-import dynamic from "next/dynamic";
+import MainPage from "@/components/pages/MainPage/MainPage";
 
-export default dynamic(() => import("@/components/pages/MainPage/MainPage"), {
-  ssr: false,
-});
+export default MainPage;
