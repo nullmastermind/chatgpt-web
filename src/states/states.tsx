@@ -10,3 +10,6 @@ export const useGraphqlServer = createGlobalState<string>(
 );
 export const useOpenaiAPIKey = createGlobalState<string>(localStorage.getItem(":openaiKey") || "");
 export const useAddCollectionAction = createGlobalState<() => any | undefined>();
+export const useCurrentCollection = createGlobalState<any>();
+export const useCurrentCollectionEditId = createGlobalState<any>();
+export const useCurrentCollectionRemoveId = createGlobalState<any>();

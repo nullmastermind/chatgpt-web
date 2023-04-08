@@ -1,7 +1,7 @@
 import { useMount, useUnmount } from "react-use";
-import {useCollections, useGraphqlServer, useOpenaiAPIKey} from "@/states/states";
-import {Button, Card, Container, Input, PasswordInput} from "@mantine/core";
-import {useForm} from "@mantine/form";
+import { useCollections, useGraphqlServer, useOpenaiAPIKey } from "@/states/states";
+import { Button, Card, Container, Input, PasswordInput } from "@mantine/core";
+import { useForm } from "@mantine/form";
 import React from "react";
 import { notifications } from "@mantine/notifications";
 import { IconCircleCheckFilled, IconX } from "@tabler/icons-react";
@@ -54,6 +54,7 @@ const SettingsPage = () => {
         emoji: "⚙️",
         label: "API",
         parent: "settings",
+        key: 0,
       },
     ]);
   });

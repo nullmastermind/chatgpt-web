@@ -11,17 +11,36 @@ import {
   rem,
   MantineProvider,
 } from "@mantine/core";
-import { IconBulb, IconSearch, IconPlus, IconSelector, IconSettings2, IconSettings } from "@tabler/icons-react";
+import {
+  IconBulb,
+  IconSearch,
+  IconPlus,
+  IconSelector,
+  IconSettings2,
+  IconSettings,
+  IconTrash,
+  IconEdit,
+} from "@tabler/icons-react";
 import React, { useEffect, useMemo, useState } from "react";
 import { UserButton } from "@/components/UserButton/UserButton";
 import { useStyles } from "@/components/pages/MainPage/MainPage.style";
-import { useLocalStorage } from "react-use";
-import { useAddCollectionAction, useCollections, useCurrentTool } from "@/states/states";
+import { useDebounce, useLocalStorage } from "react-use";
+import {
+  useAddCollectionAction,
+  useCollections,
+  useCurrentCollection,
+  useCurrentCollectionEditId,
+  useCurrentCollectionRemoveId,
+  useCurrentTool,
+} from "@/states/states";
 import { Notifications } from "@mantine/notifications";
+import { find } from "lodash";
+import classNames from "classnames";
 
 export type CollectionItem = {
   emoji: string;
   label: string;
+  key: any;
   parent: string;
 };
 const links: Array<{
@@ -41,7 +60,7 @@ export type MainLayoutProps = {
 };
 
 const MainLayout = ({ children }: MainLayoutProps) => {
-  const {classes} = useStyles();
+  const { classes } = useStyles();
   const [collections, setCollections] = useCollections();
   const [globalCurrentTool, setGlobalCurrentTool] = useCurrentTool();
   const [currentTool, setCurrentTool] = useLocalStorage(":currentTool", globalCurrentTool);
@@ -49,10 +68,25 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     return links.find(v => v.key === currentTool);
   }, [currentTool]);
   const [addAction] = useAddCollectionAction();
+  const [currentCollection, setCurrentCollection] = useCurrentCollection();
+  const [, setCollectionEditId] = useCurrentCollectionEditId();
+  const [, setCollectionRemoveId] = useCurrentCollectionRemoveId();
 
   useEffect(() => {
     setGlobalCurrentTool(currentTool);
   }, [currentTool]);
+  useDebounce(
+    () => {
+      if (collections.length > 0 && !find(collections, v => v.key === currentCollection)) {
+        setCurrentCollection(collections[0].key);
+      }
+      if (collections.length === 0) {
+        setCurrentCollection(undefined);
+      }
+    },
+    42,
+    [collections, currentCollection]
+  );
 
   const mainLinks = links.map(link => (
     <UnstyledButton key={link.label} className={classes.mainLink} onClick={() => setCurrentTool(link.key)}>
@@ -68,22 +102,61 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     </UnstyledButton>
   ));
   const collectionLinks = collections.map((collection: CollectionItem) => (
-    <Text onClick={event => event.preventDefault()} key={collection.label} className={classes.collectionLink}>
-      <span style={{ marginRight: rem(9), fontSize: rem(16) }}>{collection.emoji}</span> {collection.label}
+    <Text
+      onClick={() => {
+        setCurrentCollection(collection.key);
+      }}
+      key={collection.key}
+      className={classes.collectionLink}
+      color={collection.key === currentCollection ? "blue" : undefined}
+    >
+      <div className="flex flex-row gap-3 items-center">
+        <div className="flex-grow">
+          <span style={{ marginRight: rem(9), fontSize: rem(16) }}>{collection.emoji}</span> {collection.label}
+        </div>
+        <div
+          className={classNames("flex flex-row gap-1 collection-action", {
+            "collection-action-disabled": !currentLink?.canAddCollections,
+          })}
+        >
+          <ActionIcon
+            variant="light"
+            color="blue"
+            size="xs"
+            onClick={e => {
+              e.stopPropagation();
+              setCollectionEditId(collection.key);
+            }}
+          >
+            <IconEdit size="1rem" />
+          </ActionIcon>
+          <ActionIcon
+            variant="light"
+            color="red"
+            size="xs"
+            onClick={e => {
+              e.stopPropagation();
+              setCollectionRemoveId(collection.key);
+            }}
+          >
+            <IconTrash size="1rem" />
+          </ActionIcon>
+        </div>
+      </div>
     </Text>
   ));
 
   return (
-    <MantineProvider withNormalizeCSS withGlobalStyles>
+    <>
       <Notifications />
       <div className="flex">
-        <Navbar height={"100vh"} width={{sm: 300}} p="md" className={classes.navbar}>
+        <Navbar height={"100vh"} width={{ sm: 300 }} p="md" className={classes.navbar}>
           <Navbar.Section className={classes.section}>
             <UserButton
               image={`https://avatars.githubusercontent.com/u/22487014?v=${Date.now()}`}
               name="Null Mastermind"
               email="thenullmastermind@gmail.com"
-              icon={<IconSelector size="0.9rem" stroke={1.5}/>}
+              icon={<IconSelector size="0.9rem" stroke={1.5} />}
             />
           </Navbar.Section>
           {/*<TextInput*/}
@@ -114,7 +187,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         </Navbar>
         <div className="flex-grow">{children}</div>
       </div>
-    </MantineProvider>
+    </>
   );
 };
 

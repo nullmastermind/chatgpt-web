@@ -1,14 +1,21 @@
 import { Card, Container } from "@mantine/core";
 
+export type ReactElement = JSX.Element | JSX.Element[] | null | undefined | false | number;
+
 export type CenterCardProps = {
-  children: JSX.Element | JSX.Element[];
+  children: ReactElement;
 };
 
 const CenterCard = ({ children }: CenterCardProps) => {
+  // return (
+  //   <Container size="sm" px="lg" py="xs" className="relative">
+  //     {children}
+  //   </Container>
+  // );
   return (
-    <Container size="sm" px="xs" py="0">
+    <Container size="sm" px="0" py="0">
       <div className="h-screen flex flex-col">
-        <Card padding="md" radius="md" withBorder className="flex-grow my-3">
+        <Card padding="md" radius="0" withBorder={false} className="flex-grow relative bg-transparent">
           {children}
         </Card>
       </div>

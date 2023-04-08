@@ -81,14 +81,23 @@ export const useStyles = createStyles(theme => ({
     textDecoration: "none",
     borderRadius: theme.radius.sm,
     fontSize: theme.fontSizes.xs,
-    color: theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.colors.gray[7],
     lineHeight: 1,
     fontWeight: 500,
     cursor: "pointer",
-
+    ".collection-action": {
+      opacity: 0,
+      pointerEvents: "none",
+    },
     "&:hover": {
       backgroundColor: theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[0],
-      color: theme.colorScheme === "dark" ? theme.white : theme.black,
+      ".collection-action": {
+        opacity: 1,
+        pointerEvents: "auto",
+      },
+    },
+    ".collection-action-disabled": {
+      opacity: "0!important" as any,
+      pointerEvents: "none!important" as any,
     },
   },
 }));
