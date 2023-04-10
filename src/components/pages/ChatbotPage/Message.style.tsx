@@ -21,6 +21,9 @@ const useStyles = createStyles(theme => ({
     fontStyle: "italic",
     opacity: 0.8,
   },
+  blink: {
+    background: theme.colorScheme !== "dark" ? theme.colors.dark[5] : theme.colors.gray[5],
+  },
 }));
 
 export default useStyles;

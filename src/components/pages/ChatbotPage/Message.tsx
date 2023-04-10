@@ -17,6 +17,7 @@ import {
   KeyValues,
   preprocessMessageContent,
 } from "@/utility/utility";
+import TypingBlinkCursor from "@/components/misc/TypingBlinkCursor";
 
 export type MessageProps = {
   collection: any;
@@ -361,38 +362,41 @@ const MessageItem = forwardRef(
           }}
         >
           <div className={classes.messageContent}>
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              rehypePlugins={[rehypeRaw]}
-              components={{
-                code({ node, inline, className, children, ...props }) {
-                  if (inline) {
-                    return <code className={classes.inlineCode}>{String(children).replace(/\n$/, "")}</code>;
-                  }
-                  const match = /language-(\w+)/.exec(className || "");
-                  let lang: any = "javascript";
+            {message.content !== "..." && (
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeRaw]}
+                components={{
+                  code({ node, inline, className, children, ...props }) {
+                    if (inline) {
+                      return <code className={classes.inlineCode}>{String(children).replace(/\n$/, "")}</code>;
+                    }
+                    const match = /language-(\w+)/.exec(className || "");
+                    let lang: any = "javascript";
 
-                  if (!match) {
-                    try {
-                      lang = detectProgramLang(String(children).replace(/\n$/, ""));
-                    } catch (e) {}
-                  } else {
-                    lang = match[1] as any;
-                  }
+                    if (!match) {
+                      try {
+                        lang = detectProgramLang(String(children).replace(/\n$/, ""));
+                      } catch (e) {}
+                    } else {
+                      lang = match[1] as any;
+                    }
 
-                  return (
-                    <Prism
-                      children={String(children).replace(/\n$/, "")}
-                      language={convertToSupportLang(lang)}
-                      scrollAreaComponent={ScrollArea}
-                      className="mb-1"
-                    />
-                  );
-                },
-              }}
-            >
-              {preprocessMessageContent(message.content)}
-            </ReactMarkdown>
+                    return (
+                      <Prism
+                        children={String(children).replace(/\n$/, "")}
+                        language={convertToSupportLang(lang)}
+                        scrollAreaComponent={ScrollArea}
+                        className="mb-1"
+                      />
+                    );
+                  },
+                }}
+              >
+                {preprocessMessageContent(message.content)}
+              </ReactMarkdown>
+            )}
+            {(isTyping || message.content === "...") && <TypingBlinkCursor />}
           </div>
         </div>
       </div>
