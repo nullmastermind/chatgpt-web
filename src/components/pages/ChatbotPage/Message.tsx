@@ -219,10 +219,9 @@ const Message = ({ collection, prompt }: MessageProps) => {
                 return (
                   <MessageItem
                     ref={instance => {
-                      // console.log("instance", instance);
                       if (instance) messageRefs[message.id] = instance;
                     }}
-                    key={message.id}
+                    key={[message.id, message.checked].join(":")}
                     messages={messages}
                     setMessages={setMessages}
                     message={message}
