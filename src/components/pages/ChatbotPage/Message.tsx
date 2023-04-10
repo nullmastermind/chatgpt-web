@@ -99,6 +99,28 @@ const Message = ({ collection, prompt }: MessageProps) => {
     const scrollTop = viewport.current?.scrollTop || 0;
     return scrollTop >= scrollHeight - clientHeight;
   };
+  const reduceChecked = () => {
+    const cloneMessages = clone(messages);
+    for (let i = 0; i < cloneMessages.length; i++) {
+      if (!cloneMessages[i].checked) continue;
+      cloneMessages[i].checked = false;
+      if (cloneMessages[i].source === "assistant") {
+        break;
+      }
+    }
+    setMessages(cloneMessages);
+  };
+  const addChecked = () => {
+    const cloneMessages = clone(messages);
+    for (let i = cloneMessages.length - 1; i >= 0; i--) {
+      if (cloneMessages[i].checked) continue;
+      cloneMessages[i].checked = true;
+      if (cloneMessages[i].source === "user") {
+        break;
+      }
+    }
+    setMessages(cloneMessages);
+  };
 
   useMount(() => {
     messageRefs = {};
@@ -297,15 +319,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
             size="xs"
             onClick={() => {
               boxRef.current?.focus();
-              const cloneMessages = clone(messages);
-              for (let i = cloneMessages.length - 1; i >= 0; i--) {
-                if (cloneMessages[i].checked) continue;
-                cloneMessages[i].checked = true;
-                if (cloneMessages[i].source === "user") {
-                  break;
-                }
-              }
-              setMessages(cloneMessages);
+              addChecked();
             }}
             disabled={!allDone}
           >
@@ -316,15 +330,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
             size="xs"
             onClick={() => {
               boxRef.current?.focus();
-              const cloneMessages = clone(messages);
-              for (let i = 0; i < cloneMessages.length; i++) {
-                if (!cloneMessages[i].checked) continue;
-                cloneMessages[i].checked = false;
-                if (cloneMessages[i].source === "assistant") {
-                  break;
-                }
-              }
-              setMessages(cloneMessages);
+              reduceChecked();
             }}
             disabled={!allDone}
           >
