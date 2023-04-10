@@ -162,15 +162,13 @@ const ChatbotPage = () => {
           editData={editCollection}
         />
       )}
-      <CenterCard>
-        {![undefined, null, NaN].includes(currentCollection) && (
-          <Message
-            prompt={find(prompts, v => typeof v === "object" && v.id === currentCollection)}
-            collection={currentCollection}
-            key={currentCollection}
-          />
-        )}
-      </CenterCard>
+      {![undefined, null, NaN].includes(currentCollection) && (
+        <Message
+          prompt={find(prompts, v => typeof v === "object" && v.id === currentCollection)}
+          collection={currentCollection}
+          key={currentCollection}
+        />
+      )}
     </>
   );
 };

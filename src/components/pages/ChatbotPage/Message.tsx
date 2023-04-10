@@ -1,6 +1,6 @@
 import { useDebounce, useList, useMap, useMeasure, useSessionStorage, useSetState } from "react-use";
-import { Avatar, Button, Checkbox, ScrollArea, Textarea, Tooltip } from "@mantine/core";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Avatar, Button, Checkbox, Container, ScrollArea, Textarea, Tooltip } from "@mantine/core";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { clone, find, findIndex, forEach, map } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import classNames from "classnames";
@@ -10,7 +10,13 @@ import rehypeRaw from "rehype-raw";
 import { Prism } from "@mantine/prism";
 import { requestChatStream } from "@/components/pages/ChatbotPage/Message.api";
 import { useOpenaiAPIKey } from "@/states/states";
-import { convertToSupportLang, detectProgramLang, preprocessMessageContent } from "@/utility/utility";
+import {
+  convertToSupportLang,
+  detectProgramLang,
+  KeyValue,
+  KeyValues,
+  preprocessMessageContent,
+} from "@/utility/utility";
 
 export type MessageProps = {
   collection: any;
@@ -28,6 +34,8 @@ type MessageItemType = {
   checked: boolean;
   id: any;
 };
+
+const messageRefs: KeyValue = {};
 
 const Message = ({ collection, prompt }: MessageProps) => {
   const { classes } = useStyles();
@@ -78,6 +86,13 @@ const Message = ({ collection, prompt }: MessageProps) => {
       id: Date.now(),
     });
     setTimeout(() => scrollToBottom(true));
+  };
+  const isBottom = () => {
+    if (!viewport.current) return false;
+    const scrollHeight = viewport.current?.scrollHeight || 0;
+    const clientHeight = viewport.current?.clientHeight || 0;
+    const scrollTop = viewport.current?.scrollTop || 0;
+    return scrollTop >= scrollHeight - clientHeight;
   };
 
   useDebounce(
@@ -130,13 +145,12 @@ const Message = ({ collection, prompt }: MessageProps) => {
 
       requestChatStream(requestMessages, {
         onMessage(message: string, done: boolean): void {
-          updateMessage(currentIndex, {
-            source: "assistant",
-            content: message,
-            checked: assistantPreMessage.checked,
-            id: assistantPreMessage.id,
-          });
-          scrollToBottom();
+          if (isBottom()) {
+            setTimeout(() => scrollToBottom(), 13);
+          }
+          if (messageRefs[assistantPreMessage.id]) {
+            messageRefs[assistantPreMessage.id].editMessage(message);
+          }
           if (done) {
             setIsDone(assistantPreMessage.id, true);
           }
@@ -154,7 +168,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
       }).finally();
     },
     42,
-    [messages, checkedMessages]
+    [messages, checkedMessages, viewport]
   );
   useDebounce(
     () => {
@@ -172,7 +186,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
     () => {
       if (Object.keys(isDone).length === 0) return;
       let canSave = true;
-      forEach(isDone, (value, key) => {
+      forEach(isDone, value => {
         if (!value) {
           canSave = false;
           return false;
@@ -200,72 +214,28 @@ const Message = ({ collection, prompt }: MessageProps) => {
             viewportRef={viewport}
             offsetScrollbars={false}
           >
-            {map(messages, (message, index) => {
-              return (
-                <div
-                  key={index + message.source}
-                  className={classNames("flex flex-row gap-3 items-start p-3 rounded", {
-                    [classes.messageBotBg]: message.source === "assistant",
-                  })}
-                >
-                  <Checkbox
-                    size="md"
-                    checked={message.checked}
-                    onChange={e => {
-                      messages[index].checked = e.target.checked;
-                      setMessages(clone(messages));
+            <Container size="sm" className="mb-5">
+              {map(messages, (message, index) => {
+                return (
+                  <MessageItem
+                    ref={instance => {
+                      // console.log("instance", instance);
+                      if (instance) messageRefs[message.id] = instance;
                     }}
+                    key={message.id}
+                    messages={messages}
+                    setMessages={setMessages}
+                    message={message}
+                    classes={classes}
+                    index={index}
                   />
-                  <Avatar src={message.source === "assistant" ? "/assets/bot.jpg" : undefined}>{message.source}</Avatar>
-                  <div
-                    className={classNames("flex-grow")}
-                    style={{
-                      maxWidth: "36rem",
-                    }}
-                  >
-                    <div className={classes.messageContent}>
-                      <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        rehypePlugins={[rehypeRaw]}
-                        components={{
-                          code({ node, inline, className, children, ...props }) {
-                            if (inline) {
-                              return <code className={classes.inlineCode}>{String(children).replace(/\n$/, "")}</code>;
-                            }
-                            const match = /language-(\w+)/.exec(className || "");
-                            let lang: any = "javascript";
-
-                            if (!match) {
-                              try {
-                                lang = detectProgramLang(String(children).replace(/\n$/, ""));
-                              } catch (e) {}
-                            } else {
-                              lang = match[1] as any;
-                            }
-
-                            return (
-                              <Prism
-                                children={String(children).replace(/\n$/, "")}
-                                language={convertToSupportLang(lang)}
-                                scrollAreaComponent={ScrollArea}
-                                className="mb-1"
-                              />
-                            );
-                          },
-                        }}
-                      >
-                        {preprocessMessageContent(message.content)}
-                      </ReactMarkdown>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-            <div className="h-5" />
+                );
+              })}
+            </Container>
           </ScrollArea>
         )}
       </div>
-      <div className={"flex flex-col gap-3"}>
+      <div className="flex flex-col gap-3 p-3 pt-0 m-auto w-full max-w-3xl">
         <div className="flex flex-row gap-3 items-center">
           <div>
             <b>{checkedMessages.length}</b> checked messages
@@ -311,6 +281,96 @@ const Message = ({ collection, prompt }: MessageProps) => {
     </div>
   );
 };
+
+const MessageItem = forwardRef(
+  (
+    {
+      classes,
+      message: inputMessage,
+      setMessages,
+      index,
+      messages,
+    }: {
+      classes: any;
+      message: any;
+      setMessages: any;
+      index: any;
+      messages: any;
+    },
+    ref
+  ) => {
+    const [message, setMessage] = useState(inputMessage);
+
+    useImperativeHandle(ref, () => ({
+      editMessage(newMessage: string) {
+        messages[index].content = newMessage;
+        setMessage({
+          ...message,
+          content: newMessage,
+        });
+      },
+    }));
+
+    return (
+      <div
+        className={classNames("flex flex-row gap-3 items-start p-3 rounded", {
+          [classes.messageBotBg]: message.source === "assistant",
+        })}
+      >
+        <Checkbox
+          size="md"
+          checked={message.checked}
+          onChange={e => {
+            messages[index].checked = e.target.checked;
+            setMessages(clone(messages));
+          }}
+        />
+        <Avatar src={message.source === "assistant" ? "/assets/bot.jpg" : undefined}>{message.source}</Avatar>
+        <div
+          className={classNames("flex-grow")}
+          style={{
+            maxWidth: "36rem",
+          }}
+        >
+          <div className={classes.messageContent}>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeRaw]}
+              components={{
+                code({ node, inline, className, children, ...props }) {
+                  if (inline) {
+                    return <code className={classes.inlineCode}>{String(children).replace(/\n$/, "")}</code>;
+                  }
+                  const match = /language-(\w+)/.exec(className || "");
+                  let lang: any = "javascript";
+
+                  if (!match) {
+                    try {
+                      lang = detectProgramLang(String(children).replace(/\n$/, ""));
+                    } catch (e) {}
+                  } else {
+                    lang = match[1] as any;
+                  }
+
+                  return (
+                    <Prism
+                      children={String(children).replace(/\n$/, "")}
+                      language={convertToSupportLang(lang)}
+                      scrollAreaComponent={ScrollArea}
+                      className="mb-1"
+                    />
+                  );
+                },
+              }}
+            >
+              {preprocessMessageContent(message.content)}
+            </ReactMarkdown>
+          </div>
+        </div>
+      </div>
+    );
+  }
+);
 
 const TypeBox = ({ collection, onSubmit }: { collection: any; onSubmit: (content: string) => any }) => {
   const [messageContent, setMessageContent] = useSessionStorage<string>(`:messageBox${collection}`, "");

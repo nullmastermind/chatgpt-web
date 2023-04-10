@@ -1,5 +1,12 @@
 import { Language } from "prism-react-renderer";
 
+export type KeyValue = {
+  [key: string]: any;
+};
+export type KeyValues = {
+  [key: string]: any[];
+};
+
 export const preprocessMessageContent = (content: string) => {
   content = content.replace(/```(.*?)```/g, "```\n$1\n```");
   return content;
