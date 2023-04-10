@@ -296,7 +296,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
             Check previous
           </Button>
         </div>
-        <TypeBox collection={collection} onSubmit={content => onSend(content)} />
+        <TypeBox collection={collection} onSubmit={content => onSend(content)} messages={messages} />
       </div>
     </div>
   );
@@ -394,7 +394,15 @@ const MessageItem = forwardRef(
   }
 );
 
-const TypeBox = ({ collection, onSubmit }: { collection: any; onSubmit: (content: string) => any }) => {
+const TypeBox = ({
+  collection,
+  onSubmit,
+  messages,
+}: {
+  collection: any;
+  onSubmit: (content: string) => any;
+  messages: any[];
+}) => {
   const [messageContent, setMessageContent] = useSessionStorage<string>(`:messageBox${collection}`, "");
 
   const onSend = () => {
@@ -405,6 +413,7 @@ const TypeBox = ({ collection, onSubmit }: { collection: any; onSubmit: (content
   return (
     <div className="flex flex-row items-baseline gap-3">
       <Textarea
+        autoFocus
         placeholder="Send a message..."
         onChange={e => setMessageContent(e.target.value)}
         value={messageContent}
@@ -413,6 +422,40 @@ const TypeBox = ({ collection, onSubmit }: { collection: any; onSubmit: (content
         minRows={3}
         className="flex-grow"
         onKeyDown={e => {
+          if (e.key === "ArrowUp") {
+            let startScanIndex = messages.length - 1;
+            if (messageContent) {
+              startScanIndex = findIndex(messages, m => {
+                return m.source === "user" && m.content === messageContent;
+              });
+            }
+            if (startScanIndex > 0) {
+              for (let i = startScanIndex - 1; i >= 0; i--) {
+                if (messages[i].source === "user") {
+                  e.preventDefault();
+                  setMessageContent(messages[i].content);
+                  break;
+                }
+              }
+            }
+          }
+          if (e.key === "ArrowDown") {
+            let startScanIndex = 0;
+            if (messageContent) {
+              startScanIndex = findIndex(messages, m => {
+                return m.source === "user" && m.content === messageContent;
+              });
+            }
+            if (startScanIndex < messages.length - 1) {
+              for (let i = startScanIndex + 1; i < messages.length; i++) {
+                if (messages[i].source === "user") {
+                  e.preventDefault();
+                  setMessageContent(messages[i].content);
+                  break;
+                }
+              }
+            }
+          }
           if (e.key === "Enter" && !e.shiftKey) {
             onSend();
             e.preventDefault();
