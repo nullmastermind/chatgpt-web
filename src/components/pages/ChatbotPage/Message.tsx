@@ -9,7 +9,7 @@ import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { Prism } from "@mantine/prism";
 import { requestChatStream } from "@/components/pages/ChatbotPage/Message.api";
-import { useOpenaiAPIKey } from "@/states/states";
+import { useCollections, useCurrentCollection, useOpenaiAPIKey } from "@/states/states";
 import {
   convertToSupportLang,
   detectProgramLang,
@@ -411,6 +411,8 @@ const TypeBox = forwardRef(
   ) => {
     const [messageContent, setMessageContent] = useSessionStorage<string>(`:messageBox${collection}`, "");
     const inputRef = useRef<HTMLTextAreaElement>(null);
+    const [collections, setCollections] = useCollections();
+    const [, setCurrentCollection] = useCurrentCollection();
 
     const onSend = () => {
       onSubmit(messageContent);
@@ -436,6 +438,13 @@ const TypeBox = forwardRef(
           minRows={3}
           className="flex-grow"
           onKeyDown={e => {
+            if (e.ctrlKey && +e.key >= 1 && +e.key <= 9) {
+              e.preventDefault();
+              const index = +e.key - 1;
+              if (index <= collections.length - 1) {
+                setCurrentCollection(collections[index].key);
+              }
+            }
             if (e.key === "ArrowUp" && !e.ctrlKey && !e.shiftKey) {
               let startScanIndex = messages.length - 1;
               if (messageContent) {
