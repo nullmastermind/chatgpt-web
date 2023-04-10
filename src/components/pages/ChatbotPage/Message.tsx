@@ -1,7 +1,7 @@
-import { useDebounce, useList, useMeasure, useSessionStorage } from "react-use";
-import { Avatar, Button, Checkbox, ScrollArea, Textarea } from "@mantine/core";
-import { useEffect, useRef, useState } from "react";
-import { clone, findIndex, forEach, map } from "lodash";
+import { useDebounce, useList, useMap, useMeasure, useSessionStorage, useSetState } from "react-use";
+import { Avatar, Button, Checkbox, ScrollArea, Textarea, Tooltip } from "@mantine/core";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { clone, find, findIndex, forEach, map } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import classNames from "classnames";
 import ReactMarkdown from "react-markdown";
@@ -26,6 +26,7 @@ type MessageItemType = {
   source: "assistant" | "user";
   content: string;
   checked: boolean;
+  id: any;
 };
 
 const Message = ({ collection, prompt }: MessageProps) => {
@@ -45,11 +46,27 @@ const Message = ({ collection, prompt }: MessageProps) => {
           ])
       )
     );
+  const [isDone, { set: setIsDone, setAll: setAllIsDone }] = useMap<{
+    [key: string]: boolean;
+  }>({});
+  const allDone = useMemo(() => {
+    let temp = true;
+    forEach(isDone, (value, key) => {
+      if (!value) {
+        temp = false;
+        return false;
+      }
+    });
+    return temp;
+  }, [isDone]);
+  const checkedMessages = useMemo(() => {
+    return messages.filter(v => v.checked);
+  }, [messages]);
 
   const scrollToBottom = (smooth?: boolean) => {
     viewport.current?.scrollTo({
       top: viewport.current?.scrollHeight,
-      behavior: smooth ? "smooth" : "auto",
+      // behavior: smooth ? "smooth" : "auto",
     });
   };
   const onSend = (content: string) => {
@@ -58,6 +75,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
       source: "user",
       content: content,
       checked: messages[messages.length - 1].checked,
+      id: Date.now(),
     });
     setTimeout(() => scrollToBottom(true));
   };
@@ -73,9 +91,11 @@ const Message = ({ collection, prompt }: MessageProps) => {
         source: "assistant",
         content: "...",
         checked: messages[messages.length - 1].checked,
+        id: Date.now(),
       };
 
       pushMessage(assistantPreMessage);
+      setIsDone(assistantPreMessage.id, false);
       setTimeout(() => scrollToBottom());
 
       const requestMessages: any[] = [];
@@ -83,14 +103,20 @@ const Message = ({ collection, prompt }: MessageProps) => {
       forEach(clone(prompt.prompts), prompt => {
         if (prompt === "your") {
           const userMessages = [
-            {
+            ...checkedMessages.map(v => ({
+              role: v.source,
+              content: v.content,
+            })),
+          ];
+          if (!messages[messages.length - 1].checked) {
+            userMessages.push({
               role: "user",
               content: userMessage.content,
-            },
-          ];
+            });
+          }
           forEach(userMessages, uMessage => {
             requestMessages.push({
-              role: "user",
+              role: uMessage.role,
               content: uMessage.content,
             });
           });
@@ -108,14 +134,11 @@ const Message = ({ collection, prompt }: MessageProps) => {
             source: "assistant",
             content: message,
             checked: assistantPreMessage.checked,
+            id: assistantPreMessage.id,
           });
           scrollToBottom();
           if (done) {
-            setTimeout(() => {
-              if (messages.length > 30) {
-                setMessages(messages.slice(-30));
-              }
-            }, 300);
+            setIsDone(assistantPreMessage.id, true);
           }
         },
         token: openaiAPIKey,
@@ -131,7 +154,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
       }).finally();
     },
     42,
-    [messages]
+    [messages, checkedMessages]
   );
   useDebounce(
     () => {
@@ -145,6 +168,26 @@ const Message = ({ collection, prompt }: MessageProps) => {
   useEffect(() => {
     scrollToBottom();
   }, [containerHeight]);
+  useDebounce(
+    () => {
+      if (Object.keys(isDone).length === 0) return;
+      let canSave = true;
+      forEach(isDone, (value, key) => {
+        if (!value) {
+          canSave = false;
+          return false;
+        }
+      });
+      if (canSave) {
+        const saveMessages = messages.splice(-10);
+        localStorage.setItem(`:messages${collection}`, JSON.stringify(saveMessages));
+        setMessages(saveMessages);
+        setAllIsDone({});
+      }
+    },
+    42,
+    [isDone, messages]
+  );
 
   return (
     <div className="h-full w-full flex flex-col gap-3">
@@ -165,7 +208,14 @@ const Message = ({ collection, prompt }: MessageProps) => {
                     [classes.messageBotBg]: message.source === "assistant",
                   })}
                 >
-                  <Checkbox size="md" checked={message.checked} />
+                  <Checkbox
+                    size="md"
+                    checked={message.checked}
+                    onChange={e => {
+                      messages[index].checked = e.target.checked;
+                      setMessages(clone(messages));
+                    }}
+                  />
                   <Avatar src={message.source === "assistant" ? "/assets/bot.jpg" : undefined}>{message.source}</Avatar>
                   <div
                     className={classNames("flex-grow")}
@@ -215,7 +265,49 @@ const Message = ({ collection, prompt }: MessageProps) => {
           </ScrollArea>
         )}
       </div>
-      <TypeBox collection={collection} onSubmit={content => onSend(content)} />
+      <div className={"flex flex-col gap-3"}>
+        <div className="flex flex-row gap-3 items-center">
+          <div>
+            <b>{checkedMessages.length}</b> checked messages
+          </div>
+          <Button
+            variant="gradient"
+            size="xs"
+            disabled={checkedMessages.length === 0 || !allDone}
+            onClick={() => {
+              setMessages(
+                clone(
+                  messages.map(v => {
+                    v.checked = false;
+                    return v;
+                  })
+                )
+              );
+            }}
+          >
+            Uncheck all
+          </Button>
+          <Button
+            variant="gradient"
+            size="xs"
+            onClick={() => {
+              const cloneMessages = clone(messages);
+              for (let i = cloneMessages.length - 1; i >= 0; i--) {
+                if (cloneMessages[i].checked) continue;
+                cloneMessages[i].checked = true;
+                if (cloneMessages[i].source === "user") {
+                  break;
+                }
+              }
+              setMessages(cloneMessages);
+            }}
+            disabled={!allDone}
+          >
+            Check previous
+          </Button>
+        </div>
+        <TypeBox collection={collection} onSubmit={content => onSend(content)} />
+      </div>
     </div>
   );
 };
@@ -251,7 +343,9 @@ const TypeBox = ({ collection, onSubmit }: { collection: any; onSubmit: (content
           }
         }}
       />
-      <Button onClick={() => onSend()}>Send</Button>
+      <Button onClick={() => onSend()} variant="gradient">
+        Send
+      </Button>
     </div>
   );
 };
