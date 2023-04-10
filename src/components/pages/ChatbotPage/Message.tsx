@@ -436,7 +436,7 @@ const TypeBox = forwardRef(
           minRows={3}
           className="flex-grow"
           onKeyDown={e => {
-            if (e.key === "ArrowUp") {
+            if (e.key === "ArrowUp" && !e.ctrlKey && !e.shiftKey) {
               let startScanIndex = messages.length - 1;
               if (messageContent) {
                 startScanIndex = findIndex(messages, m => {
@@ -453,7 +453,7 @@ const TypeBox = forwardRef(
                 }
               }
             }
-            if (e.key === "ArrowDown") {
+            if (e.key === "ArrowDown" && !e.ctrlKey && !e.shiftKey) {
               let startScanIndex = 0;
               if (messageContent) {
                 startScanIndex = findIndex(messages, m => {
