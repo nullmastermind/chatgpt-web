@@ -517,26 +517,27 @@ const TypeBox = forwardRef(
           minRows={3}
           className="flex-grow"
           onKeyDown={e => {
-            if (e.key === "ArrowUp" && e.ctrlKey && e.shiftKey) {
+            const isMod = e.ctrlKey || e.metaKey;
+            if (e.key === "ArrowUp" && isMod && e.shiftKey) {
               checkAll();
             }
-            if (e.key === "ArrowDown" && e.ctrlKey && e.shiftKey) {
+            if (e.key === "ArrowDown" && isMod && e.shiftKey) {
               uncheckAll();
             }
-            if (e.key === "ArrowUp" && e.ctrlKey && !e.shiftKey) {
+            if (e.key === "ArrowUp" && isMod && !e.shiftKey) {
               addChecked();
             }
-            if (e.key === "ArrowDown" && e.ctrlKey && !e.shiftKey) {
+            if (e.key === "ArrowDown" && isMod && !e.shiftKey) {
               reduceChecked();
             }
-            if (e.ctrlKey && +e.key >= 1 && +e.key <= 9) {
+            if (isMod && +e.key >= 1 && +e.key <= 9) {
               e.preventDefault();
               const index = +e.key - 1;
               if (index <= collections.length - 1) {
                 setCurrentCollection(collections[index].key);
               }
             }
-            if (e.key === "ArrowUp" && !e.ctrlKey && !e.shiftKey) {
+            if (e.key === "ArrowUp" && !isMod && !e.shiftKey) {
               let startScanIndex = messages.length - 1;
               if (messageContent) {
                 startScanIndex = findIndex(messages, m => {
@@ -553,7 +554,7 @@ const TypeBox = forwardRef(
                 }
               }
             }
-            if (e.key === "ArrowDown" && !e.ctrlKey && !e.shiftKey) {
+            if (e.key === "ArrowDown" && !isMod && !e.shiftKey) {
               let startScanIndex = 0;
               if (messageContent) {
                 startScanIndex = findIndex(messages, m => {
