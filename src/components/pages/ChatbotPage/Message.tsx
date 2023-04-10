@@ -1,7 +1,7 @@
 import { useDebounce, useList, useMap, useMeasure, useMount, useSessionStorage, useSetState } from "react-use";
 import { Avatar, Button, Checkbox, Container, ScrollArea, Textarea, Tooltip } from "@mantine/core";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { clone, debounce, find, findIndex, forEach, map, throttle } from "lodash";
+import { clone, cloneDeep, debounce, find, findIndex, forEach, map, throttle } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import classNames from "classnames";
 import ReactMarkdown from "react-markdown";
@@ -268,20 +268,27 @@ const Message = ({ collection, prompt }: MessageProps) => {
           <Button
             variant="gradient"
             size="xs"
-            disabled={checkedMessages.length === 0 || !allDone}
+            disabled={!allDone}
             onClick={() => {
               boxRef.current?.focus();
-              setMessages(
-                clone(
-                  messages.map(v => {
+              if (checkedMessages.length === 0) {
+                setMessages(
+                  cloneDeep(messages).map(v => {
+                    v.checked = true;
+                    return v;
+                  })
+                );
+              } else {
+                setMessages(
+                  cloneDeep(messages).map(v => {
                     v.checked = false;
                     return v;
                   })
-                )
-              );
+                );
+              }
             }}
           >
-            Uncheck all
+            {checkedMessages.length === 0 ? "Check all" : "Uncheck all"}
           </Button>
           <Button
             variant="gradient"
