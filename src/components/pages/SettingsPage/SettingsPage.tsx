@@ -1,5 +1,5 @@
 import { useMount, useUnmount } from "react-use";
-import { useCollections, useGraphqlServer, useOpenaiAPIKey } from "@/states/states";
+import { useCollections, useOpenaiAPIKey } from "@/states/states";
 import { Button, Card, Container, Input, PasswordInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import React from "react";
@@ -9,23 +9,18 @@ import CenterCard from "@/components/CenterCard";
 
 const SettingsPage = () => {
   const [, setCollections] = useCollections();
-  const [graphqlServer, setGraphqlServer] = useGraphqlServer();
   const [openaiAPIKey, setOpenaiAPIKey] = useOpenaiAPIKey();
   const settingsForm = useForm({
     initialValues: {
-      graphqlServer: graphqlServer,
       openaiKey: openaiAPIKey,
     },
     validate: {
-      graphqlServer: v => (["", null, undefined, "null"].includes(v) ? "Invalid" : null),
       openaiKey: v => (["", null, undefined, "null"].includes(v) ? "Invalid" : null),
     },
   });
 
   const saveSettings = () => {
     if (!settingsForm.validate().hasErrors) {
-      localStorage.setItem(":graphqlServer", settingsForm.values.graphqlServer as string);
-      setGraphqlServer(settingsForm.values.graphqlServer as string);
       localStorage.setItem(":openaiKey", settingsForm.values.openaiKey as string);
       setOpenaiAPIKey(settingsForm.values.openaiKey as string);
       notifications.show({
@@ -63,10 +58,8 @@ const SettingsPage = () => {
   return (
     <CenterCard>
       <div className="flex flex-col gap-3">
-        <Input.Wrapper label="GraphQl Server" required>
-          <Input placeholder="GraphQl Server" {...settingsForm.getInputProps("graphqlServer")} />
-        </Input.Wrapper>
         <PasswordInput
+          required
           label="OpenAI API Key"
           placeholder="OpenAI API Key..."
           {...settingsForm.getInputProps("openaiKey")}

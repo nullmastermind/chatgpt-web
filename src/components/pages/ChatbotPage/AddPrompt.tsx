@@ -81,6 +81,17 @@ const AddPrompt = ({
       scrollAreaComponent={ScrollArea.Autosize}
     >
       <div>
+        <TextInput label={"Name"} required placeholder={"your template name..."} {...addForm.getInputProps("name")} />
+        <NumberInput
+          label={"Temperature"}
+          required
+          placeholder={"0.0-2.0 (0.0-Precise, 0.5-Balanced, 1.0-Creative)"}
+          precision={1}
+          min={0.0}
+          step={0.1}
+          max={2.0}
+          {...addForm.getInputProps("temperature")}
+        />
         {yourIndex === 0 && (
           <Divider
             variant="dashed"
@@ -112,22 +123,6 @@ const AddPrompt = ({
 
           return (
             <>
-              <TextInput
-                label={"Name"}
-                required
-                placeholder={"your template name..."}
-                {...addForm.getInputProps("name")}
-              />
-              <NumberInput
-                label={"Temperature"}
-                required
-                placeholder={"0.0-2.0 (0.0-Precise, 0.5-Balanced, 1.0-Creative)"}
-                precision={1}
-                min={0.0}
-                step={0.1}
-                max={2.0}
-                {...addForm.getInputProps("temperature")}
-              />
               {(i - 1 === yourIndex || i === 0) && (
                 <Divider
                   key={"divider0" + i}
@@ -204,7 +199,12 @@ const AddPrompt = ({
             labelPosition="center"
             className="mt-3"
             label={
-              <Button leftIcon={<IconPlus />} size="xs" variant="default" onClick={() => addPromptSetup(prompts.length)}>
+              <Button
+                leftIcon={<IconPlus />}
+                size="xs"
+                variant="default"
+                onClick={() => addPromptSetup(prompts.length)}
+              >
                 Add here
               </Button>
             }

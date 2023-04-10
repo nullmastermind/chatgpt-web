@@ -6,11 +6,10 @@ import {
   useCurrentCollection,
   useCurrentCollectionEditId,
   useCurrentCollectionRemoveId,
-  useGraphqlServer,
 } from "@/states/states";
 import { useDisclosure } from "@mantine/hooks";
 import React, { useEffect, useState } from "react";
-import { clone, find } from "lodash";
+import { clone, find, findIndex } from "lodash";
 import { IconCircleCheckFilled, IconX } from "@tabler/icons-react";
 import axios from "axios";
 import { notifications } from "@mantine/notifications";
@@ -22,7 +21,6 @@ const ChatbotPage = () => {
   const [collections, setCollections] = useCollections();
   const [opened, { open, close }] = useDisclosure(false);
   const [modalLoading, setModalLoading] = useState(false);
-  const [server] = useGraphqlServer();
   const [currentCollection] = useCurrentCollection();
   const [currentCollectionRemoveId, setCurrentCollectionRemoveId] = useCurrentCollectionRemoveId();
   const [currentCollectionEditId, setCurrentCollectionEditId] = useCurrentCollectionEditId();
@@ -33,78 +31,62 @@ const ChatbotPage = () => {
     open();
   };
   const onAddPrompt = ({ name, temperature, prompts, id }: PromptSaveData) => {
-    setModalLoading(true);
-    axios
-      .post(server, {
-        query:
-          id >= 0
-            ? 'mutation MyMutation($id: Int = 10, $name: String = "", $prompts: jsonb = "", $temperature: numeric = "") {\n  update_nullgpt_prompts_by_pk(pk_columns: {id: $id}, _set: {name: $name, prompts: $prompts, temperature: $temperature}) {\n    id\n  }\n}\n'
-            : 'mutation MyMutation($name: String = "", $prompts: jsonb = "", $temperature: numeric = "") {\n  insert_nullgpt_prompts_one(object: {name: $name, prompts: $prompts, temperature: $temperature}) {\n    id\n  }\n}\n',
-        variables: {
-          name,
-          prompts,
-          temperature,
-          id,
-        },
-        operationName: "MyMutation",
-      })
-      .catch(() => {
-        notifications.show({
-          title: "Error",
-          message: "Create/Edit error",
-          radius: "lg",
-          withCloseButton: true,
-          color: "red",
-          icon: <IconX />,
-        });
-      })
-      .then(() => {
-        notifications.show({
-          title: "Success",
-          message: "Template saved",
-          radius: "lg",
-          withCloseButton: true,
-          color: "green",
-          icon: <IconCircleCheckFilled />,
-        });
-      })
-      .finally(() => {
-        setEditCollection(undefined);
-        setCurrentCollectionEditId(undefined);
-        setModalLoading(false);
-        close();
-        getCollections();
+    console.log("id || Date.now()", id || Date.now());
+    const dbPrompts: any[] = JSON.parse(localStorage.getItem(":prompts") || "[]");
+    if (id) {
+      const index = findIndex(dbPrompts, v => v.id === id);
+      if (index >= 0) {
+        dbPrompts[index] = {
+          ...dbPrompts[index],
+          ...{
+            name,
+            temperature,
+            prompts,
+          },
+        };
+      }
+    } else {
+      dbPrompts.push({
+        name,
+        temperature,
+        prompts,
+        id: id || Date.now(),
       });
+    }
+    localStorage.setItem(":prompts", JSON.stringify(dbPrompts));
+    setEditCollection(undefined);
+    setCurrentCollectionEditId(undefined);
+    close();
+    getCollections();
+    notifications.show({
+      title: "Success",
+      message: "Template saved",
+      radius: "lg",
+      withCloseButton: true,
+      color: "green",
+      icon: <IconCircleCheckFilled />,
+    });
   };
   const getCollections = () => {
-    axios
-      .post(server, {
-        query:
-          "query MyQuery {\n  nullgpt_prompts(order_by: {id: asc}) {\n    id\n    name\n    prompts\n    temperature\n  }\n}\n",
-        variables: null,
-        operationName: "MyQuery",
-      })
-      .then(({ data }) => {
-        const prompts: any[] = data.data.nullgpt_prompts;
+    const prompts: any[] = JSON.parse(localStorage.getItem(":prompts") || "[]");
 
-        setCollections(
-          prompts.map(prompt => {
-            const data: string[] = prompt.name.split(" ");
-            let emoji = data.shift() as string;
-            if (data.length === 0) {
-              data.unshift(emoji);
-              emoji = prompt.name.split("")[0];
-            }
-            return {
-              emoji,
-              label: data.join(" ").trim(),
-              parent: "nullgpt",
-              key: prompt.id,
-            };
-          })
-        );
-        setPrompts(prompts);
-      });
+    setCollections(
+      prompts.map(prompt => {
+        const data: string[] = prompt.name.split(" ");
+        let emoji = data.shift() as string;
+        if (data.length === 0) {
+          data.unshift(emoji);
+          emoji = prompt.name.split("")[0];
+        }
+        return {
+          emoji,
+          label: data.join(" ").trim(),
+          parent: "nullgpt",
+          key: prompt.id,
+        };
+      })
+    );
+    setPrompts(prompts);
   };
 
   useMount(() => {
@@ -119,21 +101,14 @@ const ChatbotPage = () => {
       const collection = find(collections, v => v.key === currentCollectionRemoveId);
       if (collection) {
         if (confirm(`Remove ${collection.label}?`)) {
-          axios
-            .post(server, {
-              query:
-                "mutation MyMutation($id: Int = 10) {\n  delete_nullgpt_prompts_by_pk(id: $id) {\n    id\n  }\n}\n",
-              variables: {
-                id: currentCollectionRemoveId,
-              },
-              operationName: "MyMutation",
-            })
-            .finally(getCollections);
+          const dbPrompts: any[] = JSON.parse(localStorage.getItem(":prompts") || "[]");
+          localStorage.setItem(":prompts", JSON.stringify(dbPrompts.filter(v => v.id !== currentCollectionRemoveId)));
+          getCollections();
         }
       }
       setCurrentCollectionRemoveId(undefined);
     }
-  }, [currentCollectionRemoveId, server, collections]);
+  }, [currentCollectionRemoveId, collections]);
   useEffect(() => {
     if (!currentCollectionEditId) return;
 
