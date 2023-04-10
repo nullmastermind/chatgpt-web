@@ -13,7 +13,7 @@ const SettingsPage = () => {
   const settingsForm = useForm({
     initialValues: {
       openaiKey: openaiAPIKey,
-      maxMessagesPerBox: 10,
+      maxMessagesPerBox: parseInt(localStorage.getItem(":maxMessages") || "10"),
     },
     validate: {
       openaiKey: v => (["", null, undefined, "null"].includes(v) ? "Invalid" : null),
