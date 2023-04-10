@@ -10,6 +10,8 @@ import {
   Tooltip,
   rem,
   MantineProvider,
+  Avatar,
+  Title,
 } from "@mantine/core";
 import {
   IconBulb,
@@ -36,6 +38,7 @@ import {
 import { Notifications } from "@mantine/notifications";
 import { find } from "lodash";
 import classNames from "classnames";
+import { ChatBotName } from "@/config";
 
 export type CollectionItem = {
   emoji: string;
@@ -152,22 +155,11 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       <div className="flex">
         <Navbar height={"100vh"} width={{ sm: 300 }} p="md" className={classes.navbar}>
           <Navbar.Section className={classes.section}>
-            <UserButton
-              image={`https://avatars.githubusercontent.com/u/22487014?v=${Date.now()}`}
-              name="Null Mastermind"
-              email="thenullmastermind@gmail.com"
-              icon={<IconSelector size="0.9rem" stroke={1.5} />}
-            />
+            <div className="px-5 py-3 flex flex-grow items-center gap-3">
+              <Avatar src="/assets/bot.jpg" />
+              <Title order={1}>{ChatBotName}</Title>
+            </div>
           </Navbar.Section>
-          {/*<TextInput*/}
-          {/*  placeholder="Search"*/}
-          {/*  size="xs"*/}
-          {/*  icon={<IconSearch size="1rem" />}*/}
-          {/*  rightSectionWidth={40}*/}
-          {/*  rightSection={<Code className={classes.searchCode}>^K</Code>}*/}
-          {/*  styles={{ rightSection: { pointerEvents: "none" } }}*/}
-          {/*  mb="sm"*/}
-          {/*/>*/}
           <Navbar.Section className={classes.section}>
             <div className={classes.mainLinks}>{mainLinks}</div>
           </Navbar.Section>

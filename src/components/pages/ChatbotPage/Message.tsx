@@ -1,7 +1,7 @@
 import { useDebounce, useList, useMap, useMeasure, useMount, useSessionStorage, useSetState } from "react-use";
 import { Avatar, Button, Checkbox, Container, ScrollArea, Textarea, Tooltip } from "@mantine/core";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { clone, find, findIndex, forEach, map } from "lodash";
+import { clone, debounce, find, findIndex, forEach, map, throttle } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import classNames from "classnames";
 import ReactMarkdown from "react-markdown";
@@ -148,15 +148,21 @@ const Message = ({ collection, prompt }: MessageProps) => {
         }
       });
 
+      const saveMessagesFn = (message: string) => {
+        const dbMessages = JSON.parse(localStorage.getItem(`:messages${collection}`) || "[]");
+        const dbMsgIndex = findIndex(dbMessages, (v: any) => v.id === assistantPreMessage.id);
+        if (dbMsgIndex >= 0) {
+          dbMessages[dbMsgIndex].content = message;
+          localStorage.setItem(`:messages${collection}`, JSON.stringify(dbMessages));
+        }
+      };
+      const saveMessagesThr = throttle((message: string) => {
+        saveMessagesFn(message);
+      }, 1000);
+
       requestChatStream(requestMessages, {
         onMessage(message: string, done: boolean): void {
-          console.log("message", [message]);
-          const dbMessages = JSON.parse(localStorage.getItem(`:messages${collection}`) || "[]");
-          const dbMsgIndex = findIndex(dbMessages, (v: any) => v.id === assistantPreMessage.id);
-          if (dbMsgIndex >= 0) {
-            dbMessages[dbMsgIndex].content = message;
-            localStorage.setItem(`:messages${collection}`, JSON.stringify(dbMessages));
-          }
+          saveMessagesThr(message);
 
           if (isBottom()) {
             setTimeout(() => scrollToBottom(), 13);
@@ -165,6 +171,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
             messageRefs[assistantPreMessage.id].editMessage(message, done);
           }
           if (done) {
+            saveMessagesFn(message);
             delete messageRefs[assistantPreMessage.id];
             setIsDone(assistantPreMessage.id, true);
           }
