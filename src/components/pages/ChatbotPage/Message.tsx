@@ -72,6 +72,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
   const checkedMessages = useMemo(() => {
     return messages.filter(v => v.checked);
   }, [messages]);
+  const boxRef = useRef<any>(null);
 
   const scrollToBottom = (smooth?: boolean) => {
     viewport.current?.scrollTo({
@@ -265,6 +266,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
             size="xs"
             disabled={checkedMessages.length === 0 || !allDone}
             onClick={() => {
+              boxRef.current?.focus();
               setMessages(
                 clone(
                   messages.map(v => {
@@ -281,6 +283,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
             variant="gradient"
             size="xs"
             onClick={() => {
+              boxRef.current?.focus();
               const cloneMessages = clone(messages);
               for (let i = cloneMessages.length - 1; i >= 0; i--) {
                 if (cloneMessages[i].checked) continue;
@@ -296,7 +299,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
             Check previous
           </Button>
         </div>
-        <TypeBox collection={collection} onSubmit={content => onSend(content)} messages={messages} />
+        <TypeBox ref={boxRef} collection={collection} onSubmit={content => onSend(content)} messages={messages} />
       </div>
     </div>
   );
@@ -394,85 +397,96 @@ const MessageItem = forwardRef(
   }
 );
 
-const TypeBox = ({
-  collection,
-  onSubmit,
-  messages,
-}: {
-  collection: any;
-  onSubmit: (content: string) => any;
-  messages: any[];
-}) => {
-  const [messageContent, setMessageContent] = useSessionStorage<string>(`:messageBox${collection}`, "");
+const TypeBox = forwardRef(
+  (
+    { collection, onSubmit, messages }: { collection: any; onSubmit: (content: string) => any; messages: any[] },
+    ref
+  ) => {
+    const [messageContent, setMessageContent] = useSessionStorage<string>(`:messageBox${collection}`, "");
+    const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  const onSend = () => {
-    onSubmit(messageContent);
-    setMessageContent("");
-  };
+    const onSend = () => {
+      onSubmit(messageContent);
+      setMessageContent("");
+    };
 
-  return (
-    <div className="flex flex-row items-baseline gap-3">
-      <Textarea
-        autoFocus
-        placeholder="Send a message..."
-        onChange={e => setMessageContent(e.target.value)}
-        value={messageContent}
-        autosize={true}
-        maxRows={3}
-        minRows={3}
-        className="flex-grow"
-        onKeyDown={e => {
-          if (e.key === "ArrowUp") {
-            let startScanIndex = messages.length - 1;
-            if (messageContent) {
-              startScanIndex = findIndex(messages, m => {
-                return m.source === "user" && m.content === messageContent;
-              });
-            }
-            if (startScanIndex > 0) {
-              for (let i = startScanIndex - 1; i >= 0; i--) {
-                if (messages[i].source === "user") {
-                  e.preventDefault();
-                  setMessageContent(messages[i].content);
-                  break;
+    useImperativeHandle(ref, () => ({
+      focus() {
+        inputRef.current?.focus();
+      },
+    }));
+
+    return (
+      <div className="flex flex-row items-baseline gap-3">
+        <Textarea
+          ref={inputRef}
+          autoFocus
+          placeholder="Send a message..."
+          onChange={e => setMessageContent(e.target.value)}
+          value={messageContent}
+          autosize={true}
+          maxRows={3}
+          minRows={3}
+          className="flex-grow"
+          onKeyDown={e => {
+            if (e.key === "ArrowUp") {
+              let startScanIndex = messages.length - 1;
+              if (messageContent) {
+                startScanIndex = findIndex(messages, m => {
+                  return m.source === "user" && m.content === messageContent;
+                });
+              }
+              if (startScanIndex > 0) {
+                for (let i = startScanIndex - 1; i >= 0; i--) {
+                  if (messages[i].source === "user") {
+                    e.preventDefault();
+                    setMessageContent(messages[i].content);
+                    break;
+                  }
                 }
               }
             }
-          }
-          if (e.key === "ArrowDown") {
-            let startScanIndex = 0;
-            if (messageContent) {
-              startScanIndex = findIndex(messages, m => {
-                return m.source === "user" && m.content === messageContent;
-              });
-            }
-            if (startScanIndex < messages.length - 1) {
-              for (let i = startScanIndex + 1; i < messages.length; i++) {
-                if (messages[i].source === "user") {
-                  e.preventDefault();
-                  setMessageContent(messages[i].content);
-                  break;
+            if (e.key === "ArrowDown") {
+              let startScanIndex = 0;
+              if (messageContent) {
+                startScanIndex = findIndex(messages, m => {
+                  return m.source === "user" && m.content === messageContent;
+                });
+              }
+              if (startScanIndex < messages.length - 1) {
+                for (let i = startScanIndex + 1; i < messages.length; i++) {
+                  if (messages[i].source === "user") {
+                    e.preventDefault();
+                    setMessageContent(messages[i].content);
+                    break;
+                  }
                 }
               }
             }
-          }
-          if (e.key === "Enter" && !e.shiftKey) {
-            onSend();
-            e.preventDefault();
-            e.stopPropagation();
-          }
-          if (e.key === "Tab") {
-            if (/[^a-zA-Z0-9]/.test(messageContent)) {
+            if (e.key === "Enter" && !e.shiftKey) {
+              onSend();
               e.preventDefault();
+              e.stopPropagation();
             }
-          }
-        }}
-      />
-      <Button onClick={() => onSend()} variant="gradient">
-        Send
-      </Button>
-    </div>
-  );
-};
+            if (e.key === "Tab") {
+              if (/[^a-zA-Z0-9]/.test(messageContent)) {
+                e.preventDefault();
+              }
+            }
+          }}
+        />
+        <Button
+          onClick={() => {
+            inputRef.current?.focus();
+            onSend();
+          }}
+          variant="gradient"
+        >
+          Send
+        </Button>
+      </div>
+    );
+  }
+);
 
 export default Message;
