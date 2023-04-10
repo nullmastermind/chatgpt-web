@@ -121,6 +121,29 @@ const Message = ({ collection, prompt }: MessageProps) => {
     }
     setMessages(cloneMessages);
   };
+  const checkAll = () => {
+    setMessages(
+      cloneDeep(messages).map(v => {
+        v.checked = true;
+        return v;
+      })
+    );
+  };
+  const uncheckAll = () => {
+    setMessages(
+      cloneDeep(messages).map(v => {
+        v.checked = false;
+        return v;
+      })
+    );
+  };
+  const toggleAll = () => {
+    if (checkedMessages.length === 0) {
+      checkAll();
+    } else {
+      uncheckAll();
+    }
+  };
 
   useMount(() => {
     messageRefs = {};
@@ -295,21 +318,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
             disabled={!allDone}
             onClick={() => {
               boxRef.current?.focus();
-              if (checkedMessages.length === 0) {
-                setMessages(
-                  cloneDeep(messages).map(v => {
-                    v.checked = true;
-                    return v;
-                  })
-                );
-              } else {
-                setMessages(
-                  cloneDeep(messages).map(v => {
-                    v.checked = false;
-                    return v;
-                  })
-                );
-              }
+              toggleAll();
             }}
           >
             {checkedMessages.length === 0 ? "Check all" : "Uncheck all"}
@@ -337,7 +346,16 @@ const Message = ({ collection, prompt }: MessageProps) => {
             <IconMinus size="1rem" />
           </Button>
         </div>
-        <TypeBox ref={boxRef} collection={collection} onSubmit={content => onSend(content)} messages={messages} />
+        <TypeBox
+          ref={boxRef}
+          collection={collection}
+          onSubmit={content => onSend(content)}
+          messages={messages}
+          addChecked={addChecked}
+          reduceChecked={reduceChecked}
+          checkAll={checkAll}
+          uncheckAll={uncheckAll}
+        />
       </div>
     </div>
   );
@@ -440,7 +458,23 @@ const MessageItem = forwardRef(
 
 const TypeBox = forwardRef(
   (
-    { collection, onSubmit, messages }: { collection: any; onSubmit: (content: string) => any; messages: any[] },
+    {
+      collection,
+      onSubmit,
+      messages,
+      addChecked,
+      reduceChecked,
+      checkAll,
+      uncheckAll,
+    }: {
+      collection: any;
+      onSubmit: (content: string) => any;
+      messages: any[];
+      addChecked: () => any;
+      reduceChecked: () => any;
+      checkAll: () => any;
+      uncheckAll: () => any;
+    },
     ref
   ) => {
     const [messageContent, setMessageContent] = useSessionStorage<string>(`:messageBox${collection}`, "");
@@ -459,6 +493,16 @@ const TypeBox = forwardRef(
       },
     }));
 
+    useEffect(() => {
+      if (inputRef.current) {
+        inputRef.current.placeholder = [
+          "Send a message...",
+          "⌘+↑ to add previous messages, and ⌘+↓ to decrease",
+          "⌘+shift+↑ / ⌘+shift+↓ to check/uncheck all",
+        ].join("\n");
+      }
+    }, [inputRef]);
+
     return (
       <div className="flex flex-row items-baseline gap-3">
         <Textarea
@@ -472,6 +516,18 @@ const TypeBox = forwardRef(
           minRows={3}
           className="flex-grow"
           onKeyDown={e => {
+            if (e.key === "ArrowUp" && e.ctrlKey && e.shiftKey) {
+              checkAll();
+            }
+            if (e.key === "ArrowDown" && e.ctrlKey && e.shiftKey) {
+              uncheckAll();
+            }
+            if (e.key === "ArrowUp" && e.ctrlKey && !e.shiftKey) {
+              addChecked();
+            }
+            if (e.key === "ArrowDown" && e.ctrlKey && !e.shiftKey) {
+              reduceChecked();
+            }
             if (e.ctrlKey && +e.key >= 1 && +e.key <= 9) {
               e.preventDefault();
               const index = +e.key - 1;
