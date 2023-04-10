@@ -224,6 +224,9 @@ const Message = ({ collection, prompt }: MessageProps) => {
     42,
     [isDone, messages]
   );
+  useEffect(() => {
+    boxRef.current?.focus();
+  }, [boxRef, messages]);
 
   return (
     <div className="h-full w-full flex flex-col gap-3">
