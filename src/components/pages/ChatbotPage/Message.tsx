@@ -214,7 +214,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
             viewportRef={viewport}
             offsetScrollbars={false}
           >
-            <Container size="sm" className="mb-5">
+            <Container size="sm" className="mb-5 mt-5">
               {map(messages, (message, index) => {
                 return (
                   <MessageItem
