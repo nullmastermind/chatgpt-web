@@ -8,7 +8,7 @@ const MainPage = () => {
   const [currentTool] = useCurrentTool();
 
   return (
-    <Container>
+    <Container size={'xl'}>
       <MainLayout>
         {currentTool === "settings" && <SettingsPage />}
         {currentTool === "nullgpt" && <ChatbotPage />}

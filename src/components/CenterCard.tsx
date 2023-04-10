@@ -14,7 +14,7 @@ const CenterCard = ({ children }: CenterCardProps) => {
   // );
   return (
     <Container size="sm" px="0" py="0">
-      <div className="h-screen flex flex-col">
+      <div className="h-screen w-full flex flex-col">
         <Card padding="md" radius="0" withBorder={false} className="flex-grow relative bg-transparent">
           {children}
         </Card>
