@@ -12,6 +12,7 @@ import {
   MantineProvider,
   Avatar,
   Title,
+  Kbd,
 } from "@mantine/core";
 import {
   IconBulb,
@@ -40,9 +41,10 @@ import {
   useCurrentTool,
 } from "@/states/states";
 import { Notifications } from "@mantine/notifications";
-import { find } from "lodash";
+import { find, range } from "lodash";
 import classNames from "classnames";
 import { ChatBotName } from "@/config";
+import { useHotkeys } from "@mantine/hooks";
 
 export type CollectionItem = {
   emoji: string;
@@ -81,6 +83,13 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const [, setCollectionUpId] = useCurrentCollectionUpId();
   const [, setCollectionDownId] = useCurrentCollectionDownId();
 
+  const hotkeySwitchCollection = (index: number) => {
+    if (index <= collections.length - 1) {
+      setCurrentCollection(collections[index].key);
+    }
+  };
+
+  useHotkeys(range(0, 9).map(i => [`mod+${i + 1}`, () => hotkeySwitchCollection(i)]) as any);
   useEffect(() => {
     setGlobalCurrentTool(currentTool);
   }, [currentTool]);
@@ -110,7 +119,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       )}
     </UnstyledButton>
   ));
-  const collectionLinks = collections.map((collection: CollectionItem) => (
+  const collectionLinks = collections.map((collection: CollectionItem, index) => (
     <Text
       onClick={() => {
         setCurrentCollection(collection.key);
@@ -120,8 +129,16 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       color={collection.key === currentCollection ? "blue" : undefined}
     >
       <div className="flex flex-row gap-3 items-center">
-        <div className="flex-grow">
-          <span style={{ marginRight: rem(9), fontSize: rem(16) }}>{collection.emoji}</span> {collection.label}
+        <div className="flex-grow flex gap-1">
+          <span style={{ marginRight: rem(9), fontSize: rem(16) }}>{collection.emoji}</span>
+          <div className={"whitespace-nowrap"}>
+            {collection.label}
+            {index < 9 && (
+              <span className="inline-block whitespace-nowrap ml-2 opacity-50">
+                <Kbd size="xs">⌘+{index + 1}</Kbd>
+              </span>
+            )}
+          </div>
         </div>
         <div
           className={classNames("flex flex-row gap-1 collection-action", {
