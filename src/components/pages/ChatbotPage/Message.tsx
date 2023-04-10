@@ -51,6 +51,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
             {
               source: "assistant",
               content: "Hello! How can I assist you today?",
+              id: Date.now(),
             },
           ])
       )
@@ -149,6 +150,14 @@ const Message = ({ collection, prompt }: MessageProps) => {
 
       requestChatStream(requestMessages, {
         onMessage(message: string, done: boolean): void {
+          console.log("message", [message]);
+          const dbMessages = JSON.parse(localStorage.getItem(`:messages${collection}`) || "[]");
+          const dbMsgIndex = findIndex(dbMessages, (v: any) => v.id === assistantPreMessage.id);
+          if (dbMsgIndex >= 0) {
+            dbMessages[dbMsgIndex].content = message;
+            localStorage.setItem(`:messages${collection}`, JSON.stringify(dbMessages));
+          }
+
           if (isBottom()) {
             setTimeout(() => scrollToBottom(), 13);
           }
@@ -173,7 +182,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
       }).finally();
     },
     42,
-    [messages, checkedMessages, viewport]
+    [messages, checkedMessages, viewport, collection]
   );
   useDebounce(
     () => {

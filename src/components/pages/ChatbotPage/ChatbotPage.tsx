@@ -103,6 +103,7 @@ const ChatbotPage = () => {
         if (confirm(`Remove ${collection.label}?`)) {
           const dbPrompts: any[] = JSON.parse(localStorage.getItem(":prompts") || "[]");
           localStorage.setItem(":prompts", JSON.stringify(dbPrompts.filter(v => v.id !== currentCollectionRemoveId)));
+          localStorage.removeItem(`:messages${collection.key}`);
           getCollections();
         }
       }
