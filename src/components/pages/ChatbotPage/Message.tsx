@@ -1,4 +1,4 @@
-import { useDebounce, useList, useMap, useMeasure, useSessionStorage, useSetState } from "react-use";
+import { useDebounce, useList, useMap, useMeasure, useMount, useSessionStorage, useSetState } from "react-use";
 import { Avatar, Button, Checkbox, Container, ScrollArea, Textarea, Tooltip } from "@mantine/core";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { clone, find, findIndex, forEach, map } from "lodash";
@@ -35,7 +35,8 @@ type MessageItemType = {
   id: any;
 };
 
-const messageRefs: KeyValue = {};
+// noinspection ES6ConvertVarToLetConst
+var messageRefs: KeyValue = {};
 
 const Message = ({ collection, prompt }: MessageProps) => {
   const { classes } = useStyles();
@@ -95,6 +96,9 @@ const Message = ({ collection, prompt }: MessageProps) => {
     return scrollTop >= scrollHeight - clientHeight;
   };
 
+  useMount(() => {
+    messageRefs = {};
+  });
   useDebounce(
     () => {
       if (messages.length === 0) return;
@@ -149,9 +153,10 @@ const Message = ({ collection, prompt }: MessageProps) => {
             setTimeout(() => scrollToBottom(), 13);
           }
           if (messageRefs[assistantPreMessage.id]) {
-            messageRefs[assistantPreMessage.id].editMessage(message);
+            messageRefs[assistantPreMessage.id].editMessage(message, done);
           }
           if (done) {
+            delete messageRefs[assistantPreMessage.id];
             setIsDone(assistantPreMessage.id, true);
           }
         },
@@ -299,14 +304,16 @@ const MessageItem = forwardRef(
     ref
   ) => {
     const [message, setMessage] = useState(inputMessage);
+    const [isTyping, setIsTyping] = useState(false);
 
     useImperativeHandle(ref, () => ({
-      editMessage(newMessage: string) {
+      editMessage(newMessage: string, isDone: boolean) {
         messages[index].content = newMessage;
         setMessage({
           ...message,
           content: newMessage,
         });
+        setIsTyping(!isDone);
       },
     }));
 

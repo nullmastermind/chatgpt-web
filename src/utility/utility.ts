@@ -21,7 +21,7 @@ export const convertToSupportLang = (lang: string): Language => {
   if (["csharp"].includes(lang)) {
     return "cpp";
   }
-  if (["rust"].includes(lang)) {
+  if (["rust", "java"].includes(lang)) {
     return "javascript";
   }
   return lang as any;
