@@ -18,6 +18,7 @@ import {
   preprocessMessageContent,
 } from "@/utility/utility";
 import TypingBlinkCursor from "@/components/misc/TypingBlinkCursor";
+import { IconMinus, IconPlus } from "@tabler/icons-react";
 
 export type MessageProps = {
   collection: any;
@@ -268,6 +269,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
           <Button
             variant="gradient"
             size="xs"
+            className="w-28"
             disabled={!allDone}
             onClick={() => {
               boxRef.current?.focus();
@@ -307,7 +309,26 @@ const Message = ({ collection, prompt }: MessageProps) => {
             }}
             disabled={!allDone}
           >
-            Check previous
+            <IconPlus size="1rem" />
+          </Button>
+          <Button
+            variant="gradient"
+            size="xs"
+            onClick={() => {
+              boxRef.current?.focus();
+              const cloneMessages = clone(messages);
+              for (let i = 0; i < cloneMessages.length; i++) {
+                if (!cloneMessages[i].checked) continue;
+                cloneMessages[i].checked = false;
+                if (cloneMessages[i].source === "assistant") {
+                  break;
+                }
+              }
+              setMessages(cloneMessages);
+            }}
+            disabled={!allDone}
+          >
+            <IconMinus size="1rem" />
           </Button>
         </div>
         <TypeBox ref={boxRef} collection={collection} onSubmit={content => onSend(content)} messages={messages} />
