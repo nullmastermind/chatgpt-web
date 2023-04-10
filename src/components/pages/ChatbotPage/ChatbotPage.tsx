@@ -4,8 +4,10 @@ import {
   useAddCollectionAction,
   useCollections,
   useCurrentCollection,
+  useCurrentCollectionDownId,
   useCurrentCollectionEditId,
   useCurrentCollectionRemoveId,
+  useCurrentCollectionUpId,
 } from "@/states/states";
 import { useDisclosure } from "@mantine/hooks";
 import React, { useEffect, useState } from "react";
@@ -24,6 +26,8 @@ const ChatbotPage = () => {
   const [currentCollection] = useCurrentCollection();
   const [currentCollectionRemoveId, setCurrentCollectionRemoveId] = useCurrentCollectionRemoveId();
   const [currentCollectionEditId, setCurrentCollectionEditId] = useCurrentCollectionEditId();
+  const [currentCollectionUpId, setCurrentCollectionUpId] = useCurrentCollectionUpId();
+  const [currentCollectionDownId, setCurrentCollectionDownId] = useCurrentCollectionDownId();
   const [editCollection, setEditCollection] = useState<any | undefined>();
   const [prompts, setPrompts] = useState<any[]>([]);
 
@@ -119,6 +123,62 @@ const ChatbotPage = () => {
     setEditCollection(clone(prompt));
     setTimeout(() => open());
   }, [currentCollectionEditId, prompts]);
+  useEffect(() => {
+    if (currentCollectionUpId) {
+      const collection = find(collections, v => v.key === currentCollectionUpId);
+      if (collection) {
+        const dbPrompts: any[] = JSON.parse(localStorage.getItem(":prompts") || "[]");
+        const savePrompts = dbPrompts.map(v => {
+          if (v.id === currentCollectionUpId) {
+            v.sort = (v.sort || 0) - 1.1;
+          }
+          return v;
+        });
+        savePrompts.sort((a, b) => {
+          return (a.sort || 0) - (b.sort || 0);
+        });
+        localStorage.setItem(
+          ":prompts",
+          JSON.stringify(
+            savePrompts.map((v, i) => {
+              v.sort = i;
+              return v;
+            })
+          )
+        );
+        getCollections();
+      }
+      setCurrentCollectionUpId(undefined);
+    }
+  }, [currentCollectionUpId, collections]);
+  useEffect(() => {
+    if (currentCollectionDownId) {
+      const collection = find(collections, v => v.key === currentCollectionDownId);
+      if (collection) {
+        const dbPrompts: any[] = JSON.parse(localStorage.getItem(":prompts") || "[]");
+        const savePrompts = dbPrompts.map(v => {
+          if (v.id === currentCollectionDownId) {
+            v.sort = (v.sort || 0) + 1.1;
+          }
+          return v;
+        });
+        savePrompts.sort((a, b) => {
+          return (a.sort || 0) - (b.sort || 0);
+        });
+        localStorage.setItem(
+          ":prompts",
+          JSON.stringify(
+            savePrompts.map((v, i) => {
+              v.sort = i;
+              return v;
+            })
+          )
+        );
+        getCollections();
+      }
+      setCurrentCollectionDownId(undefined);
+    }
+  }, [currentCollectionDownId, collections]);
 
   return (
     <>

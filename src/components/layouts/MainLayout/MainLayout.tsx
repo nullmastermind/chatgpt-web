@@ -22,6 +22,8 @@ import {
   IconSettings,
   IconTrash,
   IconEdit,
+  IconArrowDown,
+  IconArrowUp,
 } from "@tabler/icons-react";
 import React, { useEffect, useMemo, useState } from "react";
 import { UserButton } from "@/components/UserButton/UserButton";
@@ -31,8 +33,10 @@ import {
   useAddCollectionAction,
   useCollections,
   useCurrentCollection,
+  useCurrentCollectionDownId,
   useCurrentCollectionEditId,
   useCurrentCollectionRemoveId,
+  useCurrentCollectionUpId,
   useCurrentTool,
 } from "@/states/states";
 import { Notifications } from "@mantine/notifications";
@@ -74,6 +78,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const [currentCollection, setCurrentCollection] = useCurrentCollection();
   const [, setCollectionEditId] = useCurrentCollectionEditId();
   const [, setCollectionRemoveId] = useCurrentCollectionRemoveId();
+  const [, setCollectionUpId] = useCurrentCollectionUpId();
+  const [, setCollectionDownId] = useCurrentCollectionDownId();
 
   useEffect(() => {
     setGlobalCurrentTool(currentTool);
@@ -122,6 +128,28 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             "collection-action-disabled": !currentLink?.canAddCollections,
           })}
         >
+          <ActionIcon
+            variant="light"
+            color="blue"
+            size="xs"
+            onClick={e => {
+              e.stopPropagation();
+              setCollectionUpId(collection.key);
+            }}
+          >
+            <IconArrowUp size="1rem" />
+          </ActionIcon>
+          <ActionIcon
+            variant="light"
+            color="blue"
+            size="xs"
+            onClick={e => {
+              e.stopPropagation();
+              setCollectionDownId(collection.key);
+            }}
+          >
+            <IconArrowDown size="1rem" />
+          </ActionIcon>
           <ActionIcon
             variant="light"
             color="blue"

@@ -10,3 +10,5 @@ export const useAddCollectionAction = createGlobalState<() => any | undefined>()
 export const useCurrentCollection = createGlobalState<any>();
 export const useCurrentCollectionEditId = createGlobalState<any>();
 export const useCurrentCollectionRemoveId = createGlobalState<any>();
+export const useCurrentCollectionDownId = createGlobalState<any>();
+export const useCurrentCollectionUpId = createGlobalState<any>();
