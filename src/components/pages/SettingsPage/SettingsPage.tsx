@@ -1,6 +1,6 @@
 import { useMount, useUnmount } from "react-use";
 import { useCollections, useOpenaiAPIKey } from "@/states/states";
-import { Button, Card, Container, Input, PasswordInput } from "@mantine/core";
+import { Button, Card, Container, Input, NumberInput, PasswordInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import React from "react";
 import { notifications } from "@mantine/notifications";
@@ -13,14 +13,17 @@ const SettingsPage = () => {
   const settingsForm = useForm({
     initialValues: {
       openaiKey: openaiAPIKey,
+      maxMessagesPerBox: 10,
     },
     validate: {
       openaiKey: v => (["", null, undefined, "null"].includes(v) ? "Invalid" : null),
+      maxMessagesPerBox: v => (v <= 0 || v >= 100 ? "Invalid. Max 100" : null),
     },
   });
 
   const saveSettings = () => {
     if (!settingsForm.validate().hasErrors) {
+      localStorage.setItem(":maxMessages", `${settingsForm.values.maxMessagesPerBox}`);
       localStorage.setItem(":openaiKey", settingsForm.values.openaiKey as string);
       setOpenaiAPIKey(settingsForm.values.openaiKey as string);
       notifications.show({
@@ -63,6 +66,12 @@ const SettingsPage = () => {
           label="OpenAI API Key"
           placeholder="OpenAI API Key..."
           {...settingsForm.getInputProps("openaiKey")}
+        />
+        <NumberInput
+          label="Maximum number of messages per box"
+          placeholder="min 1, max 100"
+          required
+          {...settingsForm.getInputProps("maxMessagesPerBox")}
         />
         <div>
           <Button onClick={() => saveSettings()}>Save</Button>

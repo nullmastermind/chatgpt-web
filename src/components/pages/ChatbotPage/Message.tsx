@@ -262,7 +262,8 @@ const Message = ({ collection, prompt }: MessageProps) => {
         }
       });
       if (canSave) {
-        const saveMessages = messages.splice(-10);
+        const maxMessages = parseInt(localStorage.getItem(":maxMessages") || "10");
+        const saveMessages = messages.splice(-maxMessages);
         localStorage.setItem(`:messages${collection}`, JSON.stringify(saveMessages));
         setMessages(saveMessages);
         setAllIsDone({});
