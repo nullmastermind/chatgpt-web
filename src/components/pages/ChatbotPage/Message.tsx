@@ -19,6 +19,7 @@ import {
 } from "@/utility/utility";
 import TypingBlinkCursor from "@/components/misc/TypingBlinkCursor";
 import { IconMinus, IconPlus } from "@tabler/icons-react";
+import { useHotkeys } from "@mantine/hooks";
 
 export type MessageProps = {
   collection: any;
@@ -505,6 +506,18 @@ const TypeBox = forwardRef(
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const [collections, setCollections] = useCollections();
     const [, setCurrentCollection] = useCurrentCollection();
+    const [isFocus, setIsFocus] = useState(false);
+
+    useHotkeys([
+      [
+        "Enter",
+        () => {
+          if (!isFocus) {
+            inputRef.current?.focus();
+          }
+        },
+      ],
+    ]);
 
     const onSend = () => {
       onSubmit(messageContent);
@@ -520,17 +533,22 @@ const TypeBox = forwardRef(
     useEffect(() => {
       if (inputRef.current) {
         inputRef.current.placeholder = [
-          "Send a message...",
+          isFocus
+            ? "Send a message... (Enter = submit, Shift+Enter = \\n, ↑↓ to take previous message)"
+            : "Press the {Enter} key to start entering text.",
           "⌘+↑ to add previous messages, and ⌘+↓ to decrease",
           "⌘+shift+↑ / ⌘+shift+↓ to check/uncheck all",
         ].join("\n");
       }
-    }, [inputRef]);
+    }, [inputRef, isFocus]);
 
     return (
       <div className="flex flex-row items-baseline gap-3">
         <Textarea
           ref={inputRef}
+          spellCheck={true}
+          onFocus={() => setIsFocus(true)}
+          onBlur={() => setIsFocus(false)}
           autoFocus
           placeholder="Send a message..."
           onChange={e => setMessageContent(e.target.value)}
