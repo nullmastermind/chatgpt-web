@@ -37,8 +37,8 @@ type MessageItemType = {
   id: any;
 };
 
-// noinspection ES6ConvertVarToLetConst
-var messageRefs: KeyValue = {};
+let messageRefs: KeyValue = {};
+let autoScrollIds: KeyValue = {};
 
 const Message = ({ collection, prompt }: MessageProps) => {
   const { classes } = useStyles();
@@ -147,6 +147,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
 
   useMount(() => {
     messageRefs = {};
+    autoScrollIds = {};
   });
   useDebounce(
     () => {
@@ -212,9 +213,9 @@ const Message = ({ collection, prompt }: MessageProps) => {
         onMessage(message: string, done: boolean): void {
           saveMessagesThr(message);
 
-          if (isBottom()) {
-            setTimeout(() => scrollToBottom(), 13);
-          }
+          // if (isBottom()) {
+          //   setTimeout(() => scrollToBottom(), 13);
+          // }
           if (messageRefs[assistantPreMessage.id]) {
             messageRefs[assistantPreMessage.id].editMessage(message, done);
           }
@@ -300,6 +301,8 @@ const Message = ({ collection, prompt }: MessageProps) => {
                     message={message}
                     classes={classes}
                     index={index}
+                    isBottom={isBottom}
+                    scrollToBottom={scrollToBottom}
                   />
                 );
               })}
@@ -370,17 +373,22 @@ const MessageItem = forwardRef(
       setMessages,
       index,
       messages,
+      isBottom,
+      scrollToBottom,
     }: {
       classes: any;
       message: any;
       setMessages: any;
       index: any;
       messages: any;
+      isBottom: () => boolean;
+      scrollToBottom: () => any;
     },
     ref
   ) => {
     const [message, setMessage] = useState(inputMessage);
     const [isTyping, setIsTyping] = useState(false);
+    const [doScrollToBottom, setDoScrollToBottom] = useState<boolean>(false);
 
     useImperativeHandle(ref, () => ({
       editMessage(newMessage: string, isDone: boolean) {
@@ -390,8 +398,23 @@ const MessageItem = forwardRef(
           content: newMessage,
         });
         setIsTyping(!isDone);
+        if (isBottom()) {
+          setDoScrollToBottom(true);
+        }
       },
     }));
+    useEffect(() => {
+      if (doScrollToBottom) {
+        setDoScrollToBottom(false);
+        scrollToBottom();
+      }
+    }, [doScrollToBottom]);
+    useMount(() => {
+      if (message.source === "user" && !autoScrollIds[message.id]) {
+        scrollToBottom();
+        autoScrollIds[message.id] = true;
+      }
+    });
 
     return (
       <div
