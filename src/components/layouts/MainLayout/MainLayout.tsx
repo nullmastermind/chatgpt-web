@@ -95,16 +95,28 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   }, [currentTool]);
   useDebounce(
     () => {
+      if (!currentTool) return;
       if (collections.length > 0 && !find(collections, v => v.key === currentCollection)) {
-        setCurrentCollection(collections[0].key);
+        const dbCurrentCollection = localStorage.getItem(`:currentCollection:${currentTool}`);
+        const tempCollection = find(collections, v => v.key.toString() === dbCurrentCollection);
+        if (tempCollection) {
+          setCurrentCollection(tempCollection.key);
+        } else {
+          setCurrentCollection(collections[0].key);
+        }
       }
       if (collections.length === 0) {
         setCurrentCollection(undefined);
       }
     },
     42,
-    [collections, currentCollection]
+    [collections, currentCollection, currentTool]
   );
+  useEffect(() => {
+    if (currentTool && currentCollection) {
+      localStorage.setItem(`:currentCollection:${currentTool}`, currentCollection.toString());
+    }
+  }, [currentCollection, currentTool]);
 
   const mainLinks = links.map(link => (
     <UnstyledButton key={link.label} className={classes.mainLink} onClick={() => setCurrentTool(link.key)}>
