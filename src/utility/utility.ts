@@ -18,10 +18,48 @@ export const detectProgramLang = (code: string) => {
 };
 
 export const convertToSupportLang = (lang: string): Language => {
+  const supportedLanguages = [
+    "markup",
+    "bash",
+    "clike",
+    "c",
+    "cpp",
+    "css",
+    "javascript",
+    "jsx",
+    "coffeescript",
+    "actionscript",
+    "css-extr",
+    "diff",
+    "git",
+    "go",
+    "graphql",
+    "handlebars",
+    "json",
+    "less",
+    "makefile",
+    "markdown",
+    "objectivec",
+    "ocaml",
+    "python",
+    "reason",
+    "sass",
+    "scss",
+    "sql",
+    "stylus",
+    "tsx",
+    "typescript",
+    "wasm",
+    "yaml",
+  ];
+
   if (["csharp"].includes(lang)) {
     return "cpp";
   }
   if (["rust", "java"].includes(lang)) {
+    return "javascript";
+  }
+  if (!supportedLanguages.includes(lang)) {
     return "javascript";
   }
   return lang as any;
