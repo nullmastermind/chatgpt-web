@@ -516,8 +516,16 @@ const TypeBox = forwardRef(
           maxRows={3}
           minRows={3}
           className="flex-grow"
-          onKeyDown={e => {
+          onKeyDown={(e: any) => {
             const isMod = e.ctrlKey || e.metaKey;
+
+            if (e.key === "Tab") {
+              e.preventDefault();
+              const start = e.target.selectionStart;
+              const end = e.target.selectionEnd;
+              setMessageContent(messageContent.substring(0, start) + "\t" + messageContent.substring(end));
+              e.target.selectionStart = e.target.selectionEnd = start + 1;
+            }
             if (e.key === "ArrowUp" && isMod && e.shiftKey) {
               checkAll();
             }
