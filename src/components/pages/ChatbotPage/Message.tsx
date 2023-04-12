@@ -1,5 +1,5 @@
 import { useDebounce, useList, useMap, useMeasure, useMount, useSessionStorage, useSetState } from "react-use";
-import { Avatar, Button, Checkbox, Container, ScrollArea, Textarea, Tooltip } from "@mantine/core";
+import { Avatar, Button, Checkbox, Container, Divider, ScrollArea, Textarea, Tooltip } from "@mantine/core";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { clone, cloneDeep, debounce, find, findIndex, forEach, map, throttle } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
@@ -99,6 +99,13 @@ const Message = ({ collection, prompt }: MessageProps) => {
     const clientHeight = viewport.current?.clientHeight || 0;
     const scrollTop = viewport.current?.scrollTop || 0;
     return scrollTop >= scrollHeight - clientHeight;
+  };
+  const scrollToBottom1 = () => {
+    const scrollHeight = viewport.current?.scrollHeight || 0;
+    const clientHeight = viewport.current?.clientHeight || 0;
+    viewport.current?.scrollTo({
+      top: scrollHeight - clientHeight - 1,
+    });
   };
   const reduceChecked = () => {
     const cloneMessages = clone(messages);
@@ -350,6 +357,16 @@ const Message = ({ collection, prompt }: MessageProps) => {
           >
             <IconMinus size="1rem" />
           </Button>
+          <Divider orientation="vertical" variant="dashed" />
+          <FollowScroll
+            isBottom={isBottom}
+            scrollToBottom={scrollToBottom}
+            scrollToBottom1={scrollToBottom1}
+            viewport={viewport}
+            focus={() => {
+              boxRef.current?.focus();
+            }}
+          />
         </div>
         <TypeBox
           ref={boxRef}
@@ -363,6 +380,53 @@ const Message = ({ collection, prompt }: MessageProps) => {
         />
       </div>
     </div>
+  );
+};
+
+const FollowScroll = ({
+  isBottom,
+  scrollToBottom,
+  scrollToBottom1,
+  viewport,
+  focus,
+}: {
+  isBottom: () => any;
+  scrollToBottom: () => any;
+  scrollToBottom1: () => any;
+  viewport: any;
+  focus: () => any;
+}) => {
+  const [checked, setChecked] = useState(false);
+
+  useEffect(() => {
+    let isCurrentBottom = false;
+    const t = setInterval(() => {
+      let temp = isBottom();
+
+      if (temp !== isCurrentBottom) {
+        isCurrentBottom = temp;
+        setChecked(temp);
+      }
+    }, 42);
+    return () => {
+      clearInterval(t);
+    };
+  }, [viewport]);
+
+  return (
+    <Checkbox
+      color="gradient"
+      label="Auto scroll"
+      checked={checked}
+      onClick={() => {
+        if (checked) {
+          scrollToBottom1();
+        } else {
+          scrollToBottom();
+        }
+        focus();
+      }}
+    />
   );
 };
 
