@@ -623,6 +623,7 @@ const TypeBox = forwardRef(
           className="flex-grow"
           onKeyDown={(e: any) => {
             const isMod = e.ctrlKey || e.metaKey;
+            const isCursorEnd = e.target.selectionStart === e.target.value.length;
 
             if (e.key === "Tab") {
               e.preventDefault();
@@ -650,7 +651,7 @@ const TypeBox = forwardRef(
                 setCurrentCollection(collections[index].key);
               }
             }
-            if (e.key === "ArrowUp" && !isMod && !e.shiftKey) {
+            if (e.key === "ArrowUp" && !isMod && !e.shiftKey && isCursorEnd) {
               let startScanIndex = messages.length - 1;
               if (messageContent) {
                 startScanIndex = findIndex(messages, m => {
@@ -667,7 +668,7 @@ const TypeBox = forwardRef(
                 }
               }
             }
-            if (e.key === "ArrowDown" && !isMod && !e.shiftKey) {
+            if (e.key === "ArrowDown" && !isMod && !e.shiftKey && isCursorEnd) {
               let startScanIndex = 0;
               if (messageContent) {
                 startScanIndex = findIndex(messages, m => {
