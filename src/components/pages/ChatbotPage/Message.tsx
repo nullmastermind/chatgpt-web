@@ -88,7 +88,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
     pushMessage({
       source: "user",
       content: content,
-      checked: messages[messages.length - 1].checked,
+      checked: checkedMessages.length > 0,
       id: Date.now(),
     });
     setTimeout(() => scrollToBottom(true));
