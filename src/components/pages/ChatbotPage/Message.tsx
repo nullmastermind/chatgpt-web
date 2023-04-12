@@ -675,7 +675,10 @@ const TypeBox = forwardRef(
                 });
               }
               if (startScanIndex < messages.length - 1 && startScanIndex >= 0) {
-                for (let i = startScanIndex + 1; i < messages.length; i++) {
+                if (messageContent.length > 0) {
+                  startScanIndex += 1;
+                }
+                for (let i = startScanIndex; i < messages.length; i++) {
                   if (messages[i].source === "user") {
                     e.preventDefault();
                     setMessageContent(messages[i].content);
