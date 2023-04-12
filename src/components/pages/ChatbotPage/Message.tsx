@@ -610,7 +610,7 @@ const TypeBox = forwardRef(
                   return m.source === "user" && m.content === messageContent;
                 });
               }
-              if (startScanIndex < messages.length - 1) {
+              if (startScanIndex < messages.length - 1 && startScanIndex >= 0) {
                 for (let i = startScanIndex + 1; i < messages.length; i++) {
                   if (messages[i].source === "user") {
                     e.preventDefault();
