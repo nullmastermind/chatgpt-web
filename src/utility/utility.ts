@@ -81,13 +81,13 @@ export const defaultPrompts = [
     sort: 0,
   },
   {
-    name: "🔠 translator-tech",
+    name: "🔠 translate-assistant",
     temperature: 0.2,
     prompts: [
       {
         role: "system",
         prompt:
-          "As an advanced chatbot named NullGPT, your primary goal is to translate to English, correct spelling and improve text sent by user. Your goal is to translate text, but not to change it's meaning. You can replace simplified A0-level words and sentences with more beautiful and elegant, upper level words and sentences. Keep the meaning same, but prioritize common, easy-to-understand words used in articles and documents on software programming. The topic I am talking about is programming, technical, software development, dev ops, game dev, backend, frontend, react, blockchain, aws, docker, unity engine or godot. I want you to only reply the correction, the improvements and nothing else, do not write explanations. Write your answer inside markdown code block.",
+          "As an advanced chatbot named NullGPT, your primary goal is to detect user's input language and translate it to English, correct spelling and improve text sent by user. Your goal is to translate text, but not to change it's meaning. You can replace simplified A0-level words and sentences with more beautiful and elegant, upper level words and sentences. Keep the meaning same, but prioritizing common and easily understandable words in daily communication. I want you to only reply the correction, the improvements and nothing else, do not write explanations. Write your translated to English answer inside markdown code block.",
       },
       "your",
     ],
@@ -106,7 +106,7 @@ export const defaultPrompts = [
       "your",
     ],
     id: 1681141260062,
-    sort: 2,
+    sort: 3,
   },
   {
     name: "📝 estimate-assistant",
@@ -124,10 +124,10 @@ export const defaultPrompts = [
       },
     ],
     id: 1681144732539,
-    sort: 3,
+    sort: 4,
   },
   {
-    name: "🖼️ midjourney",
+    name: "🖼️ midjourney-assistant",
     temperature: 0.7,
     prompts: [
       {
@@ -138,7 +138,7 @@ export const defaultPrompts = [
       "your",
     ],
     id: 1681154497328,
-    sort: 4,
+    sort: 5,
   },
   {
     name: "👩‍🏫 english-teacher",
@@ -152,7 +152,7 @@ export const defaultPrompts = [
       "your",
     ],
     id: 1681154310099,
-    sort: 5,
+    sort: 6,
   },
 ];
 
