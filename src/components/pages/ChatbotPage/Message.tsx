@@ -528,7 +528,7 @@ const MessageItem = forwardRef(
                         children={String(children).replace(/\n$/, "")}
                         language={convertToSupportLang(lang)}
                         scrollAreaComponent={ScrollArea}
-                        className="mb-1"
+                        className={classNames("mb-1", classes.codeWrap)}
                       />
                     );
                   },

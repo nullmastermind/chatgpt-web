@@ -24,6 +24,11 @@ const useStyles = createStyles(theme => ({
   blink: {
     background: theme.colorScheme !== "dark" ? theme.colors.dark[5] : theme.colors.gray[5],
   },
+  codeWrap: {
+    ".mantine-Prism-line": {
+      whiteSpace: "pre-wrap",
+    },
+  },
 }));
 
 export default useStyles;
