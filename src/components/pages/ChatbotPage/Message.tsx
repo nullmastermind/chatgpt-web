@@ -1,7 +1,7 @@
-import { useDebounce, useList, useMap, useMeasure, useMount, useSessionStorage, useSetState } from "react-use";
-import { Avatar, Button, Checkbox, Container, Divider, ScrollArea, Textarea, Tooltip } from "@mantine/core";
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { clone, cloneDeep, debounce, find, findIndex, forEach, map, throttle } from "lodash";
+import { useDebounce, useList, useMap, useMeasure, useMount, useSessionStorage } from "react-use";
+import { Avatar, Button, Checkbox, Container, Divider, ScrollArea, Textarea } from "@mantine/core";
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
+import { clone, cloneDeep, findIndex, forEach, map, throttle } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import classNames from "classnames";
 import ReactMarkdown from "react-markdown";
@@ -10,13 +10,7 @@ import rehypeRaw from "rehype-raw";
 import { Prism } from "@mantine/prism";
 import { requestChatStream } from "@/components/pages/ChatbotPage/Message.api";
 import { useCollections, useCurrentCollection, useOpenaiAPIKey } from "@/states/states";
-import {
-  convertToSupportLang,
-  detectProgramLang,
-  KeyValue,
-  KeyValues,
-  preprocessMessageContent,
-} from "@/utility/utility";
+import { convertToSupportLang, detectProgramLang, KeyValue, preprocessMessageContent } from "@/utility/utility";
 import TypingBlinkCursor from "@/components/misc/TypingBlinkCursor";
 import { IconMinus, IconPlus } from "@tabler/icons-react";
 import { useHotkeys } from "@mantine/hooks";
@@ -38,7 +32,6 @@ type MessageItemType = {
   id: any;
 };
 
-let messageRefs: KeyValue = {};
 let autoScrollIds: KeyValue = {};
 
 const Message = ({ collection, prompt }: MessageProps) => {
@@ -76,6 +69,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
     return messages.filter(v => v.checked);
   }, [messages]);
   const boxRef = useRef<any>(null);
+  const messageRefs = useRef<KeyValue>({});
 
   const scrollToBottom = (smooth?: boolean) => {
     viewport.current?.scrollTo({
@@ -154,7 +148,6 @@ const Message = ({ collection, prompt }: MessageProps) => {
   };
 
   useMount(() => {
-    messageRefs = {};
     autoScrollIds = {};
   });
   useDebounce(
@@ -224,12 +217,12 @@ const Message = ({ collection, prompt }: MessageProps) => {
           // if (isBottom()) {
           //   setTimeout(() => scrollToBottom(), 13);
           // }
-          if (messageRefs[assistantPreMessage.id]) {
-            messageRefs[assistantPreMessage.id].editMessage(message, done);
+          if (messageRefs.current[assistantPreMessage.id]) {
+            messageRefs.current[assistantPreMessage.id].editMessage(message, done);
           }
           if (done) {
             saveMessagesFn(message);
-            delete messageRefs[assistantPreMessage.id];
+            delete messageRefs.current[assistantPreMessage.id];
             setIsDone(assistantPreMessage.id, true);
           }
         },
@@ -301,7 +294,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
                 return (
                   <MessageItem
                     ref={instance => {
-                      if (instance) messageRefs[message.id] = instance;
+                      if (instance) messageRefs.current[message.id] = instance;
                     }}
                     key={[message.id, message.checked].join(":")}
                     messages={messages}
