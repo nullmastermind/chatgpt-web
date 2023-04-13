@@ -1,6 +1,6 @@
-import { useDebounce, useList, useMap, useMeasure, useMount, useSessionStorage } from "react-use";
+import { useDebounce, useList, useMap, useMeasure, useMount, useSessionStorage, useUnmount } from "react-use";
 import { Avatar, Button, Checkbox, Container, Divider, ScrollArea, Textarea } from "@mantine/core";
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
+import { forwardRef, MutableRefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { clone, cloneDeep, findIndex, forEach, map, throttle } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import classNames from "classnames";
@@ -32,7 +32,8 @@ type MessageItemType = {
   id: any;
 };
 
-let autoScrollIds: KeyValue = {};
+const messageRefs = { current: {} as KeyValue };
+const autoScrollIds = { current: {} as KeyValue };
 
 const Message = ({ collection, prompt }: MessageProps) => {
   const { classes } = useStyles();
@@ -69,7 +70,6 @@ const Message = ({ collection, prompt }: MessageProps) => {
     return messages.filter(v => v.checked);
   }, [messages]);
   const boxRef = useRef<any>(null);
-  const messageRefs = useRef<KeyValue>({});
 
   const scrollToBottom = (smooth?: boolean) => {
     viewport.current?.scrollTo({
@@ -147,8 +147,9 @@ const Message = ({ collection, prompt }: MessageProps) => {
     }
   };
 
-  useMount(() => {
-    autoScrollIds = {};
+  useUnmount(() => {
+    messageRefs.current = {};
+    autoScrollIds.current = {};
   });
   useDebounce(
     () => {
@@ -304,6 +305,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
                     index={index}
                     isBottom={isBottom}
                     scrollToBottom={scrollToBottom}
+                    autoScrollIds={autoScrollIds}
                   />
                 );
               })}
@@ -433,6 +435,7 @@ const MessageItem = forwardRef(
       messages,
       isBottom,
       scrollToBottom,
+      autoScrollIds,
     }: {
       classes: any;
       message: any;
@@ -441,6 +444,7 @@ const MessageItem = forwardRef(
       messages: any;
       isBottom: () => boolean;
       scrollToBottom: () => any;
+      autoScrollIds: MutableRefObject<KeyValue>;
     },
     ref
   ) => {
@@ -468,9 +472,9 @@ const MessageItem = forwardRef(
       }
     }, [doScrollToBottom]);
     useMount(() => {
-      if (message.source === "user" && !autoScrollIds[message.id]) {
+      if (message.source === "user" && !autoScrollIds.current[message.id]) {
         scrollToBottom();
-        autoScrollIds[message.id] = true;
+        autoScrollIds.current[message.id] = true;
       }
     });
 
