@@ -92,13 +92,13 @@ const Message = ({ collection, prompt }: MessageProps) => {
     const scrollHeight = viewport.current?.scrollHeight || 0;
     const clientHeight = viewport.current?.clientHeight || 0;
     const scrollTop = viewport.current?.scrollTop || 0;
-    return scrollTop >= scrollHeight - clientHeight;
+    return scrollTop >= scrollHeight - clientHeight - 5;
   };
   const scrollToBottom1 = () => {
     const scrollHeight = viewport.current?.scrollHeight || 0;
     const clientHeight = viewport.current?.clientHeight || 0;
     viewport.current?.scrollTo({
-      top: scrollHeight - clientHeight - 1,
+      top: scrollHeight - clientHeight - 6,
     });
   };
   const reduceChecked = () => {
@@ -157,7 +157,6 @@ const Message = ({ collection, prompt }: MessageProps) => {
       if (messages[messages.length - 1].source !== "user") return;
 
       const userMessage = messages[messages.length - 1];
-      const currentIndex = messages.length;
       const assistantPreMessage: MessageItemType = {
         source: "assistant",
         content: "...",
@@ -215,9 +214,6 @@ const Message = ({ collection, prompt }: MessageProps) => {
         onMessage(message: string, done: boolean): void {
           saveMessagesThr(message);
 
-          // if (isBottom()) {
-          //   setTimeout(() => scrollToBottom(), 13);
-          // }
           if (messageRefs.current[assistantPreMessage.id]) {
             messageRefs.current[assistantPreMessage.id].editMessage(message, done);
           }
