@@ -81,12 +81,20 @@ const Message = ({ collection, prompt }: MessageProps) => {
   };
   const onSend = (content: string) => {
     if (content.length === 0) return;
-    pushMessage({
-      source: "user",
-      content: content,
-      checked: checkedMessages.length > 0,
-      id: Date.now(),
-    });
+    pushMessage(
+      {
+        source: "user",
+        content: content,
+        checked: checkedMessages.length > 0,
+        id: Date.now() - 1,
+      },
+      {
+        source: "assistant",
+        content: "...",
+        checked: checkedMessages.length > 0,
+        id: Date.now(),
+      }
+    );
     setDoScroll(true);
   };
   const isBottom = () => {
@@ -149,17 +157,12 @@ const Message = ({ collection, prompt }: MessageProps) => {
   useDebounce(
     () => {
       if (messages.length === 0) return;
-      if (messages[messages.length - 1].source !== "user") return;
+      if (messages[messages.length - 1].content !== "..." || messages[messages.length - 1].source !== "assistant")
+        return;
 
-      const userMessage = messages[messages.length - 1];
-      const assistantPreMessage: MessageItemType = {
-        source: "assistant",
-        content: "...",
-        checked: checkedMessages.length > 0,
-        id: Date.now(),
-      };
+      const userMessage = messages[messages.length - 2];
+      const assistantPreMessage: MessageItemType = messages[messages.length - 1];
 
-      pushMessage(assistantPreMessage);
       setDoScroll(true);
       setIsDone(assistantPreMessage.id, false);
 
@@ -173,7 +176,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
               content: v.content,
             })),
           ];
-          if (!messages[messages.length - 1].checked) {
+          if (!messages[messages.length - 2].checked) {
             userMessages.push({
               role: "user",
               content: userMessage.content,
