@@ -71,10 +71,11 @@ const Message = ({ collection, prompt }: MessageProps) => {
   }, [messages]);
   const boxRef = useRef<any>(null);
 
-  const scrollToBottom = (smooth?: boolean) => {
+  const scrollToBottom = (offset: number = 0) => {
+    const scrollHeight = viewport.current?.scrollHeight || 0;
+    const clientHeight = viewport.current?.clientHeight || 0;
     viewport.current?.scrollTo({
-      top: viewport.current?.scrollHeight,
-      // behavior: smooth ? "smooth" : "auto",
+      top: scrollHeight - clientHeight - offset,
     });
   };
   const onSend = (content: string) => {
@@ -85,21 +86,13 @@ const Message = ({ collection, prompt }: MessageProps) => {
       checked: checkedMessages.length > 0,
       id: Date.now(),
     });
-    setTimeout(() => scrollToBottom(true));
   };
   const isBottom = () => {
     if (!viewport.current) return false;
     const scrollHeight = viewport.current?.scrollHeight || 0;
     const clientHeight = viewport.current?.clientHeight || 0;
     const scrollTop = viewport.current?.scrollTop || 0;
-    return scrollTop >= scrollHeight - clientHeight - 5;
-  };
-  const scrollToBottom1 = () => {
-    const scrollHeight = viewport.current?.scrollHeight || 0;
-    const clientHeight = viewport.current?.clientHeight || 0;
-    viewport.current?.scrollTo({
-      top: scrollHeight - clientHeight - 6,
-    });
+    return scrollTop >= scrollHeight - clientHeight;
   };
   const reduceChecked = () => {
     const cloneMessages = clone(messages);
@@ -352,7 +345,6 @@ const Message = ({ collection, prompt }: MessageProps) => {
           <FollowScroll
             isBottom={isBottom}
             scrollToBottom={scrollToBottom}
-            scrollToBottom1={scrollToBottom1}
             viewport={viewport}
             focus={() => {
               boxRef.current?.focus();
@@ -377,13 +369,11 @@ const Message = ({ collection, prompt }: MessageProps) => {
 const FollowScroll = ({
   isBottom,
   scrollToBottom,
-  scrollToBottom1,
   viewport,
   focus,
 }: {
   isBottom: () => any;
-  scrollToBottom: () => any;
-  scrollToBottom1: () => any;
+  scrollToBottom: (offset?: number) => any;
   viewport: any;
   focus: () => any;
 }) => {
@@ -411,7 +401,7 @@ const FollowScroll = ({
       checked={checked}
       onClick={() => {
         if (checked) {
-          scrollToBottom1();
+          scrollToBottom(1);
         } else {
           scrollToBottom();
         }
