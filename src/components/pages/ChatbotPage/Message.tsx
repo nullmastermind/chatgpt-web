@@ -70,6 +70,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
     return messages.filter(v => v.checked);
   }, [messages]);
   const boxRef = useRef<any>(null);
+  const [doScroll, setDoScroll] = useState(false);
 
   const scrollToBottom = (offset: number = 0) => {
     const scrollHeight = viewport.current?.scrollHeight || 0;
@@ -86,6 +87,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
       checked: checkedMessages.length > 0,
       id: Date.now(),
     });
+    setDoScroll(true);
   };
   const isBottom = () => {
     if (!viewport.current) return false;
@@ -158,8 +160,8 @@ const Message = ({ collection, prompt }: MessageProps) => {
       };
 
       pushMessage(assistantPreMessage);
+      setDoScroll(true);
       setIsDone(assistantPreMessage.id, false);
-      setTimeout(() => scrollToBottom());
 
       const requestMessages: any[] = [];
 
@@ -267,6 +269,12 @@ const Message = ({ collection, prompt }: MessageProps) => {
   useEffect(() => {
     boxRef.current?.focus();
   }, [boxRef, messages]);
+  useEffect(() => {
+    if (doScroll) {
+      scrollToBottom();
+      setDoScroll(false);
+    }
+  }, [doScroll]);
 
   return (
     <div className="h-full w-full flex flex-col gap-3">
@@ -311,7 +319,6 @@ const Message = ({ collection, prompt }: MessageProps) => {
             variant="gradient"
             size="xs"
             className="w-28"
-            disabled={!allDone}
             onClick={() => {
               boxRef.current?.focus();
               toggleAll();
@@ -326,7 +333,6 @@ const Message = ({ collection, prompt }: MessageProps) => {
               boxRef.current?.focus();
               addChecked();
             }}
-            disabled={!allDone}
           >
             <IconPlus size="1rem" />
           </Button>
@@ -337,7 +343,6 @@ const Message = ({ collection, prompt }: MessageProps) => {
               boxRef.current?.focus();
               reduceChecked();
             }}
-            disabled={!allDone}
           >
             <IconMinus size="1rem" />
           </Button>
