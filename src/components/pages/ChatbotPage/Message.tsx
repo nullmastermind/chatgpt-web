@@ -208,30 +208,35 @@ const Message = ({ collection, prompt }: MessageProps) => {
         saveMessagesFn(message);
       }, 1000);
 
-      requestChatStream(requestMessages, {
-        onMessage(message: string, done: boolean): void {
-          saveMessagesThr(message);
+      requestChatStream(
+        requestMessages.filter(v => {
+          return !(v.role === "assistant" && v.content === "...");
+        }),
+        {
+          onMessage(message: string, done: boolean): void {
+            saveMessagesThr(message);
 
-          if (messageRefs.current[assistantPreMessage.id]) {
-            messageRefs.current[assistantPreMessage.id].editMessage(message, done);
-          }
-          if (done) {
-            saveMessagesFn(message);
-            delete messageRefs.current[assistantPreMessage.id];
-            setIsDone(assistantPreMessage.id, true);
-          }
-        },
-        token: openaiAPIKey,
-        modelConfig: {
-          model: "gpt-3.5-turbo",
-          temperature: prompt.temperature,
-          max_tokens: 1000,
-        },
-        onController(controller: AbortController): void {},
-        onError(error: Error, statusCode: number | undefined): void {
-          console.log("error", error);
-        },
-      }).finally();
+            if (messageRefs.current[assistantPreMessage.id]) {
+              messageRefs.current[assistantPreMessage.id].editMessage(message, done);
+            }
+            if (done) {
+              saveMessagesFn(message);
+              delete messageRefs.current[assistantPreMessage.id];
+              setIsDone(assistantPreMessage.id, true);
+            }
+          },
+          token: openaiAPIKey,
+          modelConfig: {
+            model: "gpt-3.5-turbo",
+            temperature: prompt.temperature,
+            max_tokens: 1000,
+          },
+          onController(controller: AbortController): void {},
+          onError(error: Error, statusCode: number | undefined): void {
+            console.log("error", error);
+          },
+        }
+      ).finally();
     },
     42,
     [messages, checkedMessages, viewport, collection]
