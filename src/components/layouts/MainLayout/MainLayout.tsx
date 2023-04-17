@@ -140,7 +140,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       className={classes.collectionLink}
       color={collection.key === currentCollection ? "blue" : undefined}
     >
-      <div className="flex flex-row gap-3 items-center">
+      <div className="flex flex-row gap-3 items-center relative">
         <div className="flex-grow flex gap-1">
           <span style={{ marginRight: rem(9), fontSize: rem(16) }}>{collection.emoji}</span>
           <div className={"whitespace-nowrap"}>
@@ -153,7 +153,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           </div>
         </div>
         <div
-          className={classNames("flex flex-row gap-1 collection-action", {
+          className={classNames("absolute right-0 flex flex-row gap-1 collection-action", {
             "collection-action-disabled": !currentLink?.canAddCollections,
           })}
         >

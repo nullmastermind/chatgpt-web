@@ -1,4 +1,5 @@
 import { ChatCompletionResponseMessage } from "openai";
+import { findIndex } from "lodash";
 
 const TIME_OUT_MS = 30000;
 
@@ -60,6 +61,14 @@ export async function requestChatStream(
 
   const controller = new AbortController();
   const reqTimeoutId = setTimeout(() => controller.abort(), TIME_OUT_MS);
+  const tokens = (options?.token || "").split(",");
+  let lastToken = localStorage.getItem(":latestToken");
+  let lastTokenIndex = findIndex(tokens, v => v === lastToken);
+  let currentToken = tokens[lastTokenIndex + 1];
+
+  if (!currentToken) {
+    currentToken = tokens[0];
+  }
 
   try {
     const res = await fetch("/api/chat-stream", {
@@ -67,7 +76,7 @@ export async function requestChatStream(
       headers: {
         "Content-Type": "application/json",
         path: "v1/chat/completions",
-        token: options?.token as any,
+        token: currentToken,
       },
       body: JSON.stringify(req),
       signal: controller.signal,
