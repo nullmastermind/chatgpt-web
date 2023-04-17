@@ -63,7 +63,7 @@ const SettingsPage = () => {
       <div className="flex flex-col gap-3">
         <PasswordInput
           required
-          label="OpenAI API Key"
+          label="OpenAI API Key (token1,token2,...)"
           placeholder="OpenAI API Key..."
           {...settingsForm.getInputProps("openaiKey")}
         />
