@@ -29,6 +29,9 @@ const useStyles = createStyles(theme => ({
       whiteSpace: "pre-wrap",
     },
   },
+  bgAction: {
+    background: theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.colors.gray[0],
+  },
 }));
 
 export default useStyles;
