@@ -34,7 +34,7 @@ const ChatbotPage = () => {
   const onAddCollection = () => {
     open();
   };
-  const onAddPrompt = ({ name, temperature, prompts, id }: PromptSaveData) => {
+  const onAddPrompt = ({ name, temperature, prompts, id, wrapSingleLine }: PromptSaveData) => {
     console.log("id || Date.now()", id || Date.now());
     const dbPrompts: any[] = JSON.parse(localStorage.getItem(":prompts") || "[]");
     if (id) {
@@ -46,15 +46,19 @@ const ChatbotPage = () => {
             name,
             temperature,
             prompts,
+            wrapSingleLine,
           },
         };
       }
     } else {
+      const sort = dbPrompts.length;
       dbPrompts.push({
         name,
         temperature,
         prompts,
+        wrapSingleLine,
         id: id || Date.now(),
+        sort: sort,
       });
     }
     localStorage.setItem(":prompts", JSON.stringify(dbPrompts));

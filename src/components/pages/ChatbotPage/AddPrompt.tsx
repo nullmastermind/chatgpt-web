@@ -60,7 +60,7 @@ const AddPrompt = ({
     initialValues: {
       name: editData?.name || "",
       temperature: editData && editData.temperature >= 0 ? editData?.temperature : 0.7,
-      wrapSingleLine: false,
+      wrapSingleLine: Boolean(editData?.wrapSingleLine),
     },
     validate: {
       name: v => (["", null, undefined].includes(v) ? "Invalid field" : null),
