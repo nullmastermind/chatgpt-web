@@ -106,13 +106,24 @@ const ChatbotPage = () => {
   });
   useEffect(() => {
     if (currentCollectionRemoveId) {
-      const collection = find(collections, v => v.key === currentCollectionRemoveId);
+      let deleteId = currentCollectionRemoveId;
+      let force = false;
+      if (typeof deleteId === "string" && deleteId.startsWith("force:")) {
+        force = true;
+        deleteId = +deleteId.replace("force:", "");
+      }
+      const collection = find(collections, v => v.key === deleteId);
       if (collection) {
-        if (confirm(`Remove ${collection.label}?`)) {
+        const doRemove = () => {
           const dbPrompts: any[] = JSON.parse(localStorage.getItem(":prompts") || "[]");
-          localStorage.setItem(":prompts", JSON.stringify(dbPrompts.filter(v => v.id !== currentCollectionRemoveId)));
+          localStorage.setItem(":prompts", JSON.stringify(dbPrompts.filter(v => v.id !== deleteId)));
           localStorage.removeItem(`:messages${collection.key}`);
           getCollections();
+        };
+        if (!force && confirm(`Remove ${collection.label}?`)) {
+          doRemove();
+        } else {
+          doRemove();
         }
       }
       setCurrentCollectionRemoveId(undefined);
@@ -200,6 +211,10 @@ const ChatbotPage = () => {
             onAddPrompt(data);
           }}
           editData={editCollection}
+          deleteFn={id => {
+            setCurrentCollectionRemoveId(id);
+            close();
+          }}
         />
       )}
       {![undefined, null, NaN].includes(currentCollection) && (

@@ -29,12 +29,14 @@ export type PromptSaveData = {
 const AddPrompt = ({
   opened,
   close,
+  deleteFn,
   loading,
   onSave,
   editData,
 }: {
   opened: boolean;
   close: () => void;
+  deleteFn: (id: any) => void;
   loading: boolean;
   onSave: (data: PromptSaveData) => any;
   editData?: PromptSaveData;
@@ -232,6 +234,11 @@ const AddPrompt = ({
             <Button loading={loading} onClick={close} variant="default">
               Close
             </Button>
+            {editData && (
+              <Button loading={loading} onClick={() => deleteFn(`force:${editData?.id}`)} variant="outline" color="red">
+                Delete
+              </Button>
+            )}
             {editData && (
               <Button
                 loading={loading}
