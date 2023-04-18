@@ -229,6 +229,9 @@ const AddPrompt = ({
         </div>
         <div className={classNames("absolute bottom-0 right-0 w-full bg-bottom px-4 py-2", classes.bgAction)}>
           <div className="flex items-center justify-end gap-3">
+            <Button loading={loading} onClick={close} variant="default">
+              Close
+            </Button>
             {editData && (
               <Button
                 loading={loading}
@@ -247,7 +250,7 @@ const AddPrompt = ({
                 }}
                 variant="light"
               >
-                Clone
+                Duplicate
               </Button>
             )}
             <Button
