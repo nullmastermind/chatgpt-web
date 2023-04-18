@@ -11,7 +11,7 @@ import {
 } from "@/states/states";
 import { useDisclosure } from "@mantine/hooks";
 import React, { useEffect, useState } from "react";
-import { clone, find, findIndex } from "lodash";
+import { clone, cloneDeep, find, findIndex } from "lodash";
 import { IconCircleCheckFilled, IconX } from "@tabler/icons-react";
 import axios from "axios";
 import { notifications } from "@mantine/notifications";
@@ -210,7 +210,7 @@ const ChatbotPage = () => {
           onSave={data => {
             onAddPrompt(data);
           }}
-          editData={editCollection}
+          editData={editCollection ? cloneDeep(editCollection) : editCollection}
           deleteFn={id => {
             setCurrentCollectionRemoveId(id);
             close();
