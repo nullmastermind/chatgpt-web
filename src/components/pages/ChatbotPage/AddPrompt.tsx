@@ -181,6 +181,15 @@ const AddPrompt = ({
                       }}
                       value={prompt.prompt}
                       autosize={true}
+                      ref={ref => {
+                        if (ref) {
+                          setTimeout(() => {
+                            const px = +(ref.style.height || "0").replace("px", "");
+
+                            ref.style.height = `${Math.ceil(px + px / 5 + 20)}px`;
+                          });
+                        }
+                      }}
                     />
                   </div>
                   <div className="h-full flex items-center gap-2">
