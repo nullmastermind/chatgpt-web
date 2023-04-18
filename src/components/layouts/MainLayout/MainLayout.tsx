@@ -1,33 +1,6 @@
-import {
-  Navbar,
-  TextInput,
-  Code,
-  UnstyledButton,
-  Badge,
-  Text,
-  Group,
-  ActionIcon,
-  Tooltip,
-  rem,
-  MantineProvider,
-  Avatar,
-  Title,
-  Kbd,
-} from "@mantine/core";
-import {
-  IconBulb,
-  IconSearch,
-  IconPlus,
-  IconSelector,
-  IconSettings2,
-  IconSettings,
-  IconTrash,
-  IconEdit,
-  IconArrowDown,
-  IconArrowUp,
-} from "@tabler/icons-react";
-import React, { useEffect, useMemo, useState } from "react";
-import { UserButton } from "@/components/UserButton/UserButton";
+import { ActionIcon, Avatar, Badge, Group, Kbd, Navbar, rem, Text, Title, UnstyledButton } from "@mantine/core";
+import { IconArrowDown, IconArrowUp, IconBulb, IconEdit, IconPlus, IconSettings, IconTrash } from "@tabler/icons-react";
+import React, { useEffect, useMemo } from "react";
 import { useStyles } from "@/components/pages/MainPage/MainPage.style";
 import { useDebounce, useLocalStorage } from "react-use";
 import {
@@ -60,7 +33,7 @@ const links: Array<{
   canAddCollections: boolean;
   collectionsLabel: string;
 }> = [
-  { icon: IconBulb, label: "NullGPT", key: "nullgpt", canAddCollections: true, collectionsLabel: "Prompt templates" },
+  { icon: IconBulb, label: "Assistant", key: "nullgpt", canAddCollections: true, collectionsLabel: "Prompt templates" },
   { icon: IconSettings, label: "Settings", key: "settings", canAddCollections: false, collectionsLabel: "Settings" },
 ];
 
