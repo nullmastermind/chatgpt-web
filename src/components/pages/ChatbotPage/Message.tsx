@@ -644,21 +644,6 @@ const TypeBox = forwardRef(
       ).finally();
     };
 
-    const confirmImprove = () => {
-      if (!inputRef.current) return;
-      if (selectionEnd === selectionStart) {
-        setMessageContent(improvedPrompt);
-      } else {
-        const newContent = (inputRef.current.value =
-          inputRef.current.value.substring(0, selectionStart) +
-          improvedPrompt +
-          inputRef.current.value.substring(selectionEnd));
-        setMessageContent(newContent);
-      }
-      inputRef.current.focus();
-      close();
-    };
-
     useHotkeys([
       [
         "Enter",
@@ -676,9 +661,25 @@ const TypeBox = forwardRef(
       ],
     ]);
 
-    const onSend = () => {
-      onSubmit(messageContent);
+    const onSend = (c?: string) => {
+      onSubmit(c || messageContent);
       setMessageContent("");
+    };
+
+    const confirmImprove = () => {
+      if (!inputRef.current) return;
+      if (selectionEnd === selectionStart) {
+        setMessageContent(improvedPrompt);
+        onSend(improvedPrompt);
+      } else {
+        const newContent = (inputRef.current.value =
+          inputRef.current.value.substring(0, selectionStart) +
+          improvedPrompt +
+          inputRef.current.value.substring(selectionEnd));
+        setMessageContent(newContent);
+      }
+      inputRef.current.focus();
+      close();
     };
 
     useImperativeHandle(ref, () => ({
