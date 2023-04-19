@@ -572,6 +572,7 @@ const TypeBox = forwardRef(
   ) => {
     const [messageContent, setMessageContent] = useSessionStorage<string>(`:messageBox${collection}`, "");
     const inputRef = useRef<HTMLTextAreaElement>(null);
+    const inputImproveRef = useRef<HTMLTextAreaElement>(null);
     const [collections, setCollections] = useCollections();
     const [, setCurrentCollection] = useCurrentCollection();
     const [isFocus, setIsFocus] = useState(false);
@@ -634,6 +635,7 @@ const TypeBox = forwardRef(
             setImprovedPrompt(message);
             if (done) {
               setCanEdit(true);
+              inputImproveRef.current?.focus();
             }
           },
           onController: controller => {},
@@ -642,12 +644,33 @@ const TypeBox = forwardRef(
       ).finally();
     };
 
+    const confirmImprove = () => {
+      if (!inputRef.current) return;
+      if (selectionEnd === selectionStart) {
+        setMessageContent(improvedPrompt);
+      } else {
+        const newContent = (inputRef.current.value =
+          inputRef.current.value.substring(0, selectionStart) +
+          improvedPrompt +
+          inputRef.current.value.substring(selectionEnd));
+        setMessageContent(newContent);
+      }
+      inputRef.current.focus();
+      close();
+    };
+
     useHotkeys([
       [
         "Enter",
         () => {
-          if (!isFocus) {
-            inputRef.current?.focus();
+          if (opened) {
+            if (canEdit) {
+              confirmImprove();
+            }
+          } else {
+            if (!isFocus) {
+              inputRef.current?.focus();
+            }
           }
         },
       ],
@@ -689,24 +712,7 @@ const TypeBox = forwardRef(
           scrollAreaComponent={ScrollArea.Autosize}
         >
           <div className="flex items-end justify-end pb-3">
-            <Button
-              onClick={() => {
-                if (!inputRef.current) return;
-                if (selectionEnd === selectionStart) {
-                  setMessageContent(improvedPrompt);
-                } else {
-                  const newContent = (inputRef.current.value =
-                    inputRef.current.value.substring(0, selectionStart) +
-                    improvedPrompt +
-                    inputRef.current.value.substring(selectionEnd));
-                  setMessageContent(newContent);
-                }
-                inputRef.current.focus();
-                close();
-              }}
-            >
-              Confirm
-            </Button>
+            <Button onClick={() => confirmImprove()}>Confirm</Button>
           </div>
           <Textarea
             value={improvedPrompt}
@@ -716,11 +722,12 @@ const TypeBox = forwardRef(
             autosize={true}
             placeholder="Currently improving..."
             onChange={e => {
+              if (!canEdit) return;
               if (e.target.value !== improvedPrompt) {
                 setImprovedPrompt(e.target.value);
               }
             }}
-            readOnly={!canEdit}
+            ref={inputImproveRef}
           ></Textarea>
         </Modal>
         <Textarea
