@@ -32,7 +32,7 @@ const makeRequestParam = (
 };
 
 export type Message = ChatCompletionResponseMessage & {
-  date: string;
+  date?: string;
   streaming?: boolean;
   isError?: boolean;
   id?: number;

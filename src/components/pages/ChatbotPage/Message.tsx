@@ -1,5 +1,5 @@
 import { useDebounce, useList, useMap, useMeasure, useMount, useSessionStorage, useUnmount } from "react-use";
-import { Avatar, Button, Checkbox, Container, Divider, ScrollArea, Textarea } from "@mantine/core";
+import { Avatar, Button, Checkbox, Container, Divider, Modal, ScrollArea, Textarea } from "@mantine/core";
 import { forwardRef, MutableRefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { clone, cloneDeep, findIndex, forEach, map, throttle } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
@@ -13,7 +13,7 @@ import { useCollections, useCurrentCollection, useOpenaiAPIKey } from "@/states/
 import { convertToSupportLang, detectProgramLang, KeyValue, preprocessMessageContent } from "@/utility/utility";
 import TypingBlinkCursor from "@/components/misc/TypingBlinkCursor";
 import { IconMinus, IconPlus } from "@tabler/icons-react";
-import { useHotkeys } from "@mantine/hooks";
+import { useDisclosure, useHotkeys } from "@mantine/hooks";
 
 export type MessageProps = {
   collection: any;
@@ -575,6 +575,72 @@ const TypeBox = forwardRef(
     const [collections, setCollections] = useCollections();
     const [, setCurrentCollection] = useCurrentCollection();
     const [isFocus, setIsFocus] = useState(false);
+    const [opened, { open, close }] = useDisclosure(false);
+    const [improvedPrompt, setImprovedPrompt] = useState("");
+    const [openaiAPIKey] = useOpenaiAPIKey();
+    const [canEdit, setCanEdit] = useState(false);
+    const [selectionStart, setSelectionStart] = useState(0);
+    const [selectionEnd, setSelectionEnd] = useState(0);
+
+    const handleImprove = () => {
+      if (!inputRef.current) return;
+
+      let selectedText = inputRef.current.value.substring(
+        inputRef.current.selectionStart,
+        inputRef.current.selectionEnd
+      );
+      if (!selectedText) {
+        selectedText = inputRef.current.value;
+      }
+
+      if (!selectedText) return;
+
+      open();
+      setImprovedPrompt("");
+      setCanEdit(false);
+      setSelectionStart(inputRef.current.selectionStart);
+      setSelectionEnd(inputRef.current.selectionEnd);
+
+      let wrapped = false;
+
+      if (!/^".*?"$/.test(selectedText) && !/^'.*?'$/.test(selectedText)) {
+        selectedText = `"${selectedText}"`;
+        wrapped = true;
+      }
+
+      requestChatStream(
+        [
+          {
+            role: "system",
+            content:
+              "As an advanced chatbot named NullGPT, your primary goal is to improve the user's prompt, making it easier for chatbots (large-language models) to analyze, and write the improved version in English. I want you to only result, do not write explanations.",
+          },
+          {
+            role: "user",
+            content: selectedText,
+          },
+        ],
+        {
+          token: openaiAPIKey,
+          modelConfig: {
+            model: "gpt-3.5-turbo",
+            temperature: 0.2,
+            max_tokens: 128,
+          },
+          onMessage: (message, done) => {
+            if (wrapped) {
+              message = message.replace(/(^['"]|['"]$)/g, "");
+            }
+            setImprovedPrompt(message);
+            if (done) {
+              setCanEdit(true);
+            }
+          },
+          onController: controller => {},
+          onError: error => {},
+        }
+      ).finally();
+    };
 
     useHotkeys([
       [
@@ -602,7 +668,7 @@ const TypeBox = forwardRef(
       if (inputRef.current) {
         inputRef.current.placeholder = [
           isFocus
-            ? "Send a message... (Enter = submit, Shift+Enter = \\n, ↑↓ to take previous message)"
+            ? "Enter = submit, Shift+Enter = \\n, ↑↓ to take previous message, F1 to show Improve"
             : "Press the {Enter} key to start entering text.",
           "⌘+↑ to add previous messages, and ⌘+↓ to decrease",
           "⌘+shift+↑ / ⌘+shift+↓ to check/uncheck all",
@@ -612,6 +678,51 @@ const TypeBox = forwardRef(
 
     return (
       <div className="flex flex-row items-baseline gap-3">
+        <Modal
+          opened={opened}
+          onClose={() => {
+            inputRef.current?.focus();
+            close();
+          }}
+          centered={true}
+          title="Tool to enhance your prompt"
+          scrollAreaComponent={ScrollArea.Autosize}
+        >
+          <div className="flex items-end justify-end pb-3">
+            <Button
+              onClick={() => {
+                if (!inputRef.current) return;
+                if (selectionEnd === selectionStart) {
+                  setMessageContent(improvedPrompt);
+                } else {
+                  const newContent = (inputRef.current.value =
+                    inputRef.current.value.substring(0, selectionStart) +
+                    improvedPrompt +
+                    inputRef.current.value.substring(selectionEnd));
+                  setMessageContent(newContent);
+                }
+                inputRef.current.focus();
+                close();
+              }}
+            >
+              Confirm
+            </Button>
+          </div>
+          <Textarea
+            value={improvedPrompt}
+            minRows={5}
+            maxRows={10}
+            autoFocus={true}
+            autosize={true}
+            placeholder="Currently improving..."
+            onChange={e => {
+              if (e.target.value !== improvedPrompt) {
+                setImprovedPrompt(e.target.value);
+              }
+            }}
+            readOnly={!canEdit}
+          ></Textarea>
+        </Modal>
         <Textarea
           ref={inputRef}
           spellCheck={true}
@@ -628,6 +739,12 @@ const TypeBox = forwardRef(
           onKeyDown={(e: any) => {
             const isMod = e.ctrlKey || e.metaKey;
             const isCursorEnd = e.target.selectionStart === e.target.value.length;
+
+            if (e.key === "F1") {
+              e.preventDefault();
+              e.stopPropagation();
+              handleImprove();
+            }
 
             if (e.key === "Tab") {
               e.preventDefault();
