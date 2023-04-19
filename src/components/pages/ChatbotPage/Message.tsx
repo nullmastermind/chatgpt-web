@@ -727,6 +727,13 @@ const TypeBox = forwardRef(
                 setImprovedPrompt(e.target.value);
               }
             }}
+            onKeyDown={e => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                confirmImprove();
+                e.preventDefault();
+                e.stopPropagation();
+              }
+            }}
             ref={inputImproveRef}
           ></Textarea>
         </Modal>
