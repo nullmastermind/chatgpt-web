@@ -70,6 +70,8 @@ export async function requestChatStream(
     currentToken = tokens[0];
   }
 
+  localStorage.setItem(":latestToken", currentToken || "");
+
   try {
     const res = await fetch("/api/chat-stream", {
       method: "POST",
