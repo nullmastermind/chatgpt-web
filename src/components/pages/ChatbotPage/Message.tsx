@@ -602,36 +602,23 @@ const TypeBox = forwardRef(
       setSelectionStart(inputRef.current.selectionStart);
       setSelectionEnd(inputRef.current.selectionEnd);
 
-      let wrapped = false;
-
-      if (!/^".*?"$/.test(selectedText) && !/^'.*?'$/.test(selectedText)) {
-        selectedText = `"${selectedText}"`;
-        wrapped = true;
-      }
-
       requestChatStream(
-        [
-          {
-            role: "system",
-            content:
-              "As an advanced chatbot named NullGPT, your primary goal is to improve the user's prompt, making it easier for chatbots (large-language models) to analyze, and write the improved version in English. I want you to only result, do not write explanations.",
-          },
-          {
-            role: "user",
-            content: selectedText,
-          },
-        ],
+        `
+Your primary goal is to improve content inside \`<need-to-improve-prompt-content-input>\` tag, making it easier for chatbots (large-language models) to analyze, and write the improved version in English. I want you to only result, do not write explanations:
+<need-to-improve-prompt-content-input>
+${selectedText}
+</need-to-improve-prompt-content-input>
+        `.trim(),
         {
           token: openaiAPIKey,
           modelConfig: {
-            model: "gpt-3.5-turbo",
+            model: "text-davinci-003",
             temperature: 0.2,
-            max_tokens: 128,
+            max_tokens: 1000,
           },
+          path: "v1/completions",
           onMessage: (message, done) => {
-            if (wrapped) {
-              message = message.replace(/(^['"]|['"]$)/g, "");
-            }
+            message = message.trim();
             setImprovedPrompt(message);
             if (done) {
               setCanEdit(true);

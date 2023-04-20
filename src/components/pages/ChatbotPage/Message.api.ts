@@ -10,12 +10,18 @@ export type ModelConfig = {
 };
 
 const makeRequestParam = (
-  messages: Message[],
+  messages: Message[] | string,
   options?: {
     filterBot?: boolean;
     stream?: boolean;
   }
 ): any => {
+  if (typeof messages === "string") {
+    return {
+      prompt: messages,
+      stream: options?.stream,
+    };
+  }
   let sendMessages = messages.map(v => ({
     role: v.role,
     content: v.content,
@@ -39,7 +45,7 @@ export type Message = ChatCompletionResponseMessage & {
 };
 
 export async function requestChatStream(
-  messages: Message[],
+  messages: Message[] | string,
   options?: {
     token?: string;
     filterBot?: boolean;
@@ -47,6 +53,7 @@ export async function requestChatStream(
     onMessage: (message: string, done: boolean) => void;
     onError: (error: Error, statusCode?: number) => void;
     onController?: (controller: AbortController) => void;
+    path?: string;
   }
 ) {
   const req = {
@@ -77,7 +84,7 @@ export async function requestChatStream(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        path: "v1/chat/completions",
+        path: options?.path || "v1/chat/completions",
         token: currentToken,
       },
       body: JSON.stringify(req),
