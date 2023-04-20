@@ -10,15 +10,27 @@ export type ModelConfig = {
 };
 
 const makeRequestParam = (
-  messages: Message[] | string,
+  path: APIPath,
+  messages: Message[],
   options?: {
     filterBot?: boolean;
     stream?: boolean;
   }
 ): any => {
-  if (typeof messages === "string") {
+  if (path === "v1/completions") {
     return {
-      prompt: messages,
+      prompt: messages
+        .map(v => {
+          if (v.role === "system") {
+            v.content = `${v.content.trim()}\n\n`;
+          } else {
+            v.content = `${v.content.trim()}\n`;
+          }
+          return v;
+        })
+        .map(v => v.content)
+        .join("")
+        .trim(),
       stream: options?.stream,
     };
   }
@@ -44,8 +56,11 @@ export type Message = ChatCompletionResponseMessage & {
   id?: number;
 };
 
+export type APIPath = "v1/chat/completions" | "v1/completions";
+
 export async function requestChatStream(
-  messages: Message[] | string,
+  path: APIPath,
+  messages: Message[],
   options?: {
     token?: string;
     filterBot?: boolean;
@@ -53,11 +68,10 @@ export async function requestChatStream(
     onMessage: (message: string, done: boolean) => void;
     onError: (error: Error, statusCode?: number) => void;
     onController?: (controller: AbortController) => void;
-    path?: string;
   }
 ) {
   const req = {
-    ...makeRequestParam(messages, {
+    ...makeRequestParam(path, messages, {
       stream: true,
       filterBot: options?.filterBot,
     }),
@@ -84,7 +98,7 @@ export async function requestChatStream(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        path: options?.path || "v1/chat/completions",
+        path: path || "v1/chat/completions",
         token: currentToken,
       },
       body: JSON.stringify(req),

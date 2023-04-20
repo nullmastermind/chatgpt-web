@@ -217,6 +217,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
       }, 1000);
 
       requestChatStream(
+        "v1/chat/completions",
         requestMessages.filter(v => {
           return !(v.role === "assistant" && v.content === "...");
         }),
@@ -602,21 +603,34 @@ const TypeBox = forwardRef(
       setSelectionStart(inputRef.current.selectionStart);
       setSelectionEnd(inputRef.current.selectionEnd);
 
+      //       `
+      // Your primary goal is to improve content inside \`<need-to-improve-prompt-content-input>\` tag, making it easier for chatbots (large-language models) to analyze, and write the improved version in English. I want you to only result, do not write explanations:
+      // <need-to-improve-prompt-content-input>
+      // ${selectedText}
+      // </need-to-improve-prompt-content-input>
+      //         `.trim(),
+
       requestChatStream(
-        `
-Your primary goal is to improve content inside \`<need-to-improve-prompt-content-input>\` tag, making it easier for chatbots (large-language models) to analyze, and write the improved version in English. I want you to only result, do not write explanations:
-<need-to-improve-prompt-content-input>
-${selectedText}
-</need-to-improve-prompt-content-input>
-        `.trim(),
+        "v1/completions",
+        [
+          {
+            role: "system",
+            content: `Your primary goal is to improve content inside <need-to-improve-prompt-content-input> tag, making it easier for chatbots (large-language models) to analyze, and write the improved version in English. I want you to only result, do not write explanations:`,
+          },
+          {
+            role: "user",
+            content: `<need-to-improve-prompt-content-input>${
+              selectedText.includes("\n") ? JSON.stringify(selectedText) : selectedText
+            }</need-to-improve-prompt-content-input>`,
+          },
+        ],
         {
           token: openaiAPIKey,
           modelConfig: {
             model: "text-davinci-003",
-            temperature: 0.2,
+            temperature: 0,
             max_tokens: 1000,
           },
-          path: "v1/completions",
           onMessage: (message, done) => {
             message = message.trim();
             setImprovedPrompt(message);
