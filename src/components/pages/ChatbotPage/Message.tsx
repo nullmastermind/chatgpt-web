@@ -1,4 +1,13 @@
-import { useDebounce, useList, useMap, useMeasure, useMount, useSessionStorage, useUnmount } from "react-use";
+import {
+  useCopyToClipboard,
+  useDebounce,
+  useList,
+  useMap,
+  useMeasure,
+  useMount,
+  useSessionStorage,
+  useUnmount,
+} from "react-use";
 import { Avatar, Button, Checkbox, Container, Divider, Modal, ScrollArea, Textarea } from "@mantine/core";
 import { forwardRef, MutableRefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { clone, cloneDeep, findIndex, forEach, map, throttle } from "lodash";
@@ -459,6 +468,7 @@ const MessageItem = forwardRef(
     const [message, setMessage] = useState(inputMessage);
     const [isTyping, setIsTyping] = useState(false);
     const [doScrollToBottom, setDoScrollToBottom] = useState<boolean>(false);
+    const [, setCopyText] = useCopyToClipboard();
 
     useImperativeHandle(ref, () => ({
       editMessage(newMessage: string, isDone: boolean) {
@@ -488,10 +498,17 @@ const MessageItem = forwardRef(
 
     return (
       <div
-        className={classNames("flex flex-row gap-3 items-start p-3 rounded", {
+        className={classNames("flex flex-row gap-3 items-start p-3 rounded relative", {
           [classes.messageBotBg]: message.source === "assistant",
         })}
       >
+        {message.source === "assistant" && (
+          <div className="absolute right-1 bottom-2 la-copy">
+            <Button size="xs" variant="subtle" onClick={() => setCopyText(message.content)}>
+              Copy
+            </Button>
+          </div>
+        )}
         <Checkbox
           size="md"
           checked={message.checked}

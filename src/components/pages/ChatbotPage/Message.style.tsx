@@ -3,6 +3,14 @@ import { createStyles } from "@mantine/core";
 const useStyles = createStyles(theme => ({
   messageBotBg: {
     background: theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[0],
+    "& .la-copy": {
+      display: "none",
+    },
+    ":hover": {
+      ".la-copy": {
+        display: "block",
+      },
+    },
   },
   messageContent: {
     "&>p": {
