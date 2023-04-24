@@ -271,7 +271,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
           modelConfig: {
             model: "gpt-3.5-turbo",
             temperature: prompt.temperature,
-            max_tokens: 4096,
+            max_tokens: 4096 / 2,
           },
           onController(controller: AbortController): void {},
           onError(error: Error, statusCode: number | undefined): void {
