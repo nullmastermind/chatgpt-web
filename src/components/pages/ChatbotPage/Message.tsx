@@ -491,7 +491,7 @@ const MessageItem = forwardRef(
   ) => {
     const [message, setMessage] = useState(inputMessage);
     const [isTyping, setIsTyping] = useState(false);
-    const [doScrollToBottom, setDoScrollToBottom] = useState<boolean>(false);
+    const [doScrollToBottom, setDoScrollToBottom] = useState<boolean>(true);
     const [, setCopyText] = useCopyToClipboard();
 
     useImperativeHandle(ref, () => ({
@@ -502,17 +502,19 @@ const MessageItem = forwardRef(
           content: newMessage,
         });
         setIsTyping(!isDone);
-        if (isBottom()) {
+        if (isDone || !isBottom()) {
+          setDoScrollToBottom(false);
+        } else if (isBottom() && !doScrollToBottom) {
           setDoScrollToBottom(true);
         }
       },
     }));
     useEffect(() => {
       if (doScrollToBottom) {
-        setDoScrollToBottom(false);
+        // setDoScrollToBottom(false);
         scrollToBottom();
       }
-    }, [doScrollToBottom]);
+    }, [doScrollToBottom, message]);
     useMount(() => {
       if (message.source === "user" && !autoScrollIds.current[message.id]) {
         scrollToBottom();
