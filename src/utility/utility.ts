@@ -66,6 +66,40 @@ export const findHighlight = (str: string, search: string): string[] => {
   return Array.from(highlights.keys());
 };
 
+export function validateField(field: string): boolean {
+  // Check if the field contains uppercase letters
+  if (/[A-Z]/.test(field)) {
+    return false;
+  }
+
+  // Check if the field contains special characters
+  if (/[^a-zA-Z0-9_-]/.test(field)) {
+    return false;
+  }
+
+  // Check if the field contains spaces
+  if (/\s/.test(field)) {
+    return false;
+  }
+
+  if (field.length === 0) return false;
+
+  // All checks passed, field is valid
+  return true;
+}
+
+export function formatString(str: string, maxLength: number = 80): string {
+  // Replace all occurrences of '\n' with ' '
+  str = str.replace(/\n/g, " ");
+
+  // If the string length is greater than 80, cut it and add '...'
+  if (str.length > maxLength) {
+    str = str.substring(0, maxLength) + "...";
+  }
+
+  return str;
+}
+
 export const convertToSupportLang = (lang: string): Language => {
   const supportedLanguages = [
     "markup",

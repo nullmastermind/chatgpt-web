@@ -20,6 +20,7 @@ import {
   Modal,
   ScrollArea,
   Textarea,
+  TextInput,
 } from "@mantine/core";
 import { forwardRef, MutableRefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { clone, cloneDeep, findIndex, forEach, map, throttle } from "lodash";
@@ -35,14 +36,17 @@ import {
   convertToSupportLang,
   detectProgramLang,
   findHighlight,
+  formatString,
   KeyValue,
   preprocessMessageContent,
   searchArray,
+  validateField,
 } from "@/utility/utility";
 import TypingBlinkCursor from "@/components/misc/TypingBlinkCursor";
 import { IconMinus, IconPlus, IconSearch } from "@tabler/icons-react";
 import { useDisclosure, useHotkeys } from "@mantine/hooks";
 import { spotlight, SpotlightAction, SpotlightProvider } from "@mantine/spotlight";
+import { useForm } from "@mantine/form";
 
 export type MessageProps = {
   collection: any;
@@ -626,21 +630,15 @@ const TypeBox = forwardRef(
     }, [messageContent]);
     const [nextFocus, setNextFocus] = useState(false);
     const [wRef, wInfo] = useMeasure();
-    const [quickCommands, setQuickCommands] = useLocalStorage(":quickCommands", []);
+    const [quickCommands, setQuickCommands] = useLocalStorage<
+      {
+        name: string;
+        content: string;
+        category: any;
+      }[]
+    >(":quickCommands", []);
     const [query, setQuery] = useState("");
     const quickCommandList = useMemo(() => {
-      // const commands = [
-      //   {
-      //     name: "ecs_lookup_generate",
-      //     content: "Enter = submit, Shift+Enter = \\n, ↑↓ to take previous message, F1 to show Improve",
-      //     category: "",
-      //   },
-      //   {
-      //     name: "ecs_authoring_generate",
-      //     content: "Enter = submit, Shift+Enter = \\n, ↑↓ to take previous message, F1 to show Improve",
-      //     category: "",
-      //   },
-      // ];
       const commands = quickCommands as any[];
       const search = query.replace("/", "");
       const validCommands = searchArray(
@@ -656,7 +654,7 @@ const TypeBox = forwardRef(
             type: "command",
             title: (<Highlight highlight={match}>{v.name}</Highlight>) as any,
             id: v.name,
-            description: v.content,
+            description: formatString(v.content),
             onTrigger(action: SpotlightAction) {
               setMessageContent(action.content);
               inputRef.current?.focus();
@@ -687,6 +685,24 @@ const TypeBox = forwardRef(
         return 0;
       });
     }, [quickCommands, query, isShowQuickCommand]);
+    const [openedCommand, { open: openCommand, close: closeCommand }] = useDisclosure(false);
+    const commandForm = useForm({
+      initialValues: {
+        name: "",
+        content: "",
+        category: `${collection}`,
+      },
+      validate: {
+        name: v =>
+          validateField(v)
+            ? null
+            : "Invalid field. Please use lowercase letters and do not use special characters or spaces. Use the _ or - character to replace spaces.",
+        content: v => (v.length ? null : "Required field."),
+      },
+    });
+    const isEditCommand = useMemo(() => {
+      return findIndex(quickCommands, v => v.content === messageContent) !== -1;
+    }, [messageContent, quickCommands]);
 
     const handleImprove = () => {
       if (!inputRef.current) return;
@@ -819,6 +835,69 @@ const TypeBox = forwardRef(
         onQueryChange={setQuery}
         filter={() => quickCommandList}
       >
+        <Modal
+          opened={openedCommand}
+          onClose={() => {
+            closeCommand();
+          }}
+          centered={true}
+          title="Command tool"
+          scrollAreaComponent={ScrollArea.Autosize}
+        >
+          <TextInput label="Name" placeholder="command_name_example" required {...commandForm.getInputProps("name")} />
+          <Textarea
+            className="mt-2"
+            label="Template"
+            required={true}
+            placeholder="Content..."
+            {...commandForm.getInputProps("content")}
+          />
+          <div className="mt-5 flex gap-3 items-center justify-end">
+            <Button variant="default" onClick={() => closeCommand()}>
+              Close
+            </Button>
+            {isEditCommand && (
+              <Button
+                variant="outline"
+                color="red"
+                onClick={() => {
+                  const index = findIndex(quickCommands, v => v.name === commandForm.values.name);
+                  if (index >= 0) {
+                    quickCommands?.splice(index, 1);
+                    setQuickCommands(cloneDeep(quickCommands));
+                    closeCommand();
+                  }
+                }}
+              >
+                Delete
+              </Button>
+            )}
+            <Button
+              onClick={() => {
+                if (commandForm.validate().hasErrors) {
+                  return;
+                }
+
+                const index = findIndex(quickCommands, v => v.name === commandForm.values.name);
+                const saveItem = {
+                  name: commandForm.values.name,
+                  content: commandForm.values.content,
+                  category: commandForm.values.category,
+                };
+                if (index === -1) {
+                  quickCommands!.push(saveItem);
+                } else {
+                  quickCommands![index] = saveItem;
+                }
+
+                setQuickCommands(cloneDeep(quickCommands));
+                closeCommand();
+              }}
+            >
+              Save
+            </Button>
+          </div>
+        </Modal>
         <div className="flex flex-row items-baseline gap-3">
           <Modal
             opened={opened}
@@ -973,8 +1052,27 @@ const TypeBox = forwardRef(
             >
               Send
             </Button>
-            <Button onClick={() => {}} variant="default">
-              Save
+            <Button
+              onClick={() => {
+                commandForm.setFieldValue("content", messageContent);
+                if (isEditCommand) {
+                  const index = findIndex(quickCommands, v => v.content === messageContent);
+                  if (index !== -1) {
+                    commandForm.setFieldValue("name", quickCommands![index].name);
+                    commandForm.setFieldValue("category", quickCommands![index].category);
+                  } else {
+                    commandForm.setFieldValue("name", "");
+                    commandForm.setFieldValue("category", `${collection}`);
+                  }
+                } else {
+                  commandForm.setFieldValue("name", "");
+                  commandForm.setFieldValue("category", `${collection}`);
+                }
+                openCommand();
+              }}
+              variant="default"
+            >
+              {isEditCommand ? "Edit" : "Save"}
             </Button>
           </div>
         </div>
