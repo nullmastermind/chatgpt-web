@@ -6,7 +6,7 @@ const TIME_OUT_MS = 30000;
 export type ModelConfig = {
   model: string;
   temperature: number;
-  max_tokens: number;
+  max_tokens?: number;
 };
 
 const makeRequestParam = (
