@@ -2,13 +2,25 @@ import {
   useCopyToClipboard,
   useDebounce,
   useList,
+  useLocalStorage,
   useMap,
   useMeasure,
   useMount,
   useSessionStorage,
   useUnmount,
 } from "react-use";
-import { Avatar, Button, Checkbox, Container, Divider, Modal, ScrollArea, Textarea } from "@mantine/core";
+import {
+  Avatar,
+  Button,
+  Checkbox,
+  Container,
+  Divider,
+  Highlight,
+  Menu,
+  Modal,
+  ScrollArea,
+  Textarea,
+} from "@mantine/core";
 import { forwardRef, MutableRefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { clone, cloneDeep, findIndex, forEach, map, throttle } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
@@ -19,10 +31,18 @@ import rehypeRaw from "rehype-raw";
 import { Prism } from "@mantine/prism";
 import { requestChatStream } from "@/components/pages/ChatbotPage/Message.api";
 import { useCollections, useCurrentCollection, useOpenaiAPIKey } from "@/states/states";
-import { convertToSupportLang, detectProgramLang, KeyValue, preprocessMessageContent } from "@/utility/utility";
+import {
+  convertToSupportLang,
+  detectProgramLang,
+  findHighlight,
+  KeyValue,
+  preprocessMessageContent,
+  searchArray,
+} from "@/utility/utility";
 import TypingBlinkCursor from "@/components/misc/TypingBlinkCursor";
-import { IconMinus, IconPlus } from "@tabler/icons-react";
+import { IconMinus, IconPlus, IconSearch } from "@tabler/icons-react";
 import { useDisclosure, useHotkeys } from "@mantine/hooks";
+import { spotlight, SpotlightAction, SpotlightProvider } from "@mantine/spotlight";
 
 export type MessageProps = {
   collection: any;
@@ -600,6 +620,73 @@ const TypeBox = forwardRef(
     const [canEdit, setCanEdit] = useState(false);
     const [selectionStart, setSelectionStart] = useState(0);
     const [selectionEnd, setSelectionEnd] = useState(0);
+    const isShowQuickCommand = useMemo(() => {
+      const regex = /^\/[a-zA-Z0-9_-]*$/;
+      return (messageContent === "/" || regex.test(messageContent)) && !messageContent.includes("\n");
+    }, [messageContent]);
+    const [nextFocus, setNextFocus] = useState(false);
+    const [wRef, wInfo] = useMeasure();
+    const [quickCommands, setQuickCommands] = useLocalStorage(":quickCommands", []);
+    const [query, setQuery] = useState("");
+    const quickCommandList = useMemo(() => {
+      // const commands = [
+      //   {
+      //     name: "ecs_lookup_generate",
+      //     content: "Enter = submit, Shift+Enter = \\n, ↑↓ to take previous message, F1 to show Improve",
+      //     category: "",
+      //   },
+      //   {
+      //     name: "ecs_authoring_generate",
+      //     content: "Enter = submit, Shift+Enter = \\n, ↑↓ to take previous message, F1 to show Improve",
+      //     category: "",
+      //   },
+      // ];
+      const commands = quickCommands as any[];
+      const search = query.replace("/", "");
+      const validCommands = searchArray(
+        search,
+        commands.map(v => v.name)
+      );
+      const result = commands
+        .filter(v => validCommands.includes(v.name))
+        .map(v => {
+          const match = ["/", ...findHighlight(v.name, search)];
+          return {
+            match,
+            type: "command",
+            title: (<Highlight highlight={match}>{v.name}</Highlight>) as any,
+            id: v.name,
+            description: v.content,
+            onTrigger(action: SpotlightAction) {
+              setMessageContent(action.content);
+              inputRef.current?.focus();
+            },
+            ...v,
+          } as SpotlightAction;
+        });
+
+      return result.sort((a, b) => {
+        // Sort by category
+        if (a.category < b.category) return -1;
+        if (a.category > b.category) return 1;
+
+        // Sort by match.join("").length/name.length
+        const aMatchLength = a.match.join("").length;
+        const bMatchLength = b.match.join("").length;
+        const aNameLength = a.name.length;
+        const bNameLength = b.name.length;
+        const aRatio = aMatchLength / aNameLength;
+        const bRatio = bMatchLength / bNameLength;
+        if (aRatio < bRatio) return -1;
+        if (aRatio > bRatio) return 1;
+
+        // Sort by name
+        if (a.name < b.name) return -1;
+        if (a.name > b.name) return 1;
+
+        return 0;
+      });
+    }, [quickCommands, query, isShowQuickCommand]);
 
     const handleImprove = () => {
       if (!inputRef.current) return;
@@ -619,13 +706,6 @@ const TypeBox = forwardRef(
       setCanEdit(false);
       setSelectionStart(inputRef.current.selectionStart);
       setSelectionEnd(inputRef.current.selectionEnd);
-
-      //       `
-      // Your primary goal is to improve content inside \`<need-to-improve-prompt-content-input>\` tag, making it easier for chatbots (large-language models) to analyze, and write the improved version in English. I want you to only result, do not write explanations:
-      // <need-to-improve-prompt-content-input>
-      // ${selectedText}
-      // </need-to-improve-prompt-content-input>
-      //         `.trim(),
 
       requestChatStream(
         "v1/completions",
@@ -671,7 +751,7 @@ const TypeBox = forwardRef(
               confirmImprove();
             }
           } else {
-            if (!isFocus) {
+            if (!isFocus && !isShowQuickCommand) {
               inputRef.current?.focus();
             }
           }
@@ -710,160 +790,195 @@ const TypeBox = forwardRef(
       if (inputRef.current) {
         inputRef.current.placeholder = [
           isFocus
-            ? "Enter = submit, Shift+Enter = \\n, ↑↓ to take previous message, F1 to show Improve"
+            ? "/ = command, Enter = submit, Shift+Enter = \\n, ↑↓ to take previous message, F1 to show Improve"
             : "Press the {Enter} key to start entering text.",
           "⌘+↑ to add previous messages, and ⌘+↓ to decrease",
           "⌘+shift+↑ / ⌘+shift+↓ to check/uncheck all",
         ].join("\n");
       }
     }, [inputRef, isFocus]);
+    useDebounce(
+      () => {
+        if (nextFocus) {
+          inputRef.current?.focus();
+          setNextFocus(false);
+        }
+      },
+      100,
+      [nextFocus]
+    );
 
     return (
-      <div className="flex flex-row items-baseline gap-3">
-        <Modal
-          opened={opened}
-          onClose={() => {
-            inputRef.current?.focus();
-            close();
-          }}
-          centered={true}
-          title="Tool to enhance your prompt"
-          scrollAreaComponent={ScrollArea.Autosize}
-        >
-          <div className="flex items-end justify-end pb-3">
-            <Button onClick={() => confirmImprove()}>Confirm</Button>
+      <SpotlightProvider
+        actions={quickCommandList}
+        searchIcon={<IconSearch size="1.2rem" />}
+        searchPlaceholder="Search..."
+        shortcut="/"
+        nothingFoundMessage="Nothing found..."
+        query={query}
+        onQueryChange={setQuery}
+        filter={() => quickCommandList}
+      >
+        <div className="flex flex-row items-baseline gap-3">
+          <Modal
+            opened={opened}
+            onClose={() => {
+              inputRef.current?.focus();
+              close();
+            }}
+            centered={true}
+            title="Tool to enhance your prompt"
+            scrollAreaComponent={ScrollArea.Autosize}
+          >
+            <div className="flex items-end justify-end pb-3">
+              <Button onClick={() => confirmImprove()}>Confirm</Button>
+            </div>
+            <Textarea
+              value={improvedPrompt}
+              minRows={5}
+              maxRows={10}
+              autoFocus={true}
+              autosize={true}
+              placeholder="Currently improving..."
+              onChange={e => {
+                if (!canEdit) return;
+                if (e.target.value !== improvedPrompt) {
+                  setImprovedPrompt(e.target.value);
+                }
+              }}
+              onKeyDown={e => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  confirmImprove();
+                  e.preventDefault();
+                  e.stopPropagation();
+                }
+              }}
+              ref={inputImproveRef}
+            ></Textarea>
+          </Modal>
+          <div className="flex-grow" ref={wRef as any}>
+            <Textarea
+              ref={inputRef}
+              spellCheck={true}
+              onFocus={() => setIsFocus(true)}
+              onBlur={() => setIsFocus(false)}
+              autoFocus
+              placeholder="Send a message..."
+              onChange={e => setMessageContent(e.target.value)}
+              value={messageContent}
+              autosize={true}
+              maxRows={3}
+              minRows={3}
+              className="w-full"
+              onKeyDown={(e: any) => {
+                const isMod = e.ctrlKey || e.metaKey;
+                const isCursorEnd = e.target.selectionStart === e.target.value.length;
+
+                if (e.key === "/" && e.target.value.length === 0) {
+                  spotlight.open();
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+
+                if (e.key === "F1") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleImprove();
+                }
+
+                if (e.key === "Tab") {
+                  e.preventDefault();
+                  const start = e.target.selectionStart;
+                  const end = e.target.selectionEnd;
+                  setMessageContent(messageContent.substring(0, start) + "\t" + messageContent.substring(end));
+                  e.target.selectionStart = e.target.selectionEnd = start + 1;
+                }
+                if (e.key === "ArrowUp" && isMod && e.shiftKey) {
+                  checkAll();
+                }
+                if (e.key === "ArrowDown" && isMod && e.shiftKey) {
+                  uncheckAll();
+                }
+                if (e.key === "ArrowUp" && isMod && !e.shiftKey) {
+                  addChecked();
+                }
+                if (e.key === "ArrowDown" && isMod && !e.shiftKey) {
+                  reduceChecked();
+                }
+                if (isMod && +e.key >= 1 && +e.key <= 9) {
+                  e.preventDefault();
+                  const index = +e.key - 1;
+                  if (index <= collections.length - 1) {
+                    setCurrentCollection(collections[index].key);
+                  }
+                }
+                if (e.key === "ArrowUp" && !isMod && !e.shiftKey && isCursorEnd) {
+                  let startScanIndex = messages.length - 1;
+                  if (messageContent) {
+                    startScanIndex = findIndex(messages, m => {
+                      return m.source === "user" && m.content === messageContent;
+                    });
+                  }
+                  if (startScanIndex > 0) {
+                    for (let i = startScanIndex - 1; i >= 0; i--) {
+                      if (messages[i].source === "user") {
+                        e.preventDefault();
+                        setMessageContent(messages[i].content);
+                        break;
+                      }
+                    }
+                  }
+                }
+                if (e.key === "ArrowDown" && !isMod && !e.shiftKey && isCursorEnd) {
+                  let startScanIndex = 0;
+                  if (messageContent) {
+                    startScanIndex = findIndex(messages, m => {
+                      return m.source === "user" && m.content === messageContent;
+                    });
+                  }
+                  if (startScanIndex < messages.length - 1 && startScanIndex >= 0) {
+                    if (messageContent.length > 0) {
+                      startScanIndex += 1;
+                    }
+                    for (let i = startScanIndex; i < messages.length; i++) {
+                      if (messages[i].source === "user") {
+                        e.preventDefault();
+                        setMessageContent(messages[i].content);
+                        break;
+                      }
+                    }
+                  }
+                }
+                if (e.key === "Enter" && !e.shiftKey) {
+                  onSend();
+                  e.preventDefault();
+                  e.stopPropagation();
+                }
+                if (e.key === "Tab") {
+                  if (/[^a-zA-Z0-9]/.test(messageContent)) {
+                    e.preventDefault();
+                  }
+                }
+              }}
+            />
           </div>
-          <Textarea
-            value={improvedPrompt}
-            minRows={5}
-            maxRows={10}
-            autoFocus={true}
-            autosize={true}
-            placeholder="Currently improving..."
-            onChange={e => {
-              if (!canEdit) return;
-              if (e.target.value !== improvedPrompt) {
-                setImprovedPrompt(e.target.value);
-              }
-            }}
-            onKeyDown={e => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                confirmImprove();
-                e.preventDefault();
-                e.stopPropagation();
-              }
-            }}
-            ref={inputImproveRef}
-          ></Textarea>
-        </Modal>
-        <Textarea
-          ref={inputRef}
-          spellCheck={true}
-          onFocus={() => setIsFocus(true)}
-          onBlur={() => setIsFocus(false)}
-          autoFocus
-          placeholder="Send a message..."
-          onChange={e => setMessageContent(e.target.value)}
-          value={messageContent}
-          autosize={true}
-          maxRows={3}
-          minRows={3}
-          className="flex-grow"
-          onKeyDown={(e: any) => {
-            const isMod = e.ctrlKey || e.metaKey;
-            const isCursorEnd = e.target.selectionStart === e.target.value.length;
-
-            if (e.key === "F1") {
-              e.preventDefault();
-              e.stopPropagation();
-              handleImprove();
-            }
-
-            if (e.key === "Tab") {
-              e.preventDefault();
-              const start = e.target.selectionStart;
-              const end = e.target.selectionEnd;
-              setMessageContent(messageContent.substring(0, start) + "\t" + messageContent.substring(end));
-              e.target.selectionStart = e.target.selectionEnd = start + 1;
-            }
-            if (e.key === "ArrowUp" && isMod && e.shiftKey) {
-              checkAll();
-            }
-            if (e.key === "ArrowDown" && isMod && e.shiftKey) {
-              uncheckAll();
-            }
-            if (e.key === "ArrowUp" && isMod && !e.shiftKey) {
-              addChecked();
-            }
-            if (e.key === "ArrowDown" && isMod && !e.shiftKey) {
-              reduceChecked();
-            }
-            if (isMod && +e.key >= 1 && +e.key <= 9) {
-              e.preventDefault();
-              const index = +e.key - 1;
-              if (index <= collections.length - 1) {
-                setCurrentCollection(collections[index].key);
-              }
-            }
-            if (e.key === "ArrowUp" && !isMod && !e.shiftKey && isCursorEnd) {
-              let startScanIndex = messages.length - 1;
-              if (messageContent) {
-                startScanIndex = findIndex(messages, m => {
-                  return m.source === "user" && m.content === messageContent;
-                });
-              }
-              if (startScanIndex > 0) {
-                for (let i = startScanIndex - 1; i >= 0; i--) {
-                  if (messages[i].source === "user") {
-                    e.preventDefault();
-                    setMessageContent(messages[i].content);
-                    break;
-                  }
-                }
-              }
-            }
-            if (e.key === "ArrowDown" && !isMod && !e.shiftKey && isCursorEnd) {
-              let startScanIndex = 0;
-              if (messageContent) {
-                startScanIndex = findIndex(messages, m => {
-                  return m.source === "user" && m.content === messageContent;
-                });
-              }
-              if (startScanIndex < messages.length - 1 && startScanIndex >= 0) {
-                if (messageContent.length > 0) {
-                  startScanIndex += 1;
-                }
-                for (let i = startScanIndex; i < messages.length; i++) {
-                  if (messages[i].source === "user") {
-                    e.preventDefault();
-                    setMessageContent(messages[i].content);
-                    break;
-                  }
-                }
-              }
-            }
-            if (e.key === "Enter" && !e.shiftKey) {
-              onSend();
-              e.preventDefault();
-              e.stopPropagation();
-            }
-            if (e.key === "Tab") {
-              if (/[^a-zA-Z0-9]/.test(messageContent)) {
-                e.preventDefault();
-              }
-            }
-          }}
-        />
-        <Button
-          onClick={() => {
-            inputRef.current?.focus();
-            onSend();
-          }}
-          variant="gradient"
-        >
-          Send
-        </Button>
-      </div>
+          <div className="flex flex-col gap-2">
+            <Button
+              onClick={() => {
+                inputRef.current?.focus();
+                onSend();
+              }}
+              variant="gradient"
+            >
+              Send
+            </Button>
+            <Button onClick={() => {}} variant="default">
+              Save
+            </Button>
+          </div>
+        </div>
+      </SpotlightProvider>
     );
   }
 );

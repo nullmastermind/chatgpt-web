@@ -51,6 +51,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.192",
-    "prettier": "^2.8.7"
+    "prettier": "^2.8.7",
+    "ts-node": "^10.9.1"
   }
 }

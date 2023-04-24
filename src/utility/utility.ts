@@ -17,6 +17,55 @@ export const detectProgramLang = (code: string) => {
   return hl.highlightAuto(code).language;
 };
 
+export const searchArray = (query: string, arr: string[]): string[] => {
+  // Remove whitespace characters from the query
+  query = query.replace(/[\s_-]/g, "");
+
+  // Create a regular expression to match the query
+  const regex = new RegExp(query.split("").join(".*"), "i");
+
+  // Filter the array elements that match the query
+  return arr.filter(item => regex.test(item));
+};
+
+function getAllCombinations(str: string): Set<string> {
+  const filteredStr = str;
+  const combinations = new Set<string>();
+
+  for (let i = 0; i < filteredStr.length; i++) {
+    for (let j = i + 1; j <= filteredStr.length; j++) {
+      const combination = filteredStr.slice(i, j);
+      combinations.add(combination);
+    }
+  }
+
+  return combinations;
+}
+
+export const findHighlight = (str: string, search: string): string[] => {
+  const combinations = getAllCombinations(str);
+  const separatorRegex = /[\s_-]/g;
+  const highlights = new Map<string, boolean>();
+  const searchWithoutSeparators = search.replace(separatorRegex, "");
+  let currentWord = "";
+
+  for (const char of searchWithoutSeparators) {
+    currentWord += char;
+
+    if (currentWord.length > 0 && !combinations.has(currentWord)) {
+      const temp = currentWord.slice(0, -1);
+      highlights.set(temp, true);
+      currentWord = char;
+    }
+  }
+
+  if (currentWord.length > 0) {
+    highlights.set(currentWord, true);
+  }
+
+  return Array.from(highlights.keys());
+};
+
 export const convertToSupportLang = (lang: string): Language => {
   const supportedLanguages = [
     "markup",
