@@ -825,7 +825,7 @@ const TypeBox = forwardRef(
     useEffect(() => {
       if (inputRef.current) {
         inputRef.current.placeholder = [
-          !isFocus && "Press the {Enter} key to start entering text.\n",
+          !isFocus && "Press the {Enter} key to start entering text.",
           "/ = command\nEnter = submit, Shift+Enter = \\n, ↑↓ to take previous message, F1 to show Improve",
           "⌘+↑ to add previous messages, and ⌘+↓ to decrease",
           "⌘+shift+↑ / ⌘+shift+↓ to check/uncheck all",
@@ -871,6 +871,9 @@ const TypeBox = forwardRef(
             label="Template"
             required={true}
             placeholder="Content..."
+            minRows={5}
+            maxRows={10}
+            autosize={true}
             {...commandForm.getInputProps("content")}
           />
           <div className="mt-5 flex gap-3 items-center justify-end">
@@ -967,8 +970,8 @@ const TypeBox = forwardRef(
               onChange={e => setMessageContent(e.target.value)}
               value={messageContent}
               autosize={true}
-              maxRows={6}
-              minRows={6}
+              maxRows={5}
+              minRows={5}
               className="w-full"
               onKeyDown={(e: any) => {
                 const isMod = e.ctrlKey || e.metaKey;
