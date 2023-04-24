@@ -670,6 +670,9 @@ const TypeBox = forwardRef(
               } else if (content.includes('""')) {
                 const cursor = content.lastIndexOf('""') + 1;
                 inputRef.current?.setSelectionRange(cursor, cursor);
+              } else if (content.includes("''")) {
+                const cursor = content.lastIndexOf("''") + 1;
+                inputRef.current?.setSelectionRange(cursor, cursor);
               }
               //
 
