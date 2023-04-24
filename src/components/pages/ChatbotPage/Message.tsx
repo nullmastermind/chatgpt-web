@@ -658,7 +658,21 @@ const TypeBox = forwardRef(
             id: v.name,
             description: formatString(v.content),
             onTrigger(action: SpotlightAction) {
-              setMessageContent(action.content);
+              const content = (action.content as string).replace(/\r\n/g, "\n");
+
+              setMessageContent(content);
+              inputRef.current!.value = content;
+
+              // auto pos
+              if (content.includes("```\n\n```")) {
+                const cursor = content.lastIndexOf("```\n\n```") + 4;
+                inputRef.current?.setSelectionRange(cursor, cursor);
+              } else if (content.includes('""')) {
+                const cursor = content.lastIndexOf('""') + 1;
+                inputRef.current?.setSelectionRange(cursor, cursor);
+              }
+              //
+
               inputRef.current?.focus();
             },
             ...v,
@@ -788,10 +802,11 @@ const TypeBox = forwardRef(
         setMessageContent(improvedPrompt);
         onSend(improvedPrompt);
       } else {
-        const newContent = (inputRef.current.value =
-          inputRef.current.value.substring(0, selectionStart) +
-          improvedPrompt +
-          inputRef.current.value.substring(selectionEnd));
+        const part0 = inputRef.current.value.substring(0, selectionStart);
+        const part1 = part0 + improvedPrompt;
+        const newContent = part1 + inputRef.current.value.substring(selectionEnd);
+        inputRef.current.value = newContent;
+        inputRef.current.setSelectionRange(part0.length, part1.length);
         setMessageContent(newContent);
       }
       inputRef.current.focus();
@@ -807,12 +822,13 @@ const TypeBox = forwardRef(
     useEffect(() => {
       if (inputRef.current) {
         inputRef.current.placeholder = [
-          isFocus
-            ? "/ = command, Enter = submit, Shift+Enter = \\n, ↑↓ to take previous message, F1 to show Improve"
-            : "Press the {Enter} key to start entering text.",
+          !isFocus && "Press the {Enter} key to start entering text.\n",
+          "/ = command\nEnter = submit, Shift+Enter = \\n, ↑↓ to take previous message, F1 to show Improve",
           "⌘+↑ to add previous messages, and ⌘+↓ to decrease",
           "⌘+shift+↑ / ⌘+shift+↓ to check/uncheck all",
-        ].join("\n");
+        ]
+          .filter(v => !!v)
+          .join("\n");
       }
     }, [inputRef, isFocus]);
     useDebounce(
@@ -948,8 +964,8 @@ const TypeBox = forwardRef(
               onChange={e => setMessageContent(e.target.value)}
               value={messageContent}
               autosize={true}
-              maxRows={3}
-              minRows={3}
+              maxRows={6}
+              minRows={6}
               className="w-full"
               onKeyDown={(e: any) => {
                 const isMod = e.ctrlKey || e.metaKey;
