@@ -533,7 +533,7 @@ const MessageItem = forwardRef(
       >
         {message.source === "assistant" && (
           <div className="absolute right-1 bottom-2 la-copy">
-            <Button size="xs" variant="subtle" onClick={() => setCopyText(message.content)}>
+            <Button size="xs" variant="subtle" onClick={() => setCopyText(message.content)} style={{ zIndex: 100 }}>
               Copy
             </Button>
           </div>
