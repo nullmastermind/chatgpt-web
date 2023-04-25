@@ -747,24 +747,31 @@ const TypeBox = forwardRef(
         [
           {
             role: "system",
-            content: `Your primary goal is to improve content inside <need-to-improve-prompt-content-input> tag, making it easier for chatbots (large-language models) to analyze, and write the improved version in English. I want you to only result, do not write explanations:`,
+            content: `Help me improve prompt content, making it easier for chatbot (LLM) to understand. Reply only result in English, don't write explanations:`,
           },
           {
             role: "user",
-            content: `<need-to-improve-prompt-content-input>${
-              selectedText.includes("\n") ? JSON.stringify(selectedText) : selectedText
-            }</need-to-improve-prompt-content-input>`,
+            content: `${JSON.stringify(selectedText)}`,
           },
         ],
         {
           token: openaiAPIKey,
           modelConfig: {
             model: "text-davinci-003",
-            temperature: 0,
+            temperature: 0.0,
             max_tokens: 1000,
           },
           onMessage: (message, done) => {
             message = message.trim();
+
+            if (message.startsWith('"') && !done) {
+              message = message + '"';
+            }
+
+            try {
+              message = JSON.parse(message);
+            } catch (e) {}
+
             setImprovedPrompt(message);
             if (done) {
               setCanEdit(true);
