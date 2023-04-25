@@ -825,7 +825,6 @@ const TypeBox = forwardRef(
     useEffect(() => {
       if (inputRef.current) {
         inputRef.current.placeholder = [
-          !isFocus && "Press the {Enter} key to start entering text.",
           "/ = command\nEnter = submit, Shift+Enter = \\n, ↑↓ to take previous message, F1 to show Improve",
           "⌘+↑ to add previous messages, and ⌘+↓ to decrease",
           "⌘+shift+↑ / ⌘+shift+↓ to check/uncheck all",
@@ -970,8 +969,8 @@ const TypeBox = forwardRef(
               onChange={e => setMessageContent(e.target.value)}
               value={messageContent}
               autosize={true}
-              maxRows={5}
-              minRows={5}
+              maxRows={4}
+              minRows={4}
               className="w-full"
               onKeyDown={(e: any) => {
                 const isMod = e.ctrlKey || e.metaKey;
