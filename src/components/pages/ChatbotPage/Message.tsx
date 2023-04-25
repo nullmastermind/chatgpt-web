@@ -117,7 +117,8 @@ const Message = ({ collection, prompt }: MessageProps) => {
   const onSend = (content: string) => {
     if (content.length === 0) return;
 
-    if (prompt.wrapSingleLine && !content.includes("\n")) {
+    // if (prompt.wrapSingleLine && !content.includes("\n")) {
+    if (prompt.wrapSingleLine) {
       if (!/^".*?"$/.test(content) && !/^'.*?'$/.test(content)) {
         // content = `"${content}"`;
         content = JSON.stringify(content);

@@ -103,7 +103,7 @@ const AddPrompt = ({
             className="mt-1"
           />
           <Checkbox
-            label="Wrap user's chat content with quotation marks if the content is only one line."
+            label="Wrap user's chat content with quotation marks."
             {...addForm.getInputProps("wrapSingleLine", {
               type: "checkbox",
             })}
