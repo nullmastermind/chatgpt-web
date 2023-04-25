@@ -124,10 +124,6 @@ export function postprocessAnswer(answer: string, isDone = false): string {
   try {
     if (isDone && answer.startsWith('"') && answer.endsWith('"')) {
       answer = JSON.parse(answer);
-    } else if (isDone && answer.startsWith('"') && !answer.endsWith('"')) {
-      answer = JSON.parse(answer + '"');
-    } else if (isDone && !answer.startsWith('"') && answer.endsWith('"')) {
-      answer = JSON.parse('"' + answer);
     }
   } catch (ignoredError) {}
 
