@@ -135,7 +135,7 @@ export function postprocessAnswer(answer: string, isDone = false): string {
     const answerArr = answer.split("");
     answerArr.shift();
     answerArr.pop();
-    answer = answerArr.join("").replace(/\\"/g, '"');
+    answer = answerArr.join("").replace(/\\"/g, '"').replace(/\\n/g, "\n");
   }
 
   return preprocessMessageContent(answer);
