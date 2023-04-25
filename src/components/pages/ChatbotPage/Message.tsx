@@ -258,7 +258,9 @@ const Message = ({ collection, prompt }: MessageProps) => {
         }),
         {
           onMessage(message: string, done: boolean): void {
-            message = postprocessAnswer(message, done);
+            if (done) {
+              message = postprocessAnswer(message, done);
+            }
 
             saveMessagesThr(message);
 
