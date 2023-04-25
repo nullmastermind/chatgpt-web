@@ -117,14 +117,6 @@ const Message = ({ collection, prompt }: MessageProps) => {
   const onSend = (content: string) => {
     if (content.length === 0) return;
 
-    // if (prompt.wrapSingleLine && !content.includes("\n")) {
-    if (prompt.wrapSingleLine) {
-      if (!/^".*?"$/.test(content) && !/^'.*?'$/.test(content)) {
-        content = `"${content.replace(/"/g, '\\"')}"`;
-        // content = JSON.stringify(content);
-      }
-    }
-
     pushMessage(
       {
         source: "user",
@@ -254,9 +246,22 @@ const Message = ({ collection, prompt }: MessageProps) => {
 
       requestChatStream(
         "v1/chat/completions",
-        requestMessages.filter(v => {
-          return !(v.role === "assistant" && v.content === "...");
-        }),
+        requestMessages
+          .filter(v => {
+            return !(v.role === "assistant" && v.content === "...");
+          })
+          .map(v => {
+            if (v.role === "user") {
+              // if (prompt.wrapSingleLine && !content.includes("\n")) {
+              if (prompt.wrapSingleLine) {
+                if (!/^".*?"$/.test(v.content) && !/^'.*?'$/.test(v.content)) {
+                  v.content = `"${v.content.replace(/"/g, '\\"')}"`;
+                  // content = JSON.stringify(content);
+                }
+              }
+            }
+            return v;
+          }),
         {
           onMessage(message: string, done: boolean): void {
             if (done) {
