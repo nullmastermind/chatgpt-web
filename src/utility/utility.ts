@@ -131,6 +131,13 @@ export function postprocessAnswer(answer: string, isDone = false): string {
     }
   } catch (ignoredError) {}
 
+  if (isDone && answer.startsWith('"') && answer.endsWith('"')) {
+    const answerArr = answer.split("");
+    answerArr.shift();
+    answerArr.pop();
+    answer = answerArr.join("").replace(/\\"/g, '"');
+  }
+
   return preprocessMessageContent(answer);
 }
 
