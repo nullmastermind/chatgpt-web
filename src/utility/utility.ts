@@ -100,6 +100,24 @@ export function formatString(str: string, maxLength: number = 80): string {
   return str;
 }
 
+export function postprocessAnswer(answer: string, isDone = false): string {
+  answer = answer.trim();
+
+  if (answer.toLowerCase().includes('prompt: "')) {
+    answer = answer.replace(/^.*prompt:\s*"/im, '"');
+  }
+
+  if (answer.startsWith('"') && !isDone) {
+    answer = answer + '"';
+  }
+
+  try {
+    answer = JSON.parse(answer);
+  } catch (ignoredError) {}
+
+  return answer;
+}
+
 export const convertToSupportLang = (lang: string): Language => {
   const supportedLanguages = [
     "markup",

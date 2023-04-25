@@ -38,6 +38,7 @@ import {
   findHighlight,
   formatString,
   KeyValue,
+  postprocessAnswer,
   preprocessMessageContent,
   searchArray,
   validateField,
@@ -256,6 +257,8 @@ const Message = ({ collection, prompt }: MessageProps) => {
         }),
         {
           onMessage(message: string, done: boolean): void {
+            message = postprocessAnswer(message, done);
+
             saveMessagesThr(message);
 
             if (messageRefs.current[assistantPreMessage.id]) {
@@ -557,15 +560,17 @@ const MessageItem = forwardRef(
                 rehypePlugins={[rehypeRaw]}
                 components={{
                   code({ node, inline, className, children, ...props }) {
+                    let codeContent = postprocessAnswer(String(children).replace(/\n$/, ""), true);
+
                     if (inline) {
-                      return <code className={classes.inlineCode}>{String(children).replace(/\n$/, "")}</code>;
+                      return <code className={classes.inlineCode}>{codeContent}</code>;
                     }
                     const match = /language-(\w+)/.exec(className || "");
                     let lang: any = "javascript";
 
                     if (!match) {
                       try {
-                        lang = detectProgramLang(String(children).replace(/\n$/, ""));
+                        lang = detectProgramLang(codeContent);
                       } catch (e) {}
                     } else {
                       lang = match[1] as any;
@@ -573,7 +578,7 @@ const MessageItem = forwardRef(
 
                     return (
                       <Prism
-                        children={String(children).replace(/\n$/, "")}
+                        children={codeContent}
                         language={convertToSupportLang(lang)}
                         scrollAreaComponent={ScrollArea}
                         className={classNames("mb-1", classes.codeWrap)}
@@ -762,19 +767,7 @@ const TypeBox = forwardRef(
             max_tokens: 1000,
           },
           onMessage: (message, done) => {
-            message = message.trim();
-
-            if (message.toLowerCase().includes('prompt: "')) {
-              message = message.replace(/^.*prompt:\s*"/im, '"');
-            }
-
-            if (message.startsWith('"') && !done) {
-              message = message + '"';
-            }
-
-            try {
-              message = JSON.parse(message);
-            } catch (e) {}
+            message = postprocessAnswer(message, done);
 
             setImprovedPrompt(message);
             if (done) {
