@@ -106,6 +106,9 @@ export function postprocessAnswer(answer: string, isDone = false): string {
   if (answer.toLowerCase().includes('prompt: "')) {
     const answerArr = answer.split("\n");
     answerArr[0] = answerArr[0].replace(/^([a-zA-Z\s]+)prompt:\s*"/im, '"');
+    if (answerArr[0].trim().length === 0) {
+      answerArr.shift();
+    }
     answer = answerArr.join("\n");
   }
 
