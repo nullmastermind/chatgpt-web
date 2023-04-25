@@ -111,6 +111,10 @@ export function postprocessAnswer(answer: string, isDone = false): string {
     answer = answer + '"';
   }
 
+  if (answer.startsWith("`") && answer.endsWith("`") && !answer.includes("```")) {
+    answer = preprocessMessageContent("``" + answer + "``");
+  }
+
   try {
     answer = JSON.parse(answer);
   } catch (ignoredError) {}
