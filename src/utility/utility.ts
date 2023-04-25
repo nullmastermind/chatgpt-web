@@ -9,6 +9,7 @@ export type KeyValues = {
 
 export const preprocessMessageContent = (content: string) => {
   content = content.replace(/```(.*?)```/g, "```\n$1\n```");
+  content = content.replace(/(.*?)```/g, "$1\n```");
   return content;
 };
 
@@ -117,7 +118,7 @@ export function postprocessAnswer(answer: string, isDone = false): string {
   }
 
   if (answer.startsWith("`") && answer.endsWith("`") && !answer.includes("```")) {
-    answer = preprocessMessageContent("``" + answer + "``");
+    answer = "``" + answer + "``";
   }
 
   try {
@@ -130,7 +131,7 @@ export function postprocessAnswer(answer: string, isDone = false): string {
     }
   } catch (ignoredError) {}
 
-  return answer;
+  return preprocessMessageContent(answer);
 }
 
 export const convertToSupportLang = (lang: string): Language => {
