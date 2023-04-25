@@ -768,6 +768,14 @@ const TypeBox = forwardRef(
               message = message.replace(/my improved prompt:/gi, "");
             }
 
+            if (message.toLowerCase().startsWith("my prompt:")) {
+              message = message.replace(/my prompt:/gi, "");
+            }
+
+            if (message.toLowerCase().startsWith("prompt:")) {
+              message = message.replace(/prompt:/gi, "");
+            }
+
             if (message.startsWith('"') && !done) {
               message = message + '"';
             }
