@@ -120,7 +120,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
     // if (prompt.wrapSingleLine && !content.includes("\n")) {
     if (prompt.wrapSingleLine) {
       if (!/^".*?"$/.test(content) && !/^'.*?'$/.test(content)) {
-        content = `"${content}"`;
+        content = `"${content.replace(/"/g, '\\"')}"`;
         // content = JSON.stringify(content);
       }
     }
