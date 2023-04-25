@@ -747,11 +747,11 @@ const TypeBox = forwardRef(
         [
           {
             role: "system",
-            content: `Help me improve prompt content, making it easier for chatbot (LLM) to understand. Reply only result in English, don't write explanations:`,
+            content: `Help me improve my prompt, making it easier for other chatbot (LLM) to understand. Reply only result in English, don't write explanations:`,
           },
           {
             role: "user",
-            content: `${JSON.stringify(selectedText)}`,
+            content: `My prompt: ${JSON.stringify(selectedText)}`,
           },
         ],
         {
@@ -763,6 +763,10 @@ const TypeBox = forwardRef(
           },
           onMessage: (message, done) => {
             message = message.trim();
+
+            if (message.toLowerCase().startsWith("my improved prompt:")) {
+              message = message.replace(/my improved prompt:/gi, "");
+            }
 
             if (message.startsWith('"') && !done) {
               message = message + '"';
