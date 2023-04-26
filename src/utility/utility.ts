@@ -122,7 +122,7 @@ export function formatString(str: string, maxLength: number = 80): string {
 }
 
 export function postprocessAnswer(answer: string, isDone = false): string {
-  answer = answer.trim();
+  answer = decodeCodeString(answer.trim());
 
   if (/.*prompt(\s*)([a-zA-Z]*):.*/i.test(answer)) {
     const answerArr = answer.split("\n");
