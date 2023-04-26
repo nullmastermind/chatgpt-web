@@ -9,12 +9,13 @@ export type KeyValues = {
 };
 
 const preprocessMessageContent = (content: string) => {
-  // content = content.replace(/```(.*?)```/g, "```\n$1\n```");
+  content = content.replace(/```(.*?)```/g, "```\n$1\n```");
   const contentArr = content.split("\n").map(v => {
+    if (/[a-zA-Z0-9]/.test(v) && v.endsWith("```")) {
+      v = v.replace(/(.*?)```/g, "$1\n```");
+    }
     if (v.startsWith("```") && v.includes(" ")) {
       v = v.replace(/```(.*?)/g, "```\n$1");
-    } else if (/[a-zA-Z0-9]/.test(v) && v.endsWith("```")) {
-      v = v.replace(/(.*?)```/g, "$1\n```");
     }
     return v;
   });
