@@ -8,7 +8,7 @@ export type KeyValues = {
   [key: string]: any[];
 };
 
-const preprocessMessageContent = (content: string) => {
+export const preprocessMessageContent = (content: string) => {
   content = content.replace(/```(.*?)```/g, "```\n$1\n```");
   const contentArr = content.split("\n").map(v => {
     if (/[a-zA-Z0-9]/.test(v) && v.endsWith("```")) {
