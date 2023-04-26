@@ -8,14 +8,6 @@ export type KeyValues = {
   [key: string]: any[];
 };
 
-export const encodeCodeString = (code: string) => {
-  return code.replace(/`/g, "🕵️‍♀️$🙈%🤫");
-};
-
-export const decodeCodeString = (code: string) => {
-  return code.replace(/🕵️‍♀️\$🙈%🤫/g, "`");
-};
-
 export const preprocessMessageContent = (content: string) => {
   content = content.replace(/```(.*?)```/g, "```\n$1\n```");
   const contentArr = content.split("\n").map(v => {
@@ -122,7 +114,7 @@ export function formatString(str: string, maxLength: number = 80): string {
 }
 
 export function postprocessAnswer(answer: string, isDone = false): string {
-  answer = decodeCodeString(answer.trim());
+  answer = answer.trim();
 
   if (/.*prompt(\s*)([a-zA-Z]*):.*/i.test(answer)) {
     const answerArr = answer.split("\n");
@@ -141,7 +133,7 @@ export function postprocessAnswer(answer: string, isDone = false): string {
     const answerArr = answer.split("");
     answerArr.shift();
     answerArr.pop();
-    answer = decodeCodeString(preprocessMessageContent("```\n" + encodeCodeString(answerArr.join("")) + "\n```"));
+    answer = preprocessMessageContent("```\n" + answerArr.join("") + "\n```");
   }
 
   try {

@@ -16,7 +16,6 @@ import {
   Container,
   Divider,
   Highlight,
-  Menu,
   Modal,
   ScrollArea,
   Textarea,
@@ -34,9 +33,7 @@ import { requestChatStream } from "@/components/pages/ChatbotPage/Message.api";
 import { useCollections, useCurrentCollection, useOpenaiAPIKey } from "@/states/states";
 import {
   convertToSupportLang,
-  decodeCodeString,
   detectProgramLang,
-  encodeCodeString,
   findHighlight,
   formatString,
   KeyValue,
@@ -598,7 +595,7 @@ const MessageItem = forwardRef(
                   },
                 }}
               >
-                {decodeCodeString(preprocessMessageContent(encodeCodeString(message.content)))}
+                {preprocessMessageContent(message.content)}
               </ReactMarkdown>
             )}
             {(isTyping || message.content === "...") && <TypingBlinkCursor />}
