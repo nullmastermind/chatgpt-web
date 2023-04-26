@@ -8,6 +8,14 @@ export type KeyValues = {
   [key: string]: any[];
 };
 
+export const encodeCodeString = (code: string) => {
+  return code.replace(/`/g, "🕵️‍♀️$🙈%🤫");
+};
+
+export const decodeCodeString = (code: string) => {
+  return code.replace(/🕵️‍♀️\$🙈%🤫/g, "`");
+};
+
 export const preprocessMessageContent = (content: string) => {
   content = content.replace(/```(.*?)```/g, "```\n$1\n```");
   const contentArr = content.split("\n").map(v => {
