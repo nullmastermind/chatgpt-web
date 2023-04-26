@@ -10,7 +10,7 @@ export type KeyValues = {
 
 export const preprocessMessageContent = (content: string) => {
   content = content.replace(/```(.*?)```/g, "```\n$1\n```");
-  content = content.replace(/(.*?)```/g, "$1\n```");
+  content = content.replace(/([a-zA-Z0-9])```/g, "$1\n```");
   return content;
 };
 
