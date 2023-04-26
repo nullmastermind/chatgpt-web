@@ -564,6 +564,7 @@ const MessageItem = forwardRef(
           <div className={classes.messageContent}>
             {message.content !== "..." && (
               <ReactMarkdown
+                linkTarget="_blank"
                 remarkPlugins={[remarkGfm]}
                 rehypePlugins={[rehypeRaw]}
                 components={{
