@@ -10,7 +10,15 @@ export type KeyValues = {
 
 export const preprocessMessageContent = (content: string) => {
   content = content.replace(/```(.*?)```/g, "```\n$1\n```");
-  return content;
+  const contentArr = content.split("\n").map(v => {
+    if (v.startsWith("```") && v.includes(" ")) {
+      v = v.replace(/```(.*?)/g, "```\n$1");
+    } else if (/[a-zA-Z]+\s*```/i.test(v)) {
+      v = v.replace(/(.*?)```/g, "$1\n```");
+    }
+    return v;
+  });
+  return contentArr.join("\n");
 };
 
 export const detectProgramLang = (code: string) => {
