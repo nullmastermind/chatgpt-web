@@ -141,7 +141,7 @@ export function postprocessAnswer(answer: string, isDone = false): string {
     const answerArr = answer.split("");
     answerArr.shift();
     answerArr.pop();
-    answer = preprocessMessageContent("```\n" + answerArr.join("") + "\n```");
+    answer = decodeCodeString(preprocessMessageContent("```\n" + encodeCodeString(answerArr.join("")) + "\n```"));
   }
 
   try {
