@@ -133,7 +133,7 @@ export function postprocessAnswer(answer: string, isDone = false): string {
     const answerArr = answer.split("");
     answerArr.shift();
     answerArr.pop();
-    answer = "```\n" + answerArr.join("") + "\n```";
+    answer = preprocessMessageContent("```\n" + answerArr.join("") + "\n```");
   }
 
   try {
@@ -149,7 +149,7 @@ export function postprocessAnswer(answer: string, isDone = false): string {
     answer = answerArr.join("").replace(/\\"/g, '"').replace(/\\n/g, "\n");
   }
 
-  return preprocessMessageContent(answer);
+  return answer;
 }
 
 export const convertToSupportLang = (lang: string): Language => {
