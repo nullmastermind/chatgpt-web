@@ -1,4 +1,5 @@
 import { Language } from "prism-react-renderer";
+import Fuse from "fuse.js";
 
 export type KeyValue = {
   [key: string]: any;
@@ -18,15 +19,18 @@ export const detectProgramLang = (code: string) => {
   return hl.highlightAuto(code).language;
 };
 
-export const searchArray = (query: string, arr: string[]): string[] => {
-  // Remove whitespace characters from the query
-  query = query.replace(/[\s_-]/g, "");
+export const searchArray = (query: string, stringArray: string[]): string[] => {
+  if (query.length === 0) return stringArray;
 
-  // Create a regular expression to match the query
-  const regex = new RegExp(query.split("").join(".*"), "i");
+  const options = {
+    includeScore: true,
+    threshold: 0.4,
+  };
 
-  // Filter the array elements that match the query
-  return arr.filter(item => regex.test(item));
+  const fuse = new Fuse(stringArray, options);
+  const result = fuse.search(query);
+
+  return result.map(item => item.item);
 };
 
 function getAllCombinations(str: string): Set<string> {
