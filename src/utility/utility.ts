@@ -107,16 +107,9 @@ export function formatString(str: string, maxLength: number = 80): string {
 export function postprocessAnswer(answer: string, isDone = false): string {
   answer = answer.trim();
 
-  if (answer.toLowerCase().includes("prompt:")) {
+  if (/.*prompt(\s*)([a-zA-Z]*):.*/i.test(answer)) {
     const answerArr = answer.split("\n");
-    answerArr[0] = answerArr[0].replace(/^([a-zA-Z\s]+)prompt:/im, "");
-    if (answerArr[0].trim().length === 0) {
-      answerArr.shift();
-    }
-    answer = answerArr.join("\n");
-  } else if (answer.toLowerCase().includes("prompt improved:")) {
-    const answerArr = answer.split("\n");
-    answerArr[0] = answerArr[0].replace(/^([a-zA-Z\s]+)prompt improved:/im, "");
+    answerArr[0] = answerArr[0].replace(/.*prompt\s*[a-zA-Z]*:\s*/i, "");
     if (answerArr[0].trim().length === 0) {
       answerArr.shift();
     }
