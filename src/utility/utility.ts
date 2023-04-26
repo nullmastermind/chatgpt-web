@@ -121,7 +121,10 @@ export function postprocessAnswer(answer: string, isDone = false): string {
   }
 
   if (answer.startsWith("`") && answer.endsWith("`") && !answer.includes("```")) {
-    answer = "``" + answer + "``";
+    const answerArr = answer.split("");
+    answerArr.shift();
+    answerArr.pop();
+    answer = "```\n" + answerArr.join("") + "\n```";
   }
 
   try {
