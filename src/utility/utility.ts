@@ -114,6 +114,13 @@ export function postprocessAnswer(answer: string, isDone = false): string {
       answerArr.shift();
     }
     answer = answerArr.join("\n");
+  } else if (answer.toLowerCase().includes("prompt improved:")) {
+    const answerArr = answer.split("\n");
+    answerArr[0] = answerArr[0].replace(/^([a-zA-Z\s]+)prompt improved:/im, "");
+    if (answerArr[0].trim().length === 0) {
+      answerArr.shift();
+    }
+    answer = answerArr.join("\n");
   }
 
   if (answer.startsWith('"') && !isDone) {
