@@ -9,17 +9,21 @@ export type KeyValues = {
 };
 
 export const preprocessMessageContent = (content: string) => {
-  content = content.replace(/```(.*?)```/g, "```\n$1\n```");
-  const contentArr = content.split("\n").map(v => {
-    if (/[a-zA-Z0-9]/.test(v) && v.endsWith("```")) {
-      v = v.replace(/(.*?)```/g, "$1\n```");
-    }
-    if (v.startsWith("```") && v.includes(" ")) {
-      v = v.replace(/```(.*?)/g, "```\n$1");
-    }
-    return v;
-  });
-  return contentArr.join("\n");
+  content = content.trim();
+
+  const contentArr = content.split("\n");
+
+  if (contentArr[contentArr.length - 1].endsWith("```")) {
+    contentArr[contentArr.length - 1] = contentArr[contentArr.length - 1].replace(/(.*?)```/, "$1\n```");
+  }
+
+  if (contentArr[0].startsWith("```") && contentArr[0].includes(" ")) {
+    contentArr[0] = contentArr[0].replace(/```(.*?)/, "```\n$1");
+  }
+
+  content = contentArr.join("\n");
+
+  return content;
 };
 
 export const detectProgramLang = (code: string) => {
