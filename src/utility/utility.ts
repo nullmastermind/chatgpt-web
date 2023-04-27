@@ -8,6 +8,25 @@ export type KeyValues = {
   [key: string]: any[];
 };
 
+export type Node = {
+  type: string;
+  tagName?: string;
+  properties: Record<string, unknown>;
+  children: Array<Node | string>;
+  position: {
+    start: {
+      line: number;
+      column: number;
+      offset: number;
+    };
+    end: {
+      line: number;
+      column: number;
+      offset: number;
+    };
+  };
+};
+
 export const preprocessMessageContent = (content: string) => {
   content = content.trim();
 

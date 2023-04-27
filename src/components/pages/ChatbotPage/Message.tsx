@@ -37,6 +37,7 @@ import {
   findHighlight,
   formatString,
   KeyValue,
+  Node,
   postprocessAnswer,
   preprocessMessageContent,
   searchArray,
@@ -612,13 +613,18 @@ const MessageItem = forwardRef(
                 remarkPlugins={[remarkGfm]}
                 rehypePlugins={[rehypeRaw]}
                 components={{
-                  code({ node, inline, className, children, ...props }) {
+                  code({ node: rawNode, inline, className, children, ...props }) {
+                    const node = rawNode as Node;
+
                     const rawContent = String(children);
                     let codeContent = postprocessAnswer(rawContent.replace(/\n$/, ""), true);
 
                     if (inline && !message.content.includes("```" + rawContent + "```")) {
-                      return <code className={classes.inlineCode}>{codeContent}</code>;
+                      if (node.position.end.offset - rawContent.length - node.position.start.offset === 2) {
+                        return <code className={classes.inlineCode}>{codeContent}</code>;
+                      }
                     }
+
                     const match = /language-(\w+)/.exec(className || "");
                     let lang: any = "javascript";
 
