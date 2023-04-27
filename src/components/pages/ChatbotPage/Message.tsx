@@ -463,7 +463,7 @@ const FollowScroll = ({
   return (
     <Checkbox
       color="gradient"
-      label="Auto scroll"
+      label="auto scroll to bottom"
       checked={checked}
       onClick={() => {
         if (checked) {
@@ -546,18 +546,24 @@ const MessageItem = forwardRef(
             </Button>
           </div>
         )}
-        <Checkbox
-          size="md"
-          checked={message.checked}
-          onChange={e => {
-            messages[index].checked = e.target.checked;
-            setMessage({
-              ...message,
-              checked: e.target.checked,
-            });
-          }}
-        />
-        <Avatar src={message.source === "assistant" ? "/assets/bot.jpg" : undefined}>{message.source}</Avatar>
+        <div style={{ position: "sticky" }} className="top-3">
+          <Checkbox
+            size="md"
+            checked={message.checked}
+            onChange={e => {
+              messages[index].checked = e.target.checked;
+              setMessage({
+                ...message,
+                checked: e.target.checked,
+              });
+            }}
+          />
+        </div>
+        <div style={{ position: "sticky" }} className="top-3">
+          <Avatar src={message.source === "assistant" ? "/assets/bot.jpg" : undefined}>
+            {message.source.split("").shift().toUpperCase()}
+          </Avatar>
+        </div>
         <div
           className={classNames("flex-grow")}
           style={{
