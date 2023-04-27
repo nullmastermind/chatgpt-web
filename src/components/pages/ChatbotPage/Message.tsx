@@ -377,9 +377,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
       </div>
       <div className="flex flex-col gap-3 p-3 pt-0 m-auto w-full max-w-3xl">
         <div className="flex flex-row gap-3 items-center">
-          <div>
-            <b>{checkedMessages.length}</b> checked messages
-          </div>
+          <CheckedMessages checkedMessages={checkedMessages} messages={messages} />
           <Button
             variant="gradient"
             size="xs"
@@ -478,6 +476,31 @@ const FollowScroll = ({
         focus();
       }}
     />
+  );
+};
+
+const CheckedMessages = (props: { checkedMessages: any[]; messages: any }) => {
+  const [numberChecked, setNumberChecked] = useState(props.checkedMessages.length);
+
+  useEffect(() => {
+    setNumberChecked(props.checkedMessages.length);
+    const loop = setInterval(() => {
+      const tempCheckedMessages = props.messages.filter((v: any) => v.checked);
+
+      if (JSON.stringify(tempCheckedMessages) !== JSON.stringify(props.checkedMessages)) {
+        props.checkedMessages.splice(0, props.checkedMessages.length, ...tempCheckedMessages);
+        setNumberChecked(props.checkedMessages.length);
+      }
+    }, 50);
+    return () => {
+      clearInterval(loop);
+    };
+  }, [props]);
+
+  return (
+    <div>
+      <b>{numberChecked}</b> checked messages
+    </div>
   );
 };
 
