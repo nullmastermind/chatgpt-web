@@ -613,9 +613,10 @@ const MessageItem = forwardRef(
                 rehypePlugins={[rehypeRaw]}
                 components={{
                   code({ node, inline, className, children, ...props }) {
-                    let codeContent = postprocessAnswer(String(children).replace(/\n$/, ""), true);
+                    const rawContent = String(children);
+                    let codeContent = postprocessAnswer(rawContent.replace(/\n$/, ""), true);
 
-                    if (inline) {
+                    if (inline && !message.content.includes("```" + rawContent + "```")) {
                       return <code className={classes.inlineCode}>{codeContent}</code>;
                     }
                     const match = /language-(\w+)/.exec(className || "");
