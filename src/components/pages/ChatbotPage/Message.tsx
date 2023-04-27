@@ -498,8 +498,13 @@ const CheckedMessages = (props: { checkedMessages: any[]; messages: any }) => {
   }, [props]);
 
   return (
-    <div>
-      <b>{numberChecked}</b> checked messages
+    <div className="relative">
+      <div>
+        <b>{numberChecked}</b> checked messages
+      </div>
+      <div className="text-xs absolute -bottom-4 whitespace-nowrap opacity-50" style={{ fontSize: "0.6rem" }}>
+        Please tick the checkbox to select which message should continue in the conversation.
+      </div>
     </div>
   );
 };
