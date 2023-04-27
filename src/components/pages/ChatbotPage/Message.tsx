@@ -525,7 +525,7 @@ const MessageItem = forwardRef(
       if (doScrollToBottom) {
         scrollToBottom();
       }
-    }, [doScrollToBottom, message, isTyping]);
+    }, [doScrollToBottom, message.content, isTyping]);
     useMount(() => {
       if (message.source === "user" && !autoScrollIds.current[message.id]) {
         scrollToBottom();
@@ -551,7 +551,10 @@ const MessageItem = forwardRef(
           checked={message.checked}
           onChange={e => {
             messages[index].checked = e.target.checked;
-            setMessages(clone(messages));
+            setMessage({
+              ...message,
+              checked: e.target.checked,
+            });
           }}
         />
         <Avatar src={message.source === "assistant" ? "/assets/bot.jpg" : undefined}>{message.source}</Avatar>
