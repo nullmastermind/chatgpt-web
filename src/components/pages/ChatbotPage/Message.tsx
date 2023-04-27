@@ -184,6 +184,9 @@ const Message = ({ collection, prompt }: MessageProps) => {
       uncheckAll();
     }
   };
+  const focusTextBox = () => {
+    boxRef.current?.focus();
+  };
 
   useUnmount(() => {
     messageRefs.current = {};
@@ -364,6 +367,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
                     isBottom={isBottom}
                     scrollToBottom={scrollToBottom}
                     autoScrollIds={autoScrollIds}
+                    focusTextBox={focusTextBox}
                   />
                 );
               })}
@@ -488,6 +492,7 @@ const MessageItem = forwardRef(
       isBottom,
       scrollToBottom,
       autoScrollIds,
+      focusTextBox,
     }: {
       classes: any;
       message: any;
@@ -496,6 +501,7 @@ const MessageItem = forwardRef(
       messages: any;
       isBottom: () => boolean;
       scrollToBottom: () => any;
+      focusTextBox: () => any;
       autoScrollIds: MutableRefObject<KeyValue>;
     },
     ref
@@ -556,6 +562,7 @@ const MessageItem = forwardRef(
                 ...message,
                 checked: e.target.checked,
               });
+              focusTextBox();
             }}
           />
         </div>
