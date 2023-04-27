@@ -122,7 +122,7 @@ const ChatbotPage = () => {
         };
         if (!force && confirm(`Remove ${collection.label}?`)) {
           doRemove();
-        } else {
+        } else if (force) {
           doRemove();
         }
       }
