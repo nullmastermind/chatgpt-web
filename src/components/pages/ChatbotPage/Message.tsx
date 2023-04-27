@@ -521,11 +521,11 @@ const MessageItem = forwardRef(
       },
     }));
     useEffect(() => {
+      if (!isTyping) return;
       if (doScrollToBottom) {
-        // setDoScrollToBottom(false);
         scrollToBottom();
       }
-    }, [doScrollToBottom, message]);
+    }, [doScrollToBottom, message, isTyping]);
     useMount(() => {
       if (message.source === "user" && !autoScrollIds.current[message.id]) {
         scrollToBottom();
