@@ -181,6 +181,12 @@ const AddPrompt = ({
                       }}
                       value={prompt.prompt}
                       autosize={true}
+                      ref={ref => {
+                        if (ref) {
+                          ref.style.height = "auto";
+                          ref.style.height = `calc(${ref.scrollHeight}px + 5px)`;
+                        }
+                      }}
                     />
                   </div>
                   <div className="h-full flex items-center gap-2">
