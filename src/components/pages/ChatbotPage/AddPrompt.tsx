@@ -116,9 +116,9 @@ const AddPrompt = ({
               variant="dashed"
               labelPosition="center"
               label={
-                <Button leftIcon={<IconPlus />} size="xs" variant="default" onClick={() => addPromptSetup(0)}>
-                  Add here
-                </Button>
+                <ActionIcon variant="default" onClick={() => addPromptSetup(0)}>
+                  <IconPlus />
+                </ActionIcon>
               }
             />
           )}
@@ -149,9 +149,9 @@ const AddPrompt = ({
                     labelPosition="center"
                     className="my-3"
                     label={
-                      <Button leftIcon={<IconPlus />} size="xs" variant="default" onClick={() => addPromptSetup(i)}>
-                        Add here
-                      </Button>
+                      <ActionIcon variant="default" onClick={() => addPromptSetup(i)}>
+                        <IconPlus />
+                      </ActionIcon>
                     }
                   />
                 )}
@@ -210,9 +210,9 @@ const AddPrompt = ({
                   labelPosition="center"
                   className="mt-3"
                   label={
-                    <Button leftIcon={<IconPlus />} size="xs" variant="default" onClick={() => addPromptSetup(i + 1)}>
-                      Add here
-                    </Button>
+                    <ActionIcon variant="default" onClick={() => addPromptSetup(i + 1)}>
+                      <IconPlus />
+                    </ActionIcon>
                   }
                 />
               </>
@@ -224,14 +224,9 @@ const AddPrompt = ({
               labelPosition="center"
               className="mt-3"
               label={
-                <Button
-                  leftIcon={<IconPlus />}
-                  size="xs"
-                  variant="default"
-                  onClick={() => addPromptSetup(prompts.length)}
-                >
-                  Add here
-                </Button>
+                <ActionIcon variant="default" onClick={() => addPromptSetup(prompts.length)}>
+                  <IconPlus />
+                </ActionIcon>
               }
             />
           )}

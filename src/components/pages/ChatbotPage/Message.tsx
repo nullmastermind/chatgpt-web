@@ -20,6 +20,7 @@ import {
   ScrollArea,
   Textarea,
   TextInput,
+  Tooltip,
 } from "@mantine/core";
 import { forwardRef, MutableRefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { clone, cloneDeep, findIndex, forEach, map, throttle } from "lodash";
@@ -1139,28 +1140,30 @@ const TypeBox = forwardRef(
             >
               Send
             </Button>
-            <Button
-              onClick={() => {
-                commandForm.setFieldValue("content", messageContent);
-                if (isEditCommand) {
-                  const index = findIndex(quickCommands, v => v.content === messageContent);
-                  if (index !== -1) {
-                    commandForm.setFieldValue("name", quickCommands![index].name);
-                    commandForm.setFieldValue("category", quickCommands![index].category);
+            <Tooltip label={(isEditCommand ? "Edit" : "Save") + " command template"}>
+              <Button
+                onClick={() => {
+                  commandForm.setFieldValue("content", messageContent);
+                  if (isEditCommand) {
+                    const index = findIndex(quickCommands, v => v.content === messageContent);
+                    if (index !== -1) {
+                      commandForm.setFieldValue("name", quickCommands![index].name);
+                      commandForm.setFieldValue("category", quickCommands![index].category);
+                    } else {
+                      commandForm.setFieldValue("name", "");
+                      commandForm.setFieldValue("category", `${collection}`);
+                    }
                   } else {
                     commandForm.setFieldValue("name", "");
                     commandForm.setFieldValue("category", `${collection}`);
                   }
-                } else {
-                  commandForm.setFieldValue("name", "");
-                  commandForm.setFieldValue("category", `${collection}`);
-                }
-                openCommand();
-              }}
-              variant="default"
-            >
-              {isEditCommand ? "Edit" : "Save"}
-            </Button>
+                  openCommand();
+                }}
+                variant="default"
+              >
+                {isEditCommand ? "Edit" : "Save"}
+              </Button>
+            </Tooltip>
           </div>
         </div>
       </SpotlightProvider>
