@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { clone, findIndex, map } from "lodash";
 import { useForm } from "@mantine/form";
 import {
+  ActionIcon,
   Button,
   Card,
   Checkbox,
@@ -13,8 +14,9 @@ import {
   ScrollArea,
   Textarea,
   TextInput,
+  Tooltip,
 } from "@mantine/core";
-import { IconPlus, IconTrash } from "@tabler/icons-react";
+import { IconCopy, IconPlus, IconTrash } from "@tabler/icons-react";
 import classNames from "classnames";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 
@@ -237,35 +239,44 @@ const AddPrompt = ({
         </div>
         <div className={classNames("absolute bottom-0 right-0 w-full bg-bottom px-4 py-2", classes.bgAction)}>
           <div className="flex items-center justify-end gap-3">
+            {editData && (
+              <Tooltip label="Delete">
+                <ActionIcon
+                  loading={loading}
+                  onClick={() => deleteFn(`force:${editData?.id}`)}
+                  variant="outline"
+                  color="red"
+                >
+                  <IconTrash />
+                </ActionIcon>
+              </Tooltip>
+            )}
+            {editData && (
+              <Tooltip label="Clone">
+                <ActionIcon
+                  loading={loading}
+                  onClick={() => {
+                    if (!addForm.validate().hasErrors) {
+                      onSave({
+                        name: addForm.values.name,
+                        temperature: +addForm.values.temperature,
+                        wrapSingleLine: Boolean(addForm.values.wrapSingleLine),
+                        prompts: prompts.filter(v => {
+                          if (typeof v === "string") return true;
+                          return v.prompt.trim().length > 0;
+                        }),
+                      });
+                    }
+                  }}
+                  variant="outline"
+                >
+                  <IconCopy />
+                </ActionIcon>
+              </Tooltip>
+            )}
             <Button loading={loading} onClick={close} variant="default">
               Close
             </Button>
-            {editData && (
-              <Button loading={loading} onClick={() => deleteFn(`force:${editData?.id}`)} variant="outline" color="red">
-                Delete
-              </Button>
-            )}
-            {editData && (
-              <Button
-                loading={loading}
-                onClick={() => {
-                  if (!addForm.validate().hasErrors) {
-                    onSave({
-                      name: addForm.values.name,
-                      temperature: +addForm.values.temperature,
-                      wrapSingleLine: Boolean(addForm.values.wrapSingleLine),
-                      prompts: prompts.filter(v => {
-                        if (typeof v === "string") return true;
-                        return v.prompt.trim().length > 0;
-                      }),
-                    });
-                  }
-                }}
-                variant="light"
-              >
-                Duplicate
-              </Button>
-            )}
             <Button
               loading={loading}
               onClick={() => {
