@@ -10,6 +10,7 @@ import {
   useUnmount,
 } from "react-use";
 import {
+  ActionIcon,
   Avatar,
   Button,
   Checkbox,
@@ -45,7 +46,7 @@ import {
   validateField,
 } from "@/utility/utility";
 import TypingBlinkCursor from "@/components/misc/TypingBlinkCursor";
-import { IconMinus, IconPlus, IconSearch } from "@tabler/icons-react";
+import { IconCopy, IconMinus, IconPlus, IconSearch } from "@tabler/icons-react";
 import { useDisclosure, useHotkeys } from "@mantine/hooks";
 import { spotlight, SpotlightAction, SpotlightProvider } from "@mantine/spotlight";
 import { useForm } from "@mantine/form";
@@ -540,6 +541,17 @@ const MessageItem = forwardRef(
     const [isTyping, setIsTyping] = useState(false);
     const [doScrollToBottom, setDoScrollToBottom] = useState<boolean>(true);
     const [, setCopyText] = useCopyToClipboard();
+    const [isCopied, setIsCopied] = useState(false);
+    const updateIsCopied = useMemo(() => {
+      let timeoutId: any;
+      return () => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          setIsCopied(false);
+        }, 2000);
+        setIsCopied(true);
+      };
+    }, []);
 
     useImperativeHandle(ref, () => ({
       editMessage(newMessage: string, isDone: boolean) {
@@ -571,17 +583,34 @@ const MessageItem = forwardRef(
 
     return (
       <div
-        className={classNames("flex flex-row gap-3 items-start p-3 rounded relative", {
-          [classes.messageBotBg]: message.source === "assistant",
-        })}
-      >
-        {message.source === "assistant" && (
-          <div className="absolute right-1 bottom-2 la-copy">
-            <Button size="xs" variant="subtle" onClick={() => setCopyText(message.content)} style={{ zIndex: 100 }}>
-              Copy
-            </Button>
-          </div>
+        className={classNames(
+          "flex flex-row gap-3 items-start p-3 rounded relative",
+          {
+            [classes.messageBotBg]: message.source === "assistant",
+          },
+          classes.messageBotContainer
         )}
+      >
+        <Tooltip label="Copied" opened={isCopied}>
+          <div
+            className="absolute right-1 bottom-2 la-copy"
+            onMouseLeave={() => {
+              setTimeout(() => setIsCopied(false), 200);
+            }}
+          >
+            <ActionIcon
+              size="xs"
+              variant="subtle"
+              onClick={() => {
+                setCopyText(message.content);
+                updateIsCopied();
+              }}
+              style={{ zIndex: 100 }}
+            >
+              <IconCopy />
+            </ActionIcon>
+          </div>
+        </Tooltip>
         <div style={{ position: "sticky" }} className="top-3">
           <Checkbox
             size="md"
