@@ -37,6 +37,20 @@ const useStyles = createStyles(theme => ({
   blink: {
     background: theme.colorScheme !== "dark" ? theme.colors.dark[5] : theme.colors.gray[5],
   },
+  blink2: {
+    animation: "blink 1s infinite",
+    "@keyframes blink": {
+      "0%": {
+        opacity: 1,
+      },
+      "50%": {
+        opacity: 0,
+      },
+      "100%": {
+        opacity: 1,
+      },
+    },
+  },
   codeWrap: {
     ".mantine-Prism-line": {
       whiteSpace: "pre-wrap",
