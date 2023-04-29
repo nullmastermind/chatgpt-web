@@ -626,7 +626,7 @@ const MessageItem = forwardRef(
           />
         </div>
         <div style={{ position: "sticky" }} className="top-3">
-          <Avatar src={message.source === "assistant" ? "/assets/bot.jpg" : undefined}>
+          <Avatar variant="outline" src={message.source === "assistant" ? "/assets/bot.jpg" : "/assets/user02.png"}>
             {message.source.split("").shift().toUpperCase()}
           </Avatar>
         </div>
