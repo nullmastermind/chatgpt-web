@@ -392,7 +392,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
           >
             {checkedMessages.length === 0 ? "Check all" : "Uncheck all"}
           </Button>
-          <Button
+          <ActionIcon
             variant="gradient"
             size="xs"
             onClick={() => {
@@ -401,8 +401,8 @@ const Message = ({ collection, prompt }: MessageProps) => {
             }}
           >
             <IconPlus size="1rem" />
-          </Button>
-          <Button
+          </ActionIcon>
+          <ActionIcon
             variant="gradient"
             size="xs"
             onClick={() => {
@@ -411,7 +411,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
             }}
           >
             <IconMinus size="1rem" />
-          </Button>
+          </ActionIcon>
           <Divider orientation="vertical" variant="dashed" />
           <FollowScroll
             isBottom={isBottom}
@@ -468,7 +468,7 @@ const FollowScroll = ({
   return (
     <Checkbox
       color="gradient"
-      label="auto scroll to bottom"
+      label={<span className="opacity-80">auto scroll to bottom</span>}
       checked={checked}
       onClick={() => {
         if (checked) {
@@ -502,8 +502,13 @@ const CheckedMessages = (props: { checkedMessages: any[]; messages: any }) => {
 
   return (
     <div className="relative">
-      <div>
-        <b>{numberChecked}</b> checked messages
+      <div
+        style={{
+          minWidth: "12rem",
+        }}
+      >
+        <span className="inline-block mr-2 opacity-80">Message continues:</span>
+        <b>{numberChecked}</b>
       </div>
       <div className="text-xs absolute -bottom-4 whitespace-nowrap opacity-50" style={{ fontSize: "0.6rem" }}>
         Please tick the checkbox to select which message should continue in the conversation.
