@@ -4,6 +4,45 @@ const useStyles = createStyles(theme => ({
   messageBotBg: {
     background: theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[0],
   },
+  userAvatar: {
+    border: "2px solid " + (theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[0]),
+    borderRadius: "0.3rem",
+  },
+  assistantAvatar: {
+    borderStyle: "solid",
+    borderWidth: "2px",
+    borderColor: "green",
+    borderRadius: "0.3rem",
+  },
+  assistantAvatar2: {
+    borderStyle: "solid",
+    borderWidth: "2px",
+    animation: "random-color 1s infinite",
+    borderRadius: "0.3rem",
+    "@keyframes random-color": {
+      "0%": {
+        borderColor: "#ff8080" /* Start with light red */,
+      },
+      "16.67%": {
+        borderColor: "#ffbf80" /* Transition to light orange */,
+      },
+      "33.33%": {
+        borderColor: "#ffff80" /* Transition to light yellow */,
+      },
+      "50%": {
+        borderColor: "#80ff80" /* Transition to light green */,
+      },
+      "66.67%": {
+        borderColor: "#80bfff" /* Transition to light blue */,
+      },
+      "83.33%": {
+        borderColor: "#bf80ff" /* Transition to light purple */,
+      },
+      "100%": {
+        borderColor: "#ff80ff" /* Transition to light pink */,
+      },
+    },
+  },
   messageBotContainer: {
     "& .la-copy": {
       opacity: 0,

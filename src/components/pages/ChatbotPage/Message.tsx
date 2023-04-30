@@ -616,7 +616,7 @@ const MessageItem = forwardRef(
             </ActionIcon>
           </div>
         </Tooltip>
-        <div style={{ position: "sticky" }} className="top-3">
+        <div style={{ position: "sticky", transition: "top 0.3s ease-in-out" }} className="top-3">
           <Checkbox
             size="md"
             checked={message.checked}
@@ -631,8 +631,17 @@ const MessageItem = forwardRef(
           />
         </div>
         <div style={{ position: "sticky" }} className="top-3">
-          <Avatar variant="outline" src={message.source === "assistant" ? "/assets/bot.jpg" : "/assets/user02.png"}>
-            {message.source.split("").shift().toUpperCase()}
+          <Avatar
+            size="md"
+            src={message.source === "assistant" ? "/assets/bot.jpg" : undefined}
+            className={classNames({
+              [classes.userAvatar]: message.source !== "assistant",
+              [classes.assistantAvatar]: message.source === "assistant" && !isTyping,
+              [classes.assistantAvatar2]: message.source === "assistant" && isTyping,
+            })}
+          >
+            {/*❔*/}
+            👾
           </Avatar>
         </div>
         <div
