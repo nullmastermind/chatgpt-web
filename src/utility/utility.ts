@@ -136,6 +136,22 @@ export function formatString(str: string, maxLength: number = 80): string {
   return str;
 }
 
+export function nameWithEmoji(name: string) {
+  name = name.trim();
+  const emojiRegex = /^\p{Emoji}/u;
+  const spaceRegex = /\p{Zs}$/u;
+  if (!emojiRegex.test(name)) {
+    name = "❔ " + name;
+  } else {
+    // @ts-ignore
+    if (!spaceRegex.test(name.slice(name.match(emojiRegex)[0].length))) {
+      // @ts-ignore
+      name = name.slice(0, name.match(emojiRegex)[0].length) + " " + name.slice(name.match(emojiRegex)[0].length);
+    }
+  }
+  return name;
+}
+
 export function postprocessAnswer(answer: string, isDone = false): string {
   answer = answer.trim();
 

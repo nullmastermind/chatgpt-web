@@ -19,6 +19,7 @@ import {
 import { IconCopy, IconPlus, IconTrash } from "@tabler/icons-react";
 import classNames from "classnames";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
+import { nameWithEmoji } from "@/utility/utility";
 
 export type PromptSaveData = {
   name: string;
@@ -253,7 +254,7 @@ const AddPrompt = ({
                   onClick={() => {
                     if (!addForm.validate().hasErrors) {
                       onSave({
-                        name: addForm.values.name,
+                        name: nameWithEmoji(addForm.values.name),
                         temperature: +addForm.values.temperature,
                         wrapSingleLine: Boolean(addForm.values.wrapSingleLine),
                         prompts: prompts.filter(v => {
@@ -277,7 +278,7 @@ const AddPrompt = ({
               onClick={() => {
                 if (!addForm.validate().hasErrors) {
                   onSave({
-                    name: addForm.values.name,
+                    name: nameWithEmoji(addForm.values.name),
                     temperature: +addForm.values.temperature,
                     wrapSingleLine: Boolean(addForm.values.wrapSingleLine),
                     prompts: prompts.filter(v => {
