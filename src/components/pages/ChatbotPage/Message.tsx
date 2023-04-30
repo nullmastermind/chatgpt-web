@@ -24,7 +24,7 @@ import {
   Tooltip,
 } from "@mantine/core";
 import { forwardRef, MutableRefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { clone, cloneDeep, findIndex, forEach, map, throttle } from "lodash";
+import { clone, cloneDeep, find, findIndex, forEach, map, throttle } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import classNames from "classnames";
 import ReactMarkdown from "react-markdown";
@@ -558,6 +558,11 @@ const MessageItem = forwardRef(
       };
     }, []);
     const [isEffect, setIsEffect] = useState(false);
+    const [collectionId] = useCurrentCollection();
+    const [collections] = useCollections();
+    const collection = useMemo(() => {
+      return find(collections, v => v.key === collectionId);
+    }, [collectionId, collections]);
 
     useImperativeHandle(ref, () => ({
       editMessage(newMessage: string, isDone: boolean) {
@@ -651,7 +656,8 @@ const MessageItem = forwardRef(
             })}
           >
             {/*❔*/}
-            👾
+            {/*👾*/}
+            {collection?.emoji}
           </Avatar>
         </div>
         <div
