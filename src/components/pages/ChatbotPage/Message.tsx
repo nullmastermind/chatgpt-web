@@ -557,6 +557,7 @@ const MessageItem = forwardRef(
         setIsCopied(true);
       };
     }, []);
+    const [isEffect, setIsEffect] = useState(false);
 
     useImperativeHandle(ref, () => ({
       editMessage(newMessage: string, isDone: boolean) {
@@ -585,6 +586,17 @@ const MessageItem = forwardRef(
         autoScrollIds.current[message.id] = true;
       }
     });
+    useEffect(() => {
+      let timeoutId: any;
+      if (isTyping && !isEffect) {
+        setIsEffect(true);
+      } else if (!isTyping && isEffect) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          setIsEffect(false);
+        }, 500);
+      }
+    }, [isTyping, isEffect]);
 
     return (
       <div
@@ -636,8 +648,8 @@ const MessageItem = forwardRef(
             src={message.source === "assistant" ? "/assets/bot.jpg" : undefined}
             className={classNames({
               [classes.userAvatar]: message.source !== "assistant",
-              [classes.assistantAvatar]: message.source === "assistant" && !isTyping,
-              [classes.assistantAvatar2]: message.source === "assistant" && isTyping,
+              [classes.assistantAvatar]: message.source === "assistant" && !isEffect,
+              [classes.assistantAvatar2]: message.source === "assistant" && isEffect,
             })}
           >
             {/*❔*/}
