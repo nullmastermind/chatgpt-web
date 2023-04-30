@@ -587,12 +587,10 @@ const MessageItem = forwardRef(
       }
     });
     useEffect(() => {
-      let timeoutId: any;
       if (isTyping && !isEffect) {
         setIsEffect(true);
       } else if (!isTyping && isEffect) {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
+        setTimeout(() => {
           setIsEffect(false);
         }, 500);
       }
