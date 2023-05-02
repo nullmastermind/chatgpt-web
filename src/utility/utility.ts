@@ -139,14 +139,14 @@ export function formatString(str: string, maxLength: number = 80): string {
 export function nameWithEmoji(name: string) {
   name = name.trim();
   const emojiRegex = /^\p{Emoji}/u;
-  const spaceRegex = /\p{Zs}$/u;
-  if (!emojiRegex.test(name)) {
+  const spaceRegex = /\p{Z}$/u;
+  const emojiMatch = name.match(emojiRegex);
+  if (!emojiMatch) {
     name = "❔ " + name;
   } else {
-    // @ts-ignore
-    if (!spaceRegex.test(name.slice(name.match(emojiRegex)[0].length))) {
-      // @ts-ignore
-      name = name.slice(0, name.match(emojiRegex)[0].length) + " " + name.slice(name.match(emojiRegex)[0].length);
+    const emojiEndIndex = emojiMatch[0].length;
+    if (!spaceRegex.test(name.slice(emojiEndIndex))) {
+      name = name.slice(0, emojiEndIndex).trim() + " " + name.slice(emojiEndIndex).trim();
     }
   }
   return name;
