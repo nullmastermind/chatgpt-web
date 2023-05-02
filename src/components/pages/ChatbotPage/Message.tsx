@@ -772,7 +772,7 @@ const TypeBox = forwardRef(
         search,
         commands.map(v => v.name)
       );
-      const result = commands
+      return commands
         .filter(v => validCommands.includes(v.name))
         .map(v => {
           const match = ["/", ...findHighlight(v.name, search)];
@@ -806,28 +806,6 @@ const TypeBox = forwardRef(
             ...v,
           } as SpotlightAction;
         });
-
-      return result.sort((a, b) => {
-        // Sort by category
-        if (a.category < b.category) return -1;
-        if (a.category > b.category) return 1;
-
-        // Sort by match.join("").length/name.length
-        const aMatchLength = a.match.join("").length;
-        const bMatchLength = b.match.join("").length;
-        const aNameLength = a.name.length;
-        const bNameLength = b.name.length;
-        const aRatio = aMatchLength / aNameLength;
-        const bRatio = bMatchLength / bNameLength;
-        if (aRatio < bRatio) return -1;
-        if (aRatio > bRatio) return 1;
-
-        // Sort by name
-        if (a.name < b.name) return -1;
-        if (a.name > b.name) return 1;
-
-        return 0;
-      });
     }, [quickCommands, query, isShowQuickCommand]);
     const [openedCommand, { open: openCommand, close: closeCommand }] = useDisclosure(false);
     const commandForm = useForm({
