@@ -1,5 +1,6 @@
 import { Language } from "prism-react-renderer";
 import Fuse from "fuse.js";
+import IFuseOptions = Fuse.IFuseOptions;
 
 export type KeyValue = {
   [key: string]: any;
@@ -55,8 +56,9 @@ export const searchArray = (query: string, stringArray: string[]): string[] => {
 
   const options = {
     includeScore: true,
-    threshold: 0.2,
-  };
+    threshold: 0.4,
+    shouldSort: true,
+  } as IFuseOptions<any>;
 
   const fuse = new Fuse(stringArray, options);
   const result = fuse.search(query);
