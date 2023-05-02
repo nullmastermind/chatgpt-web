@@ -56,7 +56,7 @@ export const searchArray = (query: string, stringArray: string[]): string[] => {
 
   const options = {
     includeScore: true,
-    threshold: 0.4,
+    threshold: 0.2,
     shouldSort: true,
   } as IFuseOptions<any>;
 
