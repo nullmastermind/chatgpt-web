@@ -38,7 +38,7 @@ export const wrapRawContent = (content: string) => {
 };
 
 export const unWrapRawContent = (content: string) => {
-  if (content.startsWith("```") && content.endsWith("```")) {
+  if (content.startsWith("```") && content.endsWith("```") && content.includes("\\`")) {
     content = content.substring(3, content.length - 3);
   }
   return content.replace(/\\`/g, "`");

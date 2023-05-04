@@ -42,7 +42,8 @@ import {
   Node,
   postprocessAnswer,
   preprocessMessageContent,
-  searchArray, unWrapRawContent,
+  searchArray,
+  unWrapRawContent,
   validateField,
   wrapRawContent,
 } from "@/utility/utility";
@@ -260,10 +261,11 @@ const Message = ({ collection, prompt }: MessageProps) => {
             if (v.role === "user") {
               // if (prompt.wrapSingleLine && !content.includes("\n")) {
               if (prompt.wrapSingleLine) {
-                if (!/^".*?"$/.test(v.content) && !/^'.*?'$/.test(v.content)) {
-                  v.content = `"${v.content.replace(/"/g, '\\"')}"`;
-                  // content = JSON.stringify(content);
-                }
+                // if (!/^".*?"$/.test(v.content) && !/^'.*?'$/.test(v.content)) {
+                //   v.content = `"${v.content.replace(/"/g, '\\"')}"`;
+                //   // content = JSON.stringify(content);
+                // }
+                v.content = wrapRawContent(v.content);
               }
             }
             return v;
@@ -272,6 +274,9 @@ const Message = ({ collection, prompt }: MessageProps) => {
           onMessage(message: string, done: boolean): void {
             if (done) {
               message = postprocessAnswer(message, done);
+              if (prompt.wrapSingleLine) {
+                message = unWrapRawContent(message);
+              }
             }
 
             saveMessagesThr(message);
