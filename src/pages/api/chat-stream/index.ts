@@ -10,7 +10,7 @@ async function createStream(req: NextRequest) {
 
   const contentType = res.headers.get("Content-Type") ?? "";
   if (!contentType.includes("stream")) {
-    const content = await (await res.text()).replace(/provided:.*. You/, "provided: ***. You");
+    const content = (await res.text()).replace(/provided:.*. You/, "provided: ***. You");
     console.log("[Stream] error ", content);
     return "```json\n" + content + "```";
   }
@@ -27,7 +27,7 @@ async function createStream(req: NextRequest) {
           }
           try {
             const json = JSON.parse(data);
-            const text = json.choices[0].text || json.choices[0].delta.content;
+            const text = json.choices[0].text || json.choices[0].delta?.content || "";
             const queue = encoder.encode(text);
             controller.enqueue(queue);
           } catch (e) {

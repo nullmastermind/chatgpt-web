@@ -28,6 +28,22 @@ export type Node = {
   };
 };
 
+export const wrapRawContent = (content: string) => {
+  if (content.startsWith("`") && content.endsWith("`")) {
+    return content;
+  }
+
+  content = content.replace(/`/g, "\\`");
+  return "```" + content + "```";
+};
+
+export const unWrapRawContent = (content: string) => {
+  if (content.startsWith("```") && content.endsWith("```")) {
+    content = content.substring(3, content.length - 3);
+  }
+  return content.replace(/\\`/g, "`");
+};
+
 export const preprocessMessageContent = (content: string) => {
   content = content.trim();
 
@@ -158,12 +174,12 @@ export function postprocessAnswer(answer: string, isDone = false): string {
   answer = answer.trim();
 
   if (/.*prompt(\s*)([a-zA-Z]*):.*/i.test(answer)) {
-    const answerArr = answer.split("\n");
-    answerArr[0] = answerArr[0].replace(/.*prompt\s*[a-zA-Z]*:\s*/i, "");
-    if (answerArr[0].trim().length === 0) {
-      answerArr.shift();
-    }
-    answer = answerArr.join("\n");
+    // const answerArr = answer.split("\n");
+    // answerArr[0] = answerArr[0].replace(/.*prompt\s*[a-zA-Z]*:\s*/i, "");
+    // if (answerArr[0].trim().length === 0) {
+    //   answerArr.shift();
+    // }
+    // answer = answerArr.join("\n");
   }
 
   if (answer.startsWith('"') && !isDone) {

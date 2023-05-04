@@ -42,8 +42,9 @@ import {
   Node,
   postprocessAnswer,
   preprocessMessageContent,
-  searchArray,
+  searchArray, unWrapRawContent,
   validateField,
+  wrapRawContent,
 } from "@/utility/utility";
 import TypingBlinkCursor from "@/components/misc/TypingBlinkCursor";
 import { IconCopy, IconMinus, IconPlus, IconSearch } from "@tabler/icons-react";
@@ -845,16 +846,18 @@ const TypeBox = forwardRef(
       setSelectionStart(inputRef.current.selectionStart);
       setSelectionEnd(inputRef.current.selectionEnd);
 
+      console.log("selectedText", wrapRawContent(selectedText));
+
       requestChatStream(
         "v1/completions",
         [
           {
             role: "system",
-            content: `Help me improve my prompt, making it easier for other chatbot (LLM) to understand. Reply only result in English, don't write explanations:`,
+            content: `Help me improve my prompt, making it easier for other chatbot (LLM) to understand. Reply only result in English, don't write explanations and don't use any opening phrases such as: "Translated Text:", "Prompt:", "Translated Prompt:", "Prompt is:",....:`,
           },
           {
             role: "user",
-            content: `My prompt: ${JSON.stringify(selectedText)}`,
+            content: `My prompt:\n\n${wrapRawContent(selectedText)}`,
           },
         ],
         {
@@ -862,10 +865,10 @@ const TypeBox = forwardRef(
           modelConfig: {
             model: "text-davinci-003",
             temperature: 0.0,
-            max_tokens: 1000,
+            max_tokens: 2000,
           },
           onMessage: (message, done) => {
-            message = postprocessAnswer(message, done);
+            message = unWrapRawContent(postprocessAnswer(message, done));
 
             setImprovedPrompt(message);
             if (done) {
