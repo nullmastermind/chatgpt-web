@@ -2,6 +2,7 @@ import { ChatCompletionResponseMessage } from "openai";
 import { findIndex } from "lodash";
 
 const TIME_OUT_MS = 30000;
+let TOKEN_TIMEOUT: any = -1;
 
 export type ModelConfig = {
   model: string;
@@ -92,6 +93,8 @@ export async function requestChatStream(
   }
 
   localStorage.setItem(":latestToken", currentToken || "");
+  clearTimeout(TOKEN_TIMEOUT);
+  TOKEN_TIMEOUT = setTimeout(() => localStorage.removeItem(":latestToken"), 1000 * 60);
 
   try {
     const res = await fetch("/api/chat-stream", {
