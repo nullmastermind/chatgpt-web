@@ -186,8 +186,11 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         <Navbar height={"100vh"} width={{ sm: 300 }} p="md" className={classes.navbar}>
           <Navbar.Section className={classes.section}>
             <div className="px-5 py-3 flex flex-grow items-center gap-3">
-              <Avatar src="/assets/bot.jpg" />
-              <Title order={1}>{ChatBotName}</Title>
+              <Avatar size="xl" src="/assets/bot1.png" />
+              <div>
+                <Title order={1}>{ChatBotName}</Title>
+                <Text size="xs">Experience hassle-free living with OpenAI-based chatbot</Text>
+              </div>
             </div>
           </Navbar.Section>
           <Navbar.Section className={classes.section}>

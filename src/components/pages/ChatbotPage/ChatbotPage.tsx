@@ -17,6 +17,7 @@ import axios from "axios";
 import { notifications } from "@mantine/notifications";
 import AddPrompt, { PromptSaveData } from "@/components/pages/ChatbotPage/AddPrompt";
 import Message from "@/components/pages/ChatbotPage/Message";
+import { ignorePromptId } from "@/utility/utility";
 
 const ChatbotPage = () => {
   const [, setAddCollectionAction] = useAddCollectionAction();
@@ -49,6 +50,7 @@ const ChatbotPage = () => {
             wrapSingleLine,
           },
         };
+        ignorePromptId(dbPrompts[index].id);
       }
     } else {
       const sort = dbPrompts.length;
@@ -118,6 +120,7 @@ const ChatbotPage = () => {
           const dbPrompts: any[] = JSON.parse(localStorage.getItem(":prompts") || "[]");
           localStorage.setItem(":prompts", JSON.stringify(dbPrompts.filter(v => v.id !== deleteId)));
           localStorage.removeItem(`:messages${collection.key}`);
+          ignorePromptId(deleteId);
           getCollections();
         };
         if (!force && confirm(`Remove ${collection.label}?`)) {
