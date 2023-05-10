@@ -654,7 +654,7 @@ const MessageItem = forwardRef(
         <div style={{ position: "sticky" }} className="top-3">
           <Avatar
             size="md"
-            src={message.source === "assistant" ? "/assets/bot.jpg" : undefined}
+            src={message.source === "assistant" ? "/assets/bot1.png" : undefined}
             className={classNames({
               [classes.userAvatar]: message.source !== "assistant",
               [classes.assistantAvatar]: message.source === "assistant" && !isEffect,
