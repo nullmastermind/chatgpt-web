@@ -9,7 +9,7 @@ import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { Prism } from "@mantine/prism";
 import { requestChatStream } from "@/components/pages/ChatbotPage/Message.api";
-import { useCollections, useCurrentCollection, useOpenaiAPIKey } from "@/states/states";
+import { useCollections, useCurrentCollection, useModel, useOpenaiAPIKey } from "@/states/states";
 import {
   convertToSupportLang,
   detectProgramLang,
@@ -77,6 +77,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
   const [doScroll, setDoScroll] = useState(false);
   const [streamMessageIndex, setStreamMessageIndex] = useState(-1);
   const [includes, setIncludes] = useState<MessageItemType[]>([]);
+  const [model, setModel] = useModel();
 
   const scrollToBottom = (offset: number = 0) => {
     const scrollHeight = viewport.current?.scrollHeight || 0;
@@ -253,9 +254,8 @@ const Message = ({ collection, prompt }: MessageProps) => {
           },
           token: openaiAPIKey,
           modelConfig: {
-            model: "gpt-3.5-turbo",
+            model: model,
             temperature: prompt.temperature,
-            // max_tokens: 4096 / 2,
           },
           onController(): void {},
           onError(error: Error): void {
@@ -265,7 +265,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
       ).finally();
     },
     42,
-    [messages, checkedMessages, viewport, collection, streamMessageIndex, includes]
+    [messages, checkedMessages, viewport, collection, streamMessageIndex, includes, model]
   );
   useDebounce(
     () => {

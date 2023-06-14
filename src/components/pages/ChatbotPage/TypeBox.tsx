@@ -24,6 +24,7 @@ import { useForm } from "@mantine/form";
 import { cloneDeep, findIndex, uniqueId } from "lodash";
 import { requestChatStream } from "@/components/pages/ChatbotPage/Message.api";
 import { IconSearch } from "@tabler/icons-react";
+import ModelSelect from "@/components/pages/ChatbotPage/ModelSelect";
 
 export const TypeBox = forwardRef(
   (
@@ -493,6 +494,7 @@ export const TypeBox = forwardRef(
           </div>
         </div>
         <div className="flex flex-row gap-2 items-center justify-end">
+          <ModelSelect />
           {onCancel && (
             <Button size={"xs"} onClick={onCancel} variant="default">
               Cancel
