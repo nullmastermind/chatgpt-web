@@ -130,6 +130,17 @@ const useStyles = createStyles(theme => ({
     borderTopWidth: "1px",
     borderTopStyle: "solid",
   },
+  streamDone: {
+    animation: "color-animation 1.5s forwards",
+    "@keyframes color-animation": {
+      from: {
+        backgroundColor: "green",
+      },
+      to: {
+        backgroundColor: "inherit",
+      },
+    },
+  },
 }));
 
 export default useStyles;

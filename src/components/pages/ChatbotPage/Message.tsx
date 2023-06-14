@@ -48,6 +48,7 @@ export type MessageItemType = {
 
 const messageRefs = { current: {} as KeyValue };
 const autoScrollIds = { current: {} as KeyValue };
+const doneMessages = { current: {} as KeyValue };
 
 const Message = ({ collection, prompt }: MessageProps) => {
   const { classes } = useStyles();
@@ -447,6 +448,10 @@ const MessageItem = forwardRef(
         } else if (isBottom() && !doScrollToBottom) {
           setDoScrollToBottom(true);
         }
+
+        if (isDone) {
+          doneMessages.current[message.id] = true;
+        }
       },
     }));
     useEffect(() => {
@@ -470,6 +475,9 @@ const MessageItem = forwardRef(
         }, 500);
       }
     }, [isTyping, isEffect]);
+    useUnmount(() => {
+      doneMessages.current[message.id] = false;
+    });
 
     return (
       <>
@@ -483,6 +491,7 @@ const MessageItem = forwardRef(
               [classes.childBorders]: isChild,
               "flex-col": !isChild,
               "flex-row": isChild,
+              [classes.streamDone]: doneMessages.current[message.id],
             },
             classes.messageBotContainer
           )}
