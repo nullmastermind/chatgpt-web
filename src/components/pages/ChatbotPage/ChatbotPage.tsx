@@ -18,6 +18,7 @@ import { notifications } from "@mantine/notifications";
 import AddPrompt, { PromptSaveData } from "@/components/pages/ChatbotPage/AddPrompt";
 import Message from "@/components/pages/ChatbotPage/Message";
 import { ignorePromptId } from "@/utility/utility";
+import QuickActions from "@/components/pages/ChatbotPage/QuickActions";
 
 const ChatbotPage = () => {
   const [, setAddCollectionAction] = useAddCollectionAction();
@@ -227,6 +228,7 @@ const ChatbotPage = () => {
           key={currentCollection}
         />
       )}
+      <QuickActions />
     </>
   );
 };

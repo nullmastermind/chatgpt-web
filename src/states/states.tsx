@@ -13,3 +13,5 @@ export const useCurrentCollectionRemoveId = createGlobalState<any>();
 export const useCurrentCollectionDownId = createGlobalState<any>();
 export const useCurrentCollectionUpId = createGlobalState<any>();
 export const useQuickActions = createGlobalState<any[]>([]);
+export const useQuickActionsQuery = createGlobalState<string>("");
+export const useCurrentTypeBoxId = createGlobalState<any>(-1);

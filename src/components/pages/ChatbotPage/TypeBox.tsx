@@ -1,6 +1,13 @@
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { useDebounce, useLocalStorage, useMeasure, useMount, useSessionStorage } from "react-use";
-import { useCollections, useCurrentCollection, useOpenaiAPIKey, useQuickActions } from "@/states/states";
+import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
+import { useDebounce, useLocalStorage, useMeasure, useMount, useSessionStorage, useUnmount } from "react-use";
+import {
+  useCollections,
+  useCurrentCollection,
+  useCurrentTypeBoxId,
+  useOpenaiAPIKey,
+  useQuickActions,
+  useQuickActionsQuery,
+} from "@/states/states";
 import { useDisclosure, useHotkeys } from "@mantine/hooks";
 import {
   findHighlight,
@@ -14,10 +21,9 @@ import {
 import { Button, Highlight, Modal, ScrollArea, Textarea, TextInput } from "@mantine/core";
 import { spotlight, SpotlightAction, SpotlightProvider } from "@mantine/spotlight";
 import { useForm } from "@mantine/form";
-import { cloneDeep, findIndex } from "lodash";
+import { cloneDeep, findIndex, uniqueId } from "lodash";
 import { requestChatStream } from "@/components/pages/ChatbotPage/Message.api";
 import { IconSearch } from "@tabler/icons-react";
-import FakeComponent from "@/components/pages/ChatbotPage/FakeComponent";
 
 export const TypeBox = forwardRef(
   (
@@ -38,6 +44,7 @@ export const TypeBox = forwardRef(
     },
     ref
   ) => {
+    const [id] = useState(uniqueId("TypeBox"));
     const [messageContent, setMessageContent] = useState<string>("");
     const [messageContentStore, setMessageContentStore] = useSessionStorage<string>(
       `:messageBox:${collection}:${exId}`,
@@ -67,7 +74,7 @@ export const TypeBox = forwardRef(
         category: any;
       }[]
     >(":quickCommands", []);
-    const [query, setQuery] = useState("");
+    const [query] = useQuickActionsQuery();
     const quickCommandList = useMemo(() => {
       const commands = quickCommands as any[];
       const search = query.replace("/", "");
@@ -128,7 +135,8 @@ export const TypeBox = forwardRef(
     const isEditCommand = useMemo(() => {
       return findIndex(quickCommands, v => v.content === messageContent) !== -1;
     }, [messageContent, quickCommands]);
-    const [quickActions, setQuickActions] = useQuickActions();
+    const [, setQuickActions] = useQuickActions();
+    const [currentTypeBoxId, setCurrentTypeBoxId] = useCurrentTypeBoxId();
 
     const handleImprove = () => {
       if (!inputRef.current) return;
@@ -209,6 +217,11 @@ export const TypeBox = forwardRef(
         setMessageContent(messageContentStore);
       }
     });
+    useEffect(() => {
+      if (currentTypeBoxId === id) {
+        setQuickActions(quickCommandList);
+      }
+    }, [quickCommandList, currentTypeBoxId, id]);
 
     const onSend = (c?: string) => {
       onSubmit(c || messageContent);
@@ -263,18 +276,8 @@ export const TypeBox = forwardRef(
       [nextFocus]
     );
 
-    const Provider = isReplyBox ? FakeComponent : SpotlightProvider;
-
     return (
-      <Provider
-        actions={quickActions}
-        searchIcon={<IconSearch size="1.2rem" />}
-        searchPlaceholder="Search..."
-        nothingFoundMessage="Nothing found..."
-        query={query}
-        onQueryChange={setQuery}
-        filter={() => quickActions}
-      >
+      <>
         <Modal
           opened={openedCommand}
           onClose={() => {
@@ -386,7 +389,9 @@ export const TypeBox = forwardRef(
                 setIsFocus(true);
                 setQuickActions(quickCommandList);
               }}
-              onBlur={() => setIsFocus(false)}
+              onBlur={() => {
+                setIsFocus(false);
+              }}
               autoFocus
               placeholder="Send a message..."
               onChange={e => setMessageContent(e.target.value)}
@@ -406,6 +411,7 @@ export const TypeBox = forwardRef(
 
                 if (e.key === "/" && e.target.value.length === 0) {
                   spotlight.open();
+                  setCurrentTypeBoxId(id);
                   e.preventDefault();
                   e.stopPropagation();
                   return;
@@ -528,7 +534,7 @@ export const TypeBox = forwardRef(
             Send
           </Button>
         </div>
-      </Provider>
+      </>
     );
   }
 );
