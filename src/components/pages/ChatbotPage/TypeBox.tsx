@@ -244,9 +244,9 @@ export const TypeBox = forwardRef(
     useEffect(() => {
       if (inputRef.current) {
         inputRef.current.placeholder = [
-          "/ = command\nEnter = submit, Shift+Enter = \\n, ↑↓ to take previous message, F1 to show Improve",
-          "⌘+↑ to add previous messages, and ⌘+↓ to decrease",
-          "⌘+shift+↑ / ⌘+shift+↓ to check/uncheck all",
+          "/ = command\nEnter = submit, Shift+Enter = \\n",
+          "↑↓ to take previous message",
+          "F1 to show Improve",
         ]
           .filter(v => !!v)
           .join("\n");
@@ -398,6 +398,11 @@ export const TypeBox = forwardRef(
               onKeyDown={(e: any) => {
                 const isMod = e.ctrlKey || e.metaKey;
                 const isCursorEnd = e.target.selectionStart === e.target.value.length;
+
+                if (e.key === "Escape" && onCancel) {
+                  if (onCancel) onCancel();
+                  return;
+                }
 
                 if (e.key === "/" && e.target.value.length === 0) {
                   spotlight.open();
