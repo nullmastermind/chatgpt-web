@@ -24,6 +24,7 @@ import TypingBlinkCursor from "@/components/misc/TypingBlinkCursor";
 import { IconCopy } from "@tabler/icons-react";
 import ReplyItem from "@/components/pages/ChatbotPage/ReplyItem";
 import { TypeBox } from "@/components/pages/ChatbotPage/TypeBox";
+import DateInfo from "@/components/pages/ChatbotPage/DateInfo";
 
 export type MessageProps = {
   collection: any;
@@ -36,7 +37,7 @@ export type MessageProps = {
   };
 };
 
-type MessageItemType = {
+export type MessageItemType = {
   source: "assistant" | "user";
   content: string;
   checked: boolean;
@@ -523,7 +524,7 @@ const MessageItem = forwardRef(
               {!isChild && (
                 <div className={"flex flex-row gap-2 items-center"}>
                   <Text className={"font-bold"}>{message.source === "assistant" ? collection?.label : "You"}</Text>
-                  <Text className={"opacity-60"}>on May 12</Text>
+                  <DateInfo message={message} />
                 </div>
               )}
             </div>
@@ -537,7 +538,7 @@ const MessageItem = forwardRef(
                 }}
               >
                 <Text className={"font-bold"}>{message.source === "assistant" ? collection?.label : "You"}</Text>
-                <Text className={"opacity-60"}>on May 12</Text>
+                <DateInfo message={message} />
               </div>
             )}
             <div className={classNames(classes.messageContent)}>
