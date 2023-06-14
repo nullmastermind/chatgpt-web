@@ -98,6 +98,38 @@ const useStyles = createStyles(theme => ({
   bgAction: {
     background: theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.colors.gray[0],
   },
+  childLine: {
+    background: theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[0],
+    height: "100%",
+    position: "absolute",
+    top: 0,
+    left: 30,
+    width: "2px",
+  },
+  childBorders: {
+    borderLeft: "1px solid #373A40",
+    borderRight: "1px solid #373A40",
+  },
+  rootBorders: {
+    borderLeft: "1px solid #373A40",
+    borderRight: "1px solid #373A40",
+    borderTop: "1px solid #373A40",
+    borderBottom: "1px solid #373A40",
+    borderTopLeftRadius: "0.25rem",
+    borderTopRightRadius: "0.25rem",
+  },
+  writeReplyContainer: {
+    border: "1px solid #373A40",
+    borderBottomLeftRadius: "0.25rem",
+    borderBottomRightRadius: "0.25rem",
+    position: "relative",
+    marginTop: -1,
+  },
+  divider1: {
+    borderTopColor: "#373A40",
+    borderTopWidth: "1px",
+    borderTopStyle: "solid",
+  },
 }));
 
 export default useStyles;

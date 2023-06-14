@@ -12,3 +12,4 @@ export const useCurrentCollectionEditId = createGlobalState<any>();
 export const useCurrentCollectionRemoveId = createGlobalState<any>();
 export const useCurrentCollectionDownId = createGlobalState<any>();
 export const useCurrentCollectionUpId = createGlobalState<any>();
+export const useQuickActions = createGlobalState<any[]>([]);

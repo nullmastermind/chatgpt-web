@@ -1,28 +1,5 @@
-import {
-  useCopyToClipboard,
-  useDebounce,
-  useList,
-  useLocalStorage,
-  useMap,
-  useMeasure,
-  useMount,
-  useSessionStorage,
-  useUnmount,
-} from "react-use";
-import {
-  ActionIcon,
-  Avatar,
-  Button,
-  Checkbox,
-  Container,
-  Divider,
-  Highlight,
-  Modal,
-  ScrollArea,
-  Textarea,
-  TextInput,
-  Tooltip,
-} from "@mantine/core";
+import { useCopyToClipboard, useDebounce, useList, useMap, useMeasure, useMount, useUnmount } from "react-use";
+import { ActionIcon, Avatar, Checkbox, Container, ScrollArea, Text, Tooltip } from "@mantine/core";
 import { forwardRef, MutableRefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { clone, cloneDeep, find, findIndex, forEach, map, throttle } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
@@ -36,22 +13,17 @@ import { useCollections, useCurrentCollection, useOpenaiAPIKey } from "@/states/
 import {
   convertToSupportLang,
   detectProgramLang,
-  findHighlight,
-  formatString,
   KeyValue,
   Node,
   postprocessAnswer,
   preprocessMessageContent,
-  searchArray,
   unWrapRawContent,
-  validateField,
   wrapRawContent,
 } from "@/utility/utility";
 import TypingBlinkCursor from "@/components/misc/TypingBlinkCursor";
-import { IconCopy, IconMinus, IconPlus, IconSearch } from "@tabler/icons-react";
-import { useDisclosure, useHotkeys } from "@mantine/hooks";
-import { spotlight, SpotlightAction, SpotlightProvider } from "@mantine/spotlight";
-import { useForm } from "@mantine/form";
+import { IconCopy } from "@tabler/icons-react";
+import ReplyItem from "@/components/pages/ChatbotPage/ReplyItem";
+import { TypeBox } from "@/components/pages/ChatbotPage/TypeBox";
 
 export type MessageProps = {
   collection: any;
@@ -69,6 +41,8 @@ type MessageItemType = {
   content: string;
   checked: boolean;
   id: any;
+  date: any;
+  isChild: boolean;
 };
 
 const messageRefs = { current: {} as KeyValue };
@@ -76,40 +50,31 @@ const autoScrollIds = { current: {} as KeyValue };
 
 const Message = ({ collection, prompt }: MessageProps) => {
   const { classes } = useStyles();
-  const [containerRef, { height: containerHeight, width: containerWidth }] = useMeasure();
+  const [containerRef, { height: containerHeight }] = useMeasure();
   const viewport = useRef<HTMLDivElement>(null);
   const [openaiAPIKey] = useOpenaiAPIKey();
-  const [messages, { push: pushMessage, updateAt: updateMessage, removeAt: removeMessage, set: setMessages }] =
-    useList<MessageItemType>(
-      JSON.parse(
-        localStorage.getItem(`:messages${collection}`) ||
-          JSON.stringify([
-            {
-              source: "assistant",
-              content: "Hello! How can I assist you today?",
-              id: Date.now(),
-            },
-          ])
-      )
-    );
+  const [messages, { push: pushMessage, set: setMessages, insertAt: insertMessage }] = useList<MessageItemType>(
+    JSON.parse(
+      localStorage.getItem(`:messages${collection}`) ||
+        JSON.stringify([
+          {
+            source: "assistant",
+            content: "Hello! How can I assist you today?",
+            id: Date.now(),
+          },
+        ])
+    )
+  );
   const [isDone, { set: setIsDone, setAll: setAllIsDone }] = useMap<{
     [key: string]: boolean;
   }>({});
-  const allDone = useMemo(() => {
-    let temp = true;
-    forEach(isDone, (value, key) => {
-      if (!value) {
-        temp = false;
-        return false;
-      }
-    });
-    return temp;
-  }, [isDone]);
   const checkedMessages = useMemo(() => {
     return messages.filter(v => v.checked);
   }, [messages]);
   const boxRef = useRef<any>(null);
   const [doScroll, setDoScroll] = useState(false);
+  const [streamMessageIndex, setStreamMessageIndex] = useState(-1);
+  const [includes, setIncludes] = useState<MessageItemType[]>([]);
 
   const scrollToBottom = (offset: number = 0) => {
     const scrollHeight = viewport.current?.scrollHeight || 0;
@@ -118,24 +83,39 @@ const Message = ({ collection, prompt }: MessageProps) => {
       top: scrollHeight - clientHeight - offset,
     });
   };
-  const onSend = (content: string) => {
+  const onSend = (content: string, index?: number, includeMessages?: MessageItemType[]) => {
     if (content.length === 0) return;
 
-    pushMessage(
-      {
-        source: "user",
-        content: content,
-        checked: checkedMessages.length > 0,
-        id: Date.now() - 1,
-      },
-      {
-        source: "assistant",
-        content: "...",
-        checked: checkedMessages.length > 0,
-        id: Date.now(),
-      }
-    );
-    setDoScroll(true);
+    const userMessage: MessageItemType = {
+      source: "user",
+      content: content,
+      checked: checkedMessages.length > 0,
+      id: Date.now() - 1,
+      date: new Date(),
+      isChild: false,
+    };
+    const assistantMessage: MessageItemType = {
+      source: "assistant",
+      content: "...",
+      checked: checkedMessages.length > 0,
+      id: Date.now(),
+      date: new Date(),
+      isChild: true,
+    };
+
+    if (index !== undefined && index >= 0) {
+      userMessage.isChild = true;
+
+      insertMessage(index, assistantMessage);
+      insertMessage(index, userMessage);
+      setStreamMessageIndex(index + 1);
+      setIncludes(includeMessages || []);
+    } else {
+      pushMessage(userMessage, assistantMessage);
+      setStreamMessageIndex(-1);
+      setDoScroll(true);
+      setIncludes([]);
+    }
   };
   const isBottom = () => {
     if (!viewport.current) return false;
@@ -155,40 +135,6 @@ const Message = ({ collection, prompt }: MessageProps) => {
     }
     setMessages(cloneMessages);
   };
-  const addChecked = () => {
-    const cloneMessages = clone(messages);
-    for (let i = cloneMessages.length - 1; i >= 0; i--) {
-      if (cloneMessages[i].checked) continue;
-      cloneMessages[i].checked = true;
-      if (cloneMessages[i].source === "user") {
-        break;
-      }
-    }
-    setMessages(cloneMessages);
-  };
-  const checkAll = () => {
-    setMessages(
-      cloneDeep(messages).map(v => {
-        v.checked = true;
-        return v;
-      })
-    );
-  };
-  const uncheckAll = () => {
-    setMessages(
-      cloneDeep(messages).map(v => {
-        v.checked = false;
-        return v;
-      })
-    );
-  };
-  const toggleAll = () => {
-    if (checkedMessages.length === 0) {
-      checkAll();
-    } else {
-      uncheckAll();
-    }
-  };
   const focusTextBox = () => {
     boxRef.current?.focus();
   };
@@ -200,13 +146,22 @@ const Message = ({ collection, prompt }: MessageProps) => {
   useDebounce(
     () => {
       if (messages.length === 0) return;
-      if (messages[messages.length - 1].content !== "..." || messages[messages.length - 1].source !== "assistant")
-        return;
 
-      const userMessage = messages[messages.length - 2];
-      const assistantPreMessage: MessageItemType = messages[messages.length - 1];
+      let streamIndex = streamMessageIndex === -1 ? messages.length : streamMessageIndex + 1;
 
-      setDoScroll(true);
+      if (streamIndex > messages.length) {
+        streamIndex = messages.length;
+      }
+
+      if (messages[streamIndex - 1].content !== "..." || messages[streamIndex - 1].source !== "assistant") return;
+
+      const userMessage = messages[streamIndex - 2];
+      const assistantPreMessage: MessageItemType = messages[streamIndex - 1];
+
+      if (streamIndex === messages.length) {
+        setDoScroll(true);
+      }
+
       setIsDone(assistantPreMessage.id, false);
 
       const requestMessages: any[] = [];
@@ -214,12 +169,16 @@ const Message = ({ collection, prompt }: MessageProps) => {
       forEach(clone(prompt.prompts), prompt => {
         if (prompt === "your") {
           const userMessages = [
+            ...map(includes, v => ({
+              role: v.source,
+              content: v.content,
+            })),
             ...checkedMessages.map(v => ({
               role: v.source,
               content: v.content,
             })),
           ];
-          if (!messages[messages.length - 2].checked) {
+          if (!messages[streamIndex - 2].checked) {
             userMessages.push({
               role: "user",
               content: userMessage.content,
@@ -296,15 +255,15 @@ const Message = ({ collection, prompt }: MessageProps) => {
             temperature: prompt.temperature,
             // max_tokens: 4096 / 2,
           },
-          onController(controller: AbortController): void {},
-          onError(error: Error, statusCode: number | undefined): void {
+          onController(): void {},
+          onError(error: Error): void {
             console.log("error", error);
           },
         }
       ).finally();
     },
     42,
-    [messages, checkedMessages, viewport, collection]
+    [messages, checkedMessages, viewport, collection, streamMessageIndex, includes]
   );
   useDebounce(
     () => {
@@ -349,8 +308,10 @@ const Message = ({ collection, prompt }: MessageProps) => {
     }
   }, [doScroll]);
 
+  const replyMessages: any[] = [];
+
   return (
-    <div className="h-full w-full flex flex-col gap-3">
+    <div className="h-full w-full flex flex-col">
       <div className="flex-grow relative" ref={containerRef as any}>
         {containerHeight > 0 && (
           <ScrollArea
@@ -360,164 +321,64 @@ const Message = ({ collection, prompt }: MessageProps) => {
             viewportRef={viewport}
             offsetScrollbars={false}
           >
-            <Container size="sm" className="mb-5 mt-5">
+            <Container size="sm" className="mb-10 mt-5 p-0">
               {map(messages, (message, index) => {
-                return (
-                  <MessageItem
-                    ref={instance => {
-                      if (instance) messageRefs.current[message.id] = instance;
-                    }}
-                    key={[message.id, message.checked].join(":")}
+                const isChild = ((index > 0 && message.source === "assistant") || message.isChild) && index > 0;
+                const showReplyBox = !isChild && index > 0;
+
+                if (index === messages.length - 1) {
+                  replyMessages.push(message);
+                }
+
+                const renderReplyItem = (
+                  <ReplyItem
+                    includeMessages={cloneDeep(replyMessages)}
+                    viewport={viewport}
                     messages={messages}
-                    setMessages={setMessages}
-                    message={message}
-                    classes={classes}
-                    index={index}
-                    isBottom={isBottom}
-                    scrollToBottom={scrollToBottom}
-                    autoScrollIds={autoScrollIds}
-                    focusTextBox={focusTextBox}
+                    key={[message.id, "replyItem"].join(":")}
+                    position={index === messages.length - 1 ? index + 1 : index}
+                    onSend={onSend}
+                    exId={message.id}
                   />
+                );
+
+                if (showReplyBox) {
+                  replyMessages.length = 0;
+                }
+
+                replyMessages.push(message);
+
+                return (
+                  <>
+                    {showReplyBox && renderReplyItem}
+                    <MessageItem
+                      ref={instance => {
+                        if (instance) messageRefs.current[message.id] = instance;
+                      }}
+                      key={[message.id, message.checked].join(":")}
+                      messages={messages}
+                      setMessages={setMessages}
+                      message={message}
+                      classes={classes}
+                      index={index}
+                      isBottom={isBottom}
+                      scrollToBottom={scrollToBottom}
+                      autoScrollIds={autoScrollIds}
+                      focusTextBox={focusTextBox}
+                      isChild={isChild}
+                    />
+                    {index === messages.length - 1 && renderReplyItem}
+                  </>
                 );
               })}
             </Container>
           </ScrollArea>
         )}
       </div>
-      <div className="flex flex-col gap-3 p-3 pt-0 m-auto w-full max-w-3xl">
-        <div className="flex flex-row gap-3 items-center">
-          <CheckedMessages checkedMessages={checkedMessages} messages={messages} />
-          <Button
-            variant="gradient"
-            size="xs"
-            className="w-28"
-            onClick={() => {
-              boxRef.current?.focus();
-              toggleAll();
-            }}
-          >
-            {checkedMessages.length === 0 ? "Check all" : "Uncheck all"}
-          </Button>
-          <ActionIcon
-            variant="gradient"
-            size="xs"
-            onClick={() => {
-              boxRef.current?.focus();
-              addChecked();
-            }}
-          >
-            <IconPlus size="1rem" />
-          </ActionIcon>
-          <ActionIcon
-            variant="gradient"
-            size="xs"
-            onClick={() => {
-              boxRef.current?.focus();
-              reduceChecked();
-            }}
-          >
-            <IconMinus size="1rem" />
-          </ActionIcon>
-          <Divider orientation="vertical" variant="dashed" />
-          <FollowScroll
-            isBottom={isBottom}
-            scrollToBottom={scrollToBottom}
-            viewport={viewport}
-            focus={() => {
-              boxRef.current?.focus();
-            }}
-          />
-        </div>
-        <TypeBox
-          ref={boxRef}
-          collection={collection}
-          onSubmit={content => onSend(content)}
-          messages={messages}
-          addChecked={addChecked}
-          reduceChecked={reduceChecked}
-          checkAll={checkAll}
-          uncheckAll={uncheckAll}
-        />
-      </div>
-    </div>
-  );
-};
-
-const FollowScroll = ({
-  isBottom,
-  scrollToBottom,
-  viewport,
-  focus,
-}: {
-  isBottom: () => any;
-  scrollToBottom: (offset?: number) => any;
-  viewport: any;
-  focus: () => any;
-}) => {
-  const [checked, setChecked] = useState(false);
-
-  useEffect(() => {
-    let isCurrentBottom = false;
-    const t = setInterval(() => {
-      let temp = isBottom();
-
-      if (temp !== isCurrentBottom) {
-        isCurrentBottom = temp;
-        setChecked(temp);
-      }
-    }, 42);
-    return () => {
-      clearInterval(t);
-    };
-  }, [viewport]);
-
-  return (
-    <Checkbox
-      color="gradient"
-      label={<span className="opacity-80">auto scroll to bottom</span>}
-      checked={checked}
-      onClick={() => {
-        if (checked) {
-          scrollToBottom(1);
-        } else {
-          scrollToBottom();
-        }
-        focus();
-      }}
-    />
-  );
-};
-
-const CheckedMessages = (props: { checkedMessages: any[]; messages: any }) => {
-  const [numberChecked, setNumberChecked] = useState(props.checkedMessages.length);
-
-  useEffect(() => {
-    setNumberChecked(props.checkedMessages.length);
-    const loop = setInterval(() => {
-      const tempCheckedMessages = props.messages.filter((v: any) => v.checked);
-
-      if (JSON.stringify(tempCheckedMessages) !== JSON.stringify(props.checkedMessages)) {
-        props.checkedMessages.splice(0, props.checkedMessages.length, ...tempCheckedMessages);
-        setNumberChecked(props.checkedMessages.length);
-      }
-    }, 50);
-    return () => {
-      clearInterval(loop);
-    };
-  }, [props]);
-
-  return (
-    <div className="relative">
-      <div
-        style={{
-          minWidth: "12rem",
-        }}
-      >
-        <span className="inline-block mr-2 opacity-80">Message continues:</span>
-        <b>{numberChecked}</b>
-      </div>
-      <div className="text-xs absolute -bottom-4 whitespace-nowrap opacity-50" style={{ fontSize: "0.6rem" }}>
-        Please tick the checkbox to select which message should continue in the conversation.
+      <div className={classes.divider1}>
+        <Container size={"sm"} className={classNames("flex flex-col gap-3 p-3 m-auto w-full px-0")}>
+          <TypeBox ref={boxRef} collection={collection} onSubmit={content => onSend(content)} messages={messages} />
+        </Container>
       </div>
     </div>
   );
@@ -535,6 +396,7 @@ const MessageItem = forwardRef(
       scrollToBottom,
       autoScrollIds,
       focusTextBox,
+      isChild,
     }: {
       classes: any;
       message: any;
@@ -545,6 +407,7 @@ const MessageItem = forwardRef(
       scrollToBottom: () => any;
       focusTextBox: () => any;
       autoScrollIds: MutableRefObject<KeyValue>;
+      isChild: boolean;
     },
     ref
   ) => {
@@ -593,7 +456,7 @@ const MessageItem = forwardRef(
     }, [doScrollToBottom, message.content, isTyping]);
     useMount(() => {
       if (message.source === "user" && !autoScrollIds.current[message.id]) {
-        scrollToBottom();
+        // scrollToBottom();
         autoScrollIds.current[message.id] = true;
       }
     });
@@ -608,610 +471,124 @@ const MessageItem = forwardRef(
     }, [isTyping, isEffect]);
 
     return (
-      <div
-        className={classNames(
-          "flex flex-row gap-3 items-start p-3 rounded relative",
-          {
-            [classes.messageBotBg]: message.source === "assistant",
-          },
-          classes.messageBotContainer
-        )}
-      >
-        <Tooltip label="Copied" opened={isCopied}>
-          <div
-            className="absolute right-1 bottom-2 la-copy"
-            onMouseLeave={() => {
-              setTimeout(() => setIsCopied(false), 200);
-            }}
-          >
-            <ActionIcon
-              size="xs"
-              variant="subtle"
-              onClick={() => {
-                setCopyText(message.content);
-                updateIsCopied();
-              }}
-              style={{ zIndex: 100 }}
-            >
-              <IconCopy />
-            </ActionIcon>
-          </div>
-        </Tooltip>
-        <div style={{ position: "sticky", transition: "top 0.3s ease-in-out" }} className="top-3">
-          <Checkbox
-            size="md"
-            checked={message.checked}
-            onChange={e => {
-              messages[index].checked = e.target.checked;
-              setMessage({
-                ...message,
-                checked: e.target.checked,
-              });
-              focusTextBox();
-            }}
-          />
-        </div>
-        <div style={{ position: "sticky" }} className="top-3">
-          <Avatar
-            size="md"
-            src={message.source === "assistant" ? "/assets/bot1.png" : undefined}
-            className={classNames({
-              [classes.userAvatar]: message.source !== "assistant",
-              [classes.assistantAvatar]: message.source === "assistant" && !isEffect,
-              [classes.assistantAvatar2]: message.source === "assistant" && isEffect,
-            })}
-          >
-            {/*❔*/}
-            {/*👾*/}
-            {collection?.emoji}
-          </Avatar>
-        </div>
+      <>
+        {!isChild && <div className={"h-10"} />}
         <div
-          className={classNames("flex-grow")}
-          style={{
-            maxWidth: "36rem",
-          }}
-        >
-          <div className={classes.messageContent}>
-            {message.content !== "..." && (
-              <ReactMarkdown
-                linkTarget="_blank"
-                remarkPlugins={[remarkGfm]}
-                rehypePlugins={[rehypeRaw]}
-                components={{
-                  code({ node: rawNode, inline, className, children, ...props }) {
-                    const node = rawNode as Node;
-
-                    const rawContent = String(children);
-                    let codeContent = postprocessAnswer(rawContent.replace(/\n$/, ""), true);
-
-                    if (inline && !message.content.includes("```" + rawContent + "```")) {
-                      if (node.position.end.offset - rawContent.length - node.position.start.offset === 2) {
-                        return <code className={classes.inlineCode}>{codeContent}</code>;
-                      }
-                    }
-
-                    const match = /language-(\w+)/.exec(className || "");
-                    let lang: any = "javascript";
-
-                    if (!match) {
-                      try {
-                        lang = detectProgramLang(codeContent);
-                      } catch (e) {}
-                    } else {
-                      lang = match[1] as any;
-                    }
-
-                    return (
-                      <Prism
-                        children={codeContent}
-                        language={convertToSupportLang(lang)}
-                        scrollAreaComponent={ScrollArea}
-                        className={classNames("mb-1", classes.codeWrap)}
-                      />
-                    );
-                  },
-                }}
-              >
-                {preprocessMessageContent(message.content)}
-              </ReactMarkdown>
-            )}
-            {(isTyping || message.content === "...") && <TypingBlinkCursor />}
-          </div>
-        </div>
-      </div>
-    );
-  }
-);
-
-const TypeBox = forwardRef(
-  (
-    {
-      collection,
-      onSubmit,
-      messages,
-      addChecked,
-      reduceChecked,
-      checkAll,
-      uncheckAll,
-    }: {
-      collection: any;
-      onSubmit: (content: string) => any;
-      messages: any[];
-      addChecked: () => any;
-      reduceChecked: () => any;
-      checkAll: () => any;
-      uncheckAll: () => any;
-    },
-    ref
-  ) => {
-    const [messageContent, setMessageContent] = useSessionStorage<string>(`:messageBox${collection}`, "");
-    const inputRef = useRef<HTMLTextAreaElement>(null);
-    const inputImproveRef = useRef<HTMLTextAreaElement>(null);
-    const [collections, setCollections] = useCollections();
-    const [, setCurrentCollection] = useCurrentCollection();
-    const [isFocus, setIsFocus] = useState(false);
-    const [opened, { open, close }] = useDisclosure(false);
-    const [improvedPrompt, setImprovedPrompt] = useState("");
-    const [openaiAPIKey] = useOpenaiAPIKey();
-    const [canEdit, setCanEdit] = useState(false);
-    const [selectionStart, setSelectionStart] = useState(0);
-    const [selectionEnd, setSelectionEnd] = useState(0);
-    const isShowQuickCommand = useMemo(() => {
-      const regex = /^\/[a-zA-Z0-9_-]*$/;
-      return (messageContent === "/" || regex.test(messageContent)) && !messageContent.includes("\n");
-    }, [messageContent]);
-    const [nextFocus, setNextFocus] = useState(false);
-    const [wRef, wInfo] = useMeasure();
-    const [quickCommands, setQuickCommands] = useLocalStorage<
-      {
-        name: string;
-        content: string;
-        category: any;
-      }[]
-    >(":quickCommands", []);
-    const [query, setQuery] = useState("");
-    const quickCommandList = useMemo(() => {
-      const commands = quickCommands as any[];
-      const search = query.replace("/", "");
-      const validCommands = searchArray(
-        search,
-        commands.map(v => v.name)
-      );
-      return commands
-        .filter(v => validCommands.includes(v.name))
-        .map(v => {
-          const match = ["/", ...findHighlight(v.name, search)];
-          return {
-            match,
-            type: "command",
-            title: (<Highlight highlight={match}>{v.name}</Highlight>) as any,
-            id: v.name,
-            description: formatString(v.content),
-            onTrigger(action: SpotlightAction) {
-              const content = (action.content as string).replace(/\r\n/g, "\n");
-
-              setMessageContent(content);
-              inputRef.current!.value = content;
-
-              // auto pos
-              if (content.includes("```\n\n```")) {
-                const cursor = content.lastIndexOf("```\n\n```") + 4;
-                inputRef.current?.setSelectionRange(cursor, cursor);
-              } else if (content.includes('""')) {
-                const cursor = content.lastIndexOf('""') + 1;
-                inputRef.current?.setSelectionRange(cursor, cursor);
-              } else if (content.includes("''")) {
-                const cursor = content.lastIndexOf("''") + 1;
-                inputRef.current?.setSelectionRange(cursor, cursor);
-              }
-              //
-
-              inputRef.current?.focus();
+          className={classNames(
+            "flex gap-2 items-start p-3 relative",
+            {
+              [classes.messageBotBg]: !isChild,
+              [classes.rootBorders]: !isChild,
+              [classes.childBorders]: isChild,
+              "flex-col": !isChild,
+              "flex-row": isChild,
             },
-            ...v,
-          } as SpotlightAction;
-        });
-    }, [quickCommands, query, isShowQuickCommand]);
-    const [openedCommand, { open: openCommand, close: closeCommand }] = useDisclosure(false);
-    const commandForm = useForm({
-      initialValues: {
-        name: "",
-        content: "",
-        category: `${collection}`,
-      },
-      validate: {
-        name: v =>
-          validateField(v)
-            ? null
-            : "Invalid field. Please use lowercase letters and do not use special characters or spaces. Use the _ or - character to replace spaces.",
-        content: v => (v.length ? null : "Required field."),
-      },
-    });
-    const isEditCommand = useMemo(() => {
-      return findIndex(quickCommands, v => v.content === messageContent) !== -1;
-    }, [messageContent, quickCommands]);
-
-    const handleImprove = () => {
-      if (!inputRef.current) return;
-
-      let selectedText = inputRef.current.value.substring(
-        inputRef.current.selectionStart,
-        inputRef.current.selectionEnd
-      );
-      if (!selectedText) {
-        selectedText = inputRef.current.value;
-      }
-
-      if (!selectedText) return;
-
-      open();
-      setImprovedPrompt("");
-      setCanEdit(false);
-      setSelectionStart(inputRef.current.selectionStart);
-      setSelectionEnd(inputRef.current.selectionEnd);
-
-      console.log("selectedText", wrapRawContent(selectedText));
-
-      requestChatStream(
-        "v1/completions",
-        [
-          {
-            role: "system",
-            content: `Help me improve my prompt, making it easier for other chatbot (LLM) to understand. Reply only result in English, don't write explanations and don't use any opening phrases such as: "Translated Text:", "Prompt:", "Translated Prompt:", "Prompt is:",....:`,
-          },
-          {
-            role: "user",
-            content: `My prompt:\n\n${wrapRawContent(selectedText)}`,
-          },
-        ],
-        {
-          token: openaiAPIKey,
-          modelConfig: {
-            model: "text-davinci-003",
-            temperature: 0.0,
-            max_tokens: 2000,
-          },
-          onMessage: (message, done) => {
-            message = unWrapRawContent(postprocessAnswer(message, done));
-
-            setImprovedPrompt(message);
-            if (done) {
-              setCanEdit(true);
-              inputImproveRef.current?.focus();
-            }
-          },
-          onController: controller => {},
-          onError: error => {},
-        }
-      ).finally();
-    };
-
-    useHotkeys([
-      [
-        "Enter",
-        () => {
-          if (opened) {
-            if (canEdit) {
-              confirmImprove();
-            }
-          } else {
-            if (!isFocus && !isShowQuickCommand) {
-              inputRef.current?.focus();
-            }
-          }
-        },
-      ],
-    ]);
-
-    const onSend = (c?: string) => {
-      onSubmit(c || messageContent);
-      setMessageContent("");
-    };
-
-    const confirmImprove = () => {
-      if (!inputRef.current) return;
-      if (selectionEnd === selectionStart) {
-        setMessageContent(improvedPrompt);
-        onSend(improvedPrompt);
-      } else {
-        const part0 = inputRef.current.value.substring(0, selectionStart);
-        const part1 = part0 + improvedPrompt;
-        const newContent = part1 + inputRef.current.value.substring(selectionEnd);
-        inputRef.current.value = newContent;
-        inputRef.current.setSelectionRange(part0.length, part1.length);
-        setMessageContent(newContent);
-      }
-      inputRef.current.focus();
-      close();
-    };
-
-    useImperativeHandle(ref, () => ({
-      focus() {
-        inputRef.current?.focus();
-      },
-    }));
-
-    useEffect(() => {
-      if (inputRef.current) {
-        inputRef.current.placeholder = [
-          "/ = command\nEnter = submit, Shift+Enter = \\n, ↑↓ to take previous message, F1 to show Improve",
-          "⌘+↑ to add previous messages, and ⌘+↓ to decrease",
-          "⌘+shift+↑ / ⌘+shift+↓ to check/uncheck all",
-        ]
-          .filter(v => !!v)
-          .join("\n");
-      }
-    }, [inputRef, isFocus]);
-    useDebounce(
-      () => {
-        if (nextFocus) {
-          inputRef.current?.focus();
-          setNextFocus(false);
-        }
-      },
-      100,
-      [nextFocus]
-    );
-
-    return (
-      <SpotlightProvider
-        actions={quickCommandList}
-        searchIcon={<IconSearch size="1.2rem" />}
-        searchPlaceholder="Search..."
-        shortcut="/"
-        nothingFoundMessage="Nothing found..."
-        query={query}
-        onQueryChange={setQuery}
-        filter={() => quickCommandList}
-      >
-        <Modal
-          opened={openedCommand}
-          onClose={() => {
-            closeCommand();
-          }}
-          centered={true}
-          title="Command tool"
-          scrollAreaComponent={ScrollArea.Autosize}
+            classes.messageBotContainer
+          )}
         >
-          <TextInput label="Name" placeholder="command_name_example" required {...commandForm.getInputProps("name")} />
-          <Textarea
-            className="mt-2"
-            label="Template"
-            required={true}
-            placeholder="Content..."
-            minRows={5}
-            maxRows={10}
-            autosize={true}
-            {...commandForm.getInputProps("content")}
-          />
-          <div className="mt-5 flex gap-3 items-center justify-end">
-            <Button variant="default" onClick={() => closeCommand()}>
-              Close
-            </Button>
-            {isEditCommand && (
-              <Button
-                variant="outline"
-                color="red"
-                onClick={() => {
-                  const index = findIndex(quickCommands, v => v.name === commandForm.values.name);
-                  if (index >= 0) {
-                    quickCommands?.splice(index, 1);
-                    setQuickCommands(cloneDeep(quickCommands));
-                    closeCommand();
-                  }
-                }}
-              >
-                Delete
-              </Button>
-            )}
-            <Button
-              onClick={() => {
-                if (commandForm.validate().hasErrors) {
-                  return;
-                }
-
-                const index = findIndex(quickCommands, v => v.name === commandForm.values.name);
-                const saveItem = {
-                  name: commandForm.values.name,
-                  content: commandForm.values.content,
-                  category: commandForm.values.category,
-                };
-                if (index === -1) {
-                  quickCommands!.push(saveItem);
-                } else {
-                  quickCommands![index] = saveItem;
-                }
-
-                setQuickCommands(cloneDeep(quickCommands));
-                closeCommand();
+          {isChild && <div className={classes.childLine} />}
+          <Tooltip label="Copied" opened={isCopied}>
+            <div
+              className="absolute right-1 bottom-2 la-copy"
+              onMouseLeave={() => {
+                setTimeout(() => setIsCopied(false), 200);
               }}
             >
-              Save
-            </Button>
-          </div>
-        </Modal>
-        <div className="flex flex-row items-baseline gap-3">
-          <Modal
-            opened={opened}
-            onClose={() => {
-              inputRef.current?.focus();
-              close();
-            }}
-            centered={true}
-            title="Tool to enhance your prompt"
-            scrollAreaComponent={ScrollArea.Autosize}
-          >
-            <div className="flex items-end justify-end pb-3">
-              <Button onClick={() => confirmImprove()}>Confirm</Button>
+              <ActionIcon
+                size="xs"
+                variant="subtle"
+                onClick={() => {
+                  setCopyText(message.content);
+                  updateIsCopied();
+                }}
+                style={{ zIndex: 100 }}
+              >
+                <IconCopy />
+              </ActionIcon>
             </div>
-            <Textarea
-              value={improvedPrompt}
-              minRows={5}
-              maxRows={10}
-              autoFocus={true}
-              autosize={true}
-              placeholder="Currently improving..."
-              onChange={e => {
-                if (!canEdit) return;
-                if (e.target.value !== improvedPrompt) {
-                  setImprovedPrompt(e.target.value);
-                }
-              }}
-              onKeyDown={e => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  confirmImprove();
-                  e.preventDefault();
-                  e.stopPropagation();
-                }
-              }}
-              ref={inputImproveRef}
-            ></Textarea>
-          </Modal>
-          <div className="flex-grow" ref={wRef as any}>
-            <Textarea
-              ref={inputRef}
-              spellCheck={true}
-              onFocus={() => setIsFocus(true)}
-              onBlur={() => setIsFocus(false)}
-              autoFocus
-              placeholder="Send a message..."
-              onChange={e => setMessageContent(e.target.value)}
-              value={messageContent}
-              autosize={true}
-              maxRows={4}
-              minRows={4}
-              className="w-full"
-              onKeyDown={(e: any) => {
-                const isMod = e.ctrlKey || e.metaKey;
-                const isCursorEnd = e.target.selectionStart === e.target.value.length;
-
-                if (e.key === "/" && e.target.value.length === 0) {
-                  spotlight.open();
-                  e.preventDefault();
-                  e.stopPropagation();
-                  return;
-                }
-
-                if (e.key === "F1") {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleImprove();
-                }
-
-                if (e.key === "Tab") {
-                  e.preventDefault();
-                  const start = e.target.selectionStart;
-                  const end = e.target.selectionEnd;
-                  setMessageContent(messageContent.substring(0, start) + "\t" + messageContent.substring(end));
-                  e.target.selectionStart = e.target.selectionEnd = start + 1;
-                }
-                if (e.key === "ArrowUp" && isMod && e.shiftKey) {
-                  checkAll();
-                }
-                if (e.key === "ArrowDown" && isMod && e.shiftKey) {
-                  uncheckAll();
-                }
-                if (e.key === "ArrowUp" && isMod && !e.shiftKey) {
-                  addChecked();
-                }
-                if (e.key === "ArrowDown" && isMod && !e.shiftKey) {
-                  reduceChecked();
-                }
-                if (isMod && +e.key >= 1 && +e.key <= 9) {
-                  e.preventDefault();
-                  const index = +e.key - 1;
-                  if (index <= collections.length - 1) {
-                    setCurrentCollection(collections[index].key);
-                  }
-                }
-                if (e.key === "ArrowUp" && !isMod && !e.shiftKey && isCursorEnd) {
-                  let startScanIndex = messages.length - 1;
-                  if (messageContent) {
-                    startScanIndex = findIndex(messages, m => {
-                      return m.source === "user" && m.content === messageContent;
-                    });
-                  }
-                  if (startScanIndex > 0) {
-                    for (let i = startScanIndex - 1; i >= 0; i--) {
-                      if (messages[i].source === "user") {
-                        e.preventDefault();
-                        setMessageContent(messages[i].content);
-                        break;
-                      }
-                    }
-                  }
-                }
-                if (e.key === "ArrowDown" && !isMod && !e.shiftKey && isCursorEnd) {
-                  let startScanIndex = 0;
-                  if (messageContent) {
-                    startScanIndex = findIndex(messages, m => {
-                      return m.source === "user" && m.content === messageContent;
-                    });
-                  }
-                  if (startScanIndex < messages.length - 1 && startScanIndex >= 0) {
-                    if (messageContent.length > 0) {
-                      startScanIndex += 1;
-                    }
-                    for (let i = startScanIndex; i < messages.length; i++) {
-                      if (messages[i].source === "user") {
-                        e.preventDefault();
-                        setMessageContent(messages[i].content);
-                        break;
-                      }
-                    }
-                  }
-                }
-                if (e.key === "Enter" && !e.shiftKey) {
-                  onSend();
-                  e.preventDefault();
-                  e.stopPropagation();
-                }
-                if (e.key === "Tab") {
-                  if (/[^a-zA-Z0-9]/.test(messageContent)) {
-                    e.preventDefault();
-                  }
-                }
-              }}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Button
-              onClick={() => {
-                inputRef.current?.focus();
-                onSend();
-              }}
-              variant="gradient"
-            >
-              Send
-            </Button>
-            <Tooltip label={(isEditCommand ? "Edit" : "Save") + " command template"}>
-              <Button
-                onClick={() => {
-                  commandForm.setFieldValue("content", messageContent);
-                  if (isEditCommand) {
-                    const index = findIndex(quickCommands, v => v.content === messageContent);
-                    if (index !== -1) {
-                      commandForm.setFieldValue("name", quickCommands![index].name);
-                      commandForm.setFieldValue("category", quickCommands![index].category);
-                    } else {
-                      commandForm.setFieldValue("name", "");
-                      commandForm.setFieldValue("category", `${collection}`);
-                    }
-                  } else {
-                    commandForm.setFieldValue("name", "");
-                    commandForm.setFieldValue("category", `${collection}`);
-                  }
-                  openCommand();
-                }}
-                variant="default"
+          </Tooltip>
+          <div style={{ position: isChild ? "sticky" : undefined }} className="top-3">
+            <div className={"flex flex-row items-center gap-3"}>
+              <Avatar
+                size="md"
+                src={message.source === "assistant" ? "/assets/bot1.png" : undefined}
+                className={classNames({
+                  [classes.userAvatar]: message.source !== "assistant",
+                  [classes.assistantAvatar]: message.source === "assistant" && !isEffect,
+                  [classes.assistantAvatar2]: message.source === "assistant" && isEffect,
+                })}
               >
-                {isEditCommand ? "Edit" : "Save"}
-              </Button>
-            </Tooltip>
+                {collection?.emoji}
+              </Avatar>
+              {!isChild && (
+                <div className={"flex flex-row gap-2 items-center"}>
+                  <Text className={"font-bold"}>{message.source === "assistant" ? collection?.label : "You"}</Text>
+                  <Text className={"opacity-60"}>on May 12</Text>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className={classNames("flex-grow")}>
+            {isChild && (
+              <div
+                className={"flex flex-row gap-2 items-center mb-2"}
+                style={{
+                  height: 34,
+                }}
+              >
+                <Text className={"font-bold"}>{message.source === "assistant" ? collection?.label : "You"}</Text>
+                <Text className={"opacity-60"}>on May 12</Text>
+              </div>
+            )}
+            <div className={classNames(classes.messageContent)}>
+              {message.content !== "..." && (
+                <ReactMarkdown
+                  linkTarget="_blank"
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeRaw]}
+                  components={{
+                    code({ node: rawNode, inline, className, children, ...props }) {
+                      const node = rawNode as Node;
+
+                      const rawContent = String(children);
+                      let codeContent = postprocessAnswer(rawContent.replace(/\n$/, ""), true);
+
+                      if (inline && !message.content.includes("```" + rawContent + "```")) {
+                        if (node.position.end.offset - rawContent.length - node.position.start.offset === 2) {
+                          return <code className={classes.inlineCode}>{codeContent}</code>;
+                        }
+                      }
+
+                      const match = /language-(\w+)/.exec(className || "");
+                      let lang: any = "javascript";
+
+                      if (!match) {
+                        try {
+                          lang = detectProgramLang(codeContent);
+                        } catch (e) {}
+                      } else {
+                        lang = match[1] as any;
+                      }
+
+                      return (
+                        <Prism
+                          children={codeContent}
+                          language={convertToSupportLang(lang)}
+                          scrollAreaComponent={ScrollArea}
+                          className={classNames("mb-1", classes.codeWrap)}
+                        />
+                      );
+                    },
+                  }}
+                >
+                  {preprocessMessageContent(message.content)}
+                </ReactMarkdown>
+              )}
+              {(isTyping || message.content === "...") && <TypingBlinkCursor />}
+            </div>
           </div>
         </div>
-      </SpotlightProvider>
+      </>
     );
   }
 );
