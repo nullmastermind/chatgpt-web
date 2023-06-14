@@ -434,6 +434,7 @@ const MessageItem = forwardRef(
     const collection = useMemo(() => {
       return find(collections, v => v.key === collectionId);
     }, [collectionId, collections]);
+    const scrollElementRef = useRef<HTMLDivElement>(null);
 
     useImperativeHandle(ref, () => ({
       editMessage(newMessage: string, isDone: boolean) {
@@ -451,6 +452,9 @@ const MessageItem = forwardRef(
 
         if (isDone) {
           doneMessages.current[message.id] = true;
+          if (!isBottom()) {
+            scrollElementRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "start" });
+          }
         }
       },
     }));
@@ -496,6 +500,14 @@ const MessageItem = forwardRef(
             classes.messageBotContainer
           )}
         >
+          <div
+            ref={scrollElementRef}
+            className={"absolute"}
+            style={{
+              left: 0,
+              bottom: 0,
+            }}
+          />
           {isChild && <div className={classes.childLine} />}
           <Tooltip label="Copied" opened={isCopied}>
             <div
