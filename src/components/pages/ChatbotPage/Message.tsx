@@ -111,14 +111,13 @@ const Message = ({ collection, prompt }: MessageProps) => {
       scrollToBottom: true,
     };
 
-    if (index === messages.length) {
-      index = undefined;
-    }
-
     if (index !== undefined && index >= 0) {
       userMessage.isChild = true;
-      userMessage.scrollToBottom = false;
-      assistantMessage.scrollToBottom = false;
+
+      if (index < messages.length) {
+        userMessage.scrollToBottom = false;
+        assistantMessage.scrollToBottom = false;
+      }
 
       insertMessage(index, assistantMessage);
       insertMessage(index, userMessage);
