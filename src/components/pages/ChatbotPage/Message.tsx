@@ -316,7 +316,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
       setDoScroll(false);
     }
   }, [doScroll]);
-  useUnmount(() => {
+  useMount(() => {
     saveSplitMessages();
   });
 
