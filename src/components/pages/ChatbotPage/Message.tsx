@@ -26,6 +26,7 @@ import ReplyItem from "@/components/pages/ChatbotPage/ReplyItem";
 import { TypeBox } from "@/components/pages/ChatbotPage/TypeBox";
 import DateInfo from "@/components/pages/ChatbotPage/DateInfo";
 import { useIdle } from "@mantine/hooks";
+import axios from "axios";
 
 export type MessageProps = {
   collection: any;
@@ -168,7 +169,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
     saveSplitMessages();
   });
   useDebounce(
-    () => {
+    async () => {
       if (messages.length === 0) return;
 
       let streamIndex = streamMessageIndex === -1 ? messages.length : streamMessageIndex + 1;
@@ -181,18 +182,6 @@ const Message = ({ collection, prompt }: MessageProps) => {
 
       const userMessage = messages[streamIndex - 2];
       const assistantPreMessage: MessageItemType = messages[streamIndex - 1];
-
-      let autoModel = model;
-      if (autoModel.startsWith("auto")) {
-        const [, model1, model2, switchValue] = autoModel.split("|");
-        const countTokens = userMessage.tokens;
-
-        if (countTokens > +switchValue) {
-          autoModel = model2;
-        } else {
-          autoModel = model1;
-        }
-      }
 
       if (streamIndex === messages.length) {
         setDoScroll(true);
@@ -245,6 +234,22 @@ const Message = ({ collection, prompt }: MessageProps) => {
       const saveMessagesThr = throttle((message: string) => {
         saveMessagesFn(message);
       }, 1000);
+
+      // choose model
+      let autoModel = model;
+      if (autoModel.startsWith("auto")) {
+        const { data: reqTokens } = await axios.post("/api/tokens", {
+          content: requestMessages.map(v => v.content).join(""),
+        });
+        const countTokens = +reqTokens.data;
+        const [, model1, model2, switchValue] = autoModel.split("|");
+
+        if (countTokens > +switchValue) {
+          autoModel = model2;
+        } else {
+          autoModel = model1;
+        }
+      }
 
       requestChatStream(
         "v1/chat/completions",
