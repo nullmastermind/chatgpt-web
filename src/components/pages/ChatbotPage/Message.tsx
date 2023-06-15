@@ -44,6 +44,7 @@ export type MessageItemType = {
   id: any;
   date: any;
   isChild: boolean;
+  scrollToBottom: boolean;
 };
 
 const messageRefs = { current: {} as KeyValue };
@@ -96,6 +97,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
       id: Date.now() - 1,
       date: new Date(),
       isChild: false,
+      scrollToBottom: true,
     };
     const assistantMessage: MessageItemType = {
       source: "assistant",
@@ -104,10 +106,17 @@ const Message = ({ collection, prompt }: MessageProps) => {
       id: Date.now(),
       date: new Date(),
       isChild: true,
+      scrollToBottom: true,
     };
+
+    if (index === messages.length) {
+      index = undefined;
+    }
 
     if (index !== undefined && index >= 0) {
       userMessage.isChild = true;
+      userMessage.scrollToBottom = false;
+      assistantMessage.scrollToBottom = false;
 
       insertMessage(index, assistantMessage);
       insertMessage(index, userMessage);
@@ -413,7 +422,7 @@ const MessageItem = forwardRef(
     },
     ref
   ) => {
-    const [message, setMessage] = useState(inputMessage);
+    const [message, setMessage] = useState<MessageItemType>(inputMessage);
     const [isTyping, setIsTyping] = useState(false);
     const [doScrollToBottom, setDoScrollToBottom] = useState<boolean>(true);
     const [, setCopyText] = useCopyToClipboard();
@@ -466,7 +475,9 @@ const MessageItem = forwardRef(
     }, [doScrollToBottom, message.content, isTyping]);
     useMount(() => {
       if (message.source === "user" && !autoScrollIds.current[message.id]) {
-        // scrollToBottom();
+        if (message.scrollToBottom) {
+          scrollToBottom();
+        }
         autoScrollIds.current[message.id] = true;
       }
     });
