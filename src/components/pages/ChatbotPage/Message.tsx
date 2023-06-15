@@ -46,6 +46,7 @@ export type MessageItemType = {
   date: any;
   isChild: boolean;
   scrollToBottom: boolean;
+  tokens: number;
 };
 
 const messageRefs = { current: {} as KeyValue };
@@ -89,7 +90,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
       top: scrollHeight - clientHeight - offset,
     });
   };
-  const onSend = (content: string, index?: number, includeMessages?: MessageItemType[]) => {
+  const onSend = (content: string, index?: number, includeMessages?: MessageItemType[], tokens?: number) => {
     if (content.length === 0) return;
 
     const userMessage: MessageItemType = {
@@ -100,6 +101,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
       date: new Date(),
       isChild: false,
       scrollToBottom: true,
+      tokens: tokens || 0,
     };
     const assistantMessage: MessageItemType = {
       source: "assistant",
@@ -109,6 +111,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
       date: new Date(),
       isChild: true,
       scrollToBottom: true,
+      tokens: tokens || 0,
     };
 
     if (index !== undefined && index >= 0) {
@@ -178,6 +181,18 @@ const Message = ({ collection, prompt }: MessageProps) => {
 
       const userMessage = messages[streamIndex - 2];
       const assistantPreMessage: MessageItemType = messages[streamIndex - 1];
+
+      let autoModel = model;
+      if (autoModel.startsWith("auto")) {
+        const [, model1, model2, switchValue] = autoModel.split("|");
+        const countTokens = userMessage.tokens;
+
+        if (countTokens > +switchValue) {
+          autoModel = model2;
+        } else {
+          autoModel = model1;
+        }
+      }
 
       if (streamIndex === messages.length) {
         setDoScroll(true);
@@ -272,7 +287,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
           },
           token: openaiAPIKey,
           modelConfig: {
-            model: model,
+            model: autoModel,
             temperature: prompt.temperature,
           },
           onController(): void {},
@@ -387,7 +402,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
           <TypeBox
             ref={boxRef}
             collection={collection}
-            onSubmit={content => onSend(content)}
+            onSubmit={(content, tokens) => onSend(content, undefined, [], tokens)}
             messages={messages}
             includeMessages={[]}
           />

@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
+import React, { createRef, forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { useDebounce, useLocalStorage, useMeasure, useMount, useSessionStorage } from "react-use";
 import {
   useCollections,
@@ -39,7 +39,7 @@ export const TypeBox = forwardRef(
       includeMessages,
     }: {
       collection: any;
-      onSubmit: (content: string) => any;
+      onSubmit: (content: string, tokens: number) => any;
       messages: any[];
       onCancel?: () => any;
       isReplyBox?: boolean;
@@ -141,6 +141,7 @@ export const TypeBox = forwardRef(
     }, [messageContent, quickCommands]);
     const [, setQuickActions] = useQuickActions();
     const [currentTypeBoxId, setCurrentTypeBoxId] = useCurrentTypeBoxId();
+    const countTokenRef = createRef<any>();
 
     const handleImprove = () => {
       if (!inputRef.current) return;
@@ -228,7 +229,7 @@ export const TypeBox = forwardRef(
     }, [quickCommandList, currentTypeBoxId, id]);
 
     const onSend = (c?: string) => {
-      onSubmit(c || messageContent);
+      onSubmit(c || messageContent, countTokenRef.current?.getTokens());
       setMessageContent("");
       if (inputRef.current) {
         inputRef.current.value = "";
@@ -498,7 +499,7 @@ export const TypeBox = forwardRef(
         </div>
         <div className="flex flex-row gap-2 items-center justify-end">
           <div className={"flex-grow self-start"}>
-            <CountTokens content={messageContent} includeMessages={includeMessages} />
+            <CountTokens ref={countTokenRef} content={messageContent} includeMessages={includeMessages} />
           </div>
           <ModelSelect />
           {onCancel && (

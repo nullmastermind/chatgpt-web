@@ -1,7 +1,7 @@
 import { Text } from "@mantine/core";
 import { useDebounce, useMount } from "react-use";
 import axios from "axios";
-import { useState } from "react";
+import { forwardRef, useImperativeHandle, useState } from "react";
 import { MessageItemType } from "@/components/pages/ChatbotPage/Message";
 import { forEach } from "lodash";
 
@@ -10,7 +10,7 @@ type CountTokensProps = {
   includeMessages: MessageItemType[];
 };
 
-const CountTokens = ({ content, includeMessages }: CountTokensProps) => {
+const CountTokens = forwardRef(({ content, includeMessages }: CountTokensProps, ref) => {
   const [tokens, setTokens] = useState<number>(0);
 
   const countTokens = () => {
@@ -29,6 +29,11 @@ const CountTokens = ({ content, includeMessages }: CountTokensProps) => {
       });
   };
 
+  useImperativeHandle(ref, () => ({
+    getTokens() {
+      return tokens;
+    },
+  }));
   useMount(() => {
     countTokens();
   });
@@ -47,6 +52,6 @@ const CountTokens = ({ content, includeMessages }: CountTokensProps) => {
       </Text>
     </>
   );
-};
+});
 
 export default CountTokens;
