@@ -16,15 +16,15 @@ const useStyles = createStyles(theme => ({
   },
   assistantAvatarInfo: {
     borderStyle: "solid",
-    borderWidth: "1px",
+    borderWidth: "2px",
     borderColor: "green",
     borderRadius: "0.3rem",
     background: theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[0],
     lineHeight: "16px",
     textAlign: "center",
     transform: "scale(0.7)",
-    right: -2,
-    bottom: -1,
+    right: -9,
+    bottom: -6,
   },
   assistantAvatar2: {
     borderStyle: "solid",
