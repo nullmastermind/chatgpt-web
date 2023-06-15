@@ -1,5 +1,5 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { useDebounce, useLocalStorage, useMeasure, useMount, useSessionStorage, useUnmount } from "react-use";
+import { useDebounce, useLocalStorage, useMeasure, useMount, useSessionStorage } from "react-use";
 import {
   useCollections,
   useCurrentCollection,
@@ -19,11 +19,10 @@ import {
   wrapRawContent,
 } from "@/utility/utility";
 import { Button, Highlight, Modal, ScrollArea, Textarea, TextInput } from "@mantine/core";
-import { spotlight, SpotlightAction, SpotlightProvider } from "@mantine/spotlight";
+import { spotlight, SpotlightAction } from "@mantine/spotlight";
 import { useForm } from "@mantine/form";
 import { cloneDeep, findIndex, uniqueId } from "lodash";
 import { requestChatStream } from "@/components/pages/ChatbotPage/Message.api";
-import { IconSearch } from "@tabler/icons-react";
 import ModelSelect from "@/components/pages/ChatbotPage/ModelSelect";
 
 export const TypeBox = forwardRef(
