@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-const { encode, decode } = require("gpt-3-encoder");
+
+const { encode } = require("gpt-3-encoder");
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const str = req.body.content || req.query.content || "";
