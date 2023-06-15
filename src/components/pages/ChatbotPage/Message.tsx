@@ -80,6 +80,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
   const [streamMessageIndex, setStreamMessageIndex] = useState(-1);
   const [includes, setIncludes] = useState<MessageItemType[]>([]);
   const [model] = useModel();
+  const isIdle = useIdle(60000);
 
   const scrollToBottom = (offset: number = 0) => {
     const scrollHeight = viewport.current?.scrollHeight || 0;
@@ -300,10 +301,11 @@ const Message = ({ collection, prompt }: MessageProps) => {
   }, [containerHeight]);
   useDebounce(
     () => {
+      if (!isIdle) return;
       saveSplitMessages();
     },
-    30000,
-    [isDone, messages]
+    60000,
+    [isDone, messages, isIdle]
   );
   useEffect(() => {
     boxRef.current?.focus();
