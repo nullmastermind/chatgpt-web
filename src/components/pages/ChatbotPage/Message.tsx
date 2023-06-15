@@ -531,17 +531,24 @@ const MessageItem = forwardRef(
           </Tooltip>
           <div style={{ position: isChild ? "sticky" : undefined }} className="top-3">
             <div className={"flex flex-row items-center gap-3"}>
-              <Avatar
-                size="md"
-                src={message.source === "assistant" ? "/assets/bot1.png" : undefined}
-                className={classNames({
-                  [classes.userAvatar]: message.source !== "assistant",
-                  [classes.assistantAvatar]: message.source === "assistant" && !isEffect,
-                  [classes.assistantAvatar2]: message.source === "assistant" && isEffect,
-                })}
-              >
-                {collection?.emoji}
-              </Avatar>
+              <div className={"relative"}>
+                <Avatar
+                  size="md"
+                  src={message.source === "assistant" ? "/assets/bot1.png" : "/assets/chill.png"}
+                  className={classNames({
+                    [classes.userAvatar]: message.source !== "assistant",
+                    [classes.assistantAvatar]: message.source === "assistant" && !isEffect,
+                    [classes.assistantAvatar2]: message.source === "assistant" && isEffect,
+                  })}
+                >
+                  {collection?.emoji}
+                </Avatar>
+                {message.source === "assistant" && (
+                  <div className={classNames("absolute", classes.assistantAvatarInfo)}>
+                    {collection?.emoji}
+                  </div>
+                )}
+              </div>
               {!isChild && (
                 <div className={"flex flex-row gap-2 items-center"}>
                   <Text className={"font-bold"}>{message.source === "assistant" ? collection?.label : "You"}</Text>
