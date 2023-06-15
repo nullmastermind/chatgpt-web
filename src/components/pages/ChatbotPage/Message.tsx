@@ -83,6 +83,38 @@ const Message = ({ collection, prompt }: MessageProps) => {
   const [includes, setIncludes] = useState<MessageItemType[]>([]);
   const [model] = useModel();
   const isIdle = useIdle(60000);
+  const messagesList = useMemo<MessageItemType[][]>(() => {
+    const result: any[] = [];
+    let replyMessages0: any[] = [];
+    forEach(messages, (message, index) => {
+      let isChild = false;
+      if ((index > 0 && message.source === "assistant") || message.isChild) {
+        isChild = true;
+      }
+      const showReplyBox = !isChild && index > 0;
+
+      message.isChild = isChild;
+
+      if (index === messages.length - 1) {
+        replyMessages0.push(message);
+      }
+
+      if (showReplyBox || index === messages.length - 1) {
+        if (replyMessages0.length > 0) {
+          replyMessages0[0].isChild = false;
+        }
+        result.push(clone(replyMessages0));
+      }
+
+      if (showReplyBox) {
+        replyMessages0 = [];
+      }
+
+      replyMessages0.push(message);
+    });
+
+    return result;
+  }, [messages]);
 
   const scrollToBottom = (offset: number = 0) => {
     const scrollHeight = viewport.current?.scrollHeight || 0;
@@ -335,8 +367,6 @@ const Message = ({ collection, prompt }: MessageProps) => {
     }
   }, [doScroll]);
 
-  const replyMessages: any[] = [];
-
   return (
     <div className="h-full w-full flex flex-col">
       <div className="flex-grow relative" ref={containerRef as any}>
@@ -349,52 +379,49 @@ const Message = ({ collection, prompt }: MessageProps) => {
             offsetScrollbars={false}
           >
             <Container size="sm" className="mb-10 mt-5 p-0">
-              {map(messages, (message, index) => {
-                const isChild = ((index > 0 && message.source === "assistant") || message.isChild) && index > 0;
-                const showReplyBox = !isChild && index > 0;
-
-                if (index === messages.length - 1) {
-                  replyMessages.push(message);
-                }
-
-                const renderReplyItem = (
-                  <ReplyItem
-                    includeMessages={cloneDeep(replyMessages)}
-                    viewport={viewport}
-                    messages={messages}
-                    key={[message.id, "replyItem"].join(":")}
-                    position={index === messages.length - 1 ? index + 1 : index}
-                    onSend={onSend}
-                    exId={message.id}
-                  />
-                );
-
-                if (showReplyBox) {
-                  replyMessages.length = 0;
-                }
-
-                replyMessages.push(message);
+              {map(messagesList, (messages, i0) => {
+                const position = messagesList
+                  .filter((v, i) => i <= i0)
+                  .map(v => v.length)
+                  .reduce((accumulator, currentValue) => {
+                    return accumulator + currentValue;
+                  }, 0);
 
                 return (
                   <>
-                    {showReplyBox && renderReplyItem}
-                    <MessageItem
-                      ref={instance => {
-                        if (instance) messageRefs.current[message.id] = instance;
-                      }}
-                      key={[message.id, message.checked].join(":")}
+                    {map(messages, (message, index) => {
+                      const isChild = message.isChild;
+
+                      return (
+                        <>
+                          <MessageItem
+                            ref={instance => {
+                              if (instance) messageRefs.current[message.id] = instance;
+                            }}
+                            key={[message.id, message.checked].join(":")}
+                            messages={messages}
+                            setMessages={setMessages}
+                            message={message}
+                            classes={classes}
+                            index={index}
+                            isBottom={isBottom}
+                            scrollToBottom={scrollToBottom}
+                            autoScrollIds={autoScrollIds}
+                            focusTextBox={focusTextBox}
+                            isChild={isChild}
+                          />
+                        </>
+                      );
+                    })}
+                    <ReplyItem
+                      includeMessages={messages}
+                      viewport={viewport}
                       messages={messages}
-                      setMessages={setMessages}
-                      message={message}
-                      classes={classes}
-                      index={index}
-                      isBottom={isBottom}
-                      scrollToBottom={scrollToBottom}
-                      autoScrollIds={autoScrollIds}
-                      focusTextBox={focusTextBox}
-                      isChild={isChild}
+                      key={[JSON.stringify(messages), i0].join(":")}
+                      position={position}
+                      onSend={onSend}
+                      exId={i0}
                     />
-                    {index === messages.length - 1 && renderReplyItem}
                   </>
                 );
               })}
