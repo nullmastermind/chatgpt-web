@@ -384,7 +384,13 @@ const Message = ({ collection, prompt }: MessageProps) => {
       </div>
       <div className={classes.divider1}>
         <Container size={"sm"} className={classNames("flex flex-col gap-3 p-3 m-auto w-full px-0")}>
-          <TypeBox ref={boxRef} collection={collection} onSubmit={content => onSend(content)} messages={messages} />
+          <TypeBox
+            ref={boxRef}
+            collection={collection}
+            onSubmit={content => onSend(content)}
+            messages={messages}
+            includeMessages={[]}
+          />
         </Container>
       </div>
     </div>

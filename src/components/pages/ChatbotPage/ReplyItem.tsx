@@ -53,6 +53,7 @@ const ReplyItem = ({ messages, includeMessages, position, onSend, exId }: ReplyI
               messages={messages}
               onCancel={() => setShowFullEdit(false)}
               isReplyBox={true}
+              includeMessages={includeMessages}
             />
           </div>
         )}

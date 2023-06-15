@@ -24,6 +24,8 @@ import { useForm } from "@mantine/form";
 import { cloneDeep, findIndex, uniqueId } from "lodash";
 import { requestChatStream } from "@/components/pages/ChatbotPage/Message.api";
 import ModelSelect from "@/components/pages/ChatbotPage/ModelSelect";
+import { MessageItemType } from "@/components/pages/ChatbotPage/Message";
+import CountTokens from "@/components/pages/ChatbotPage/CountTokens";
 
 export const TypeBox = forwardRef(
   (
@@ -34,6 +36,7 @@ export const TypeBox = forwardRef(
       onCancel,
       isReplyBox,
       exId,
+      includeMessages,
     }: {
       collection: any;
       onSubmit: (content: string) => any;
@@ -41,6 +44,7 @@ export const TypeBox = forwardRef(
       onCancel?: () => any;
       isReplyBox?: boolean;
       exId?: any;
+      includeMessages: MessageItemType[];
     },
     ref
   ) => {
@@ -493,6 +497,9 @@ export const TypeBox = forwardRef(
           </div>
         </div>
         <div className="flex flex-row gap-2 items-center justify-end">
+          <div className={"flex-grow self-start"}>
+            <CountTokens content={messageContent} includeMessages={includeMessages} />
+          </div>
           <ModelSelect />
           {onCancel && (
             <Button size={"xs"} onClick={onCancel} variant="default">
