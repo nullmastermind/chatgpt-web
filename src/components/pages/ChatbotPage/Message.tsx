@@ -25,6 +25,7 @@ import { IconCopy } from "@tabler/icons-react";
 import ReplyItem from "@/components/pages/ChatbotPage/ReplyItem";
 import { TypeBox } from "@/components/pages/ChatbotPage/TypeBox";
 import DateInfo from "@/components/pages/ChatbotPage/DateInfo";
+import { useIdle } from "@mantine/hooks";
 
 export type MessageProps = {
   collection: any;
@@ -78,7 +79,8 @@ const Message = ({ collection, prompt }: MessageProps) => {
   const [doScroll, setDoScroll] = useState(false);
   const [streamMessageIndex, setStreamMessageIndex] = useState(-1);
   const [includes, setIncludes] = useState<MessageItemType[]>([]);
-  const [model, setModel] = useModel();
+  const [model] = useModel();
+  const isIdle = useIdle(10000);
 
   const scrollToBottom = (offset: number = 0) => {
     const scrollHeight = viewport.current?.scrollHeight || 0;
@@ -135,17 +137,6 @@ const Message = ({ collection, prompt }: MessageProps) => {
     const clientHeight = viewport.current?.clientHeight || 0;
     const scrollTop = viewport.current?.scrollTop || 0;
     return scrollTop >= scrollHeight - clientHeight;
-  };
-  const reduceChecked = () => {
-    const cloneMessages = clone(messages);
-    for (let i = 0; i < cloneMessages.length; i++) {
-      if (!cloneMessages[i].checked) continue;
-      cloneMessages[i].checked = false;
-      if (cloneMessages[i].source === "assistant") {
-        break;
-      }
-    }
-    setMessages(cloneMessages);
   };
   const focusTextBox = () => {
     boxRef.current?.focus();
@@ -290,7 +281,11 @@ const Message = ({ collection, prompt }: MessageProps) => {
   }, [containerHeight]);
   useDebounce(
     () => {
+      if (!isIdle) return;
       if (Object.keys(isDone).length === 0) return;
+
+      doneMessages.current = {};
+
       let canSave = true;
       forEach(isDone, value => {
         if (!value) {
@@ -307,7 +302,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
       }
     },
     42,
-    [isDone, messages]
+    [isDone, messages, isIdle]
   );
   useEffect(() => {
     boxRef.current?.focus();
