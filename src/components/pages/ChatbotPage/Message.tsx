@@ -142,8 +142,6 @@ const Message = ({ collection, prompt }: MessageProps) => {
     boxRef.current?.focus();
   };
   const saveSplitMessages = () => {
-    if (Object.keys(isDone).length === 0) return;
-
     doneMessages.current = {};
 
     let canSave = true;
@@ -165,6 +163,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
   useUnmount(() => {
     messageRefs.current = {};
     autoScrollIds.current = {};
+    saveSplitMessages();
   });
   useDebounce(
     () => {
@@ -316,9 +315,6 @@ const Message = ({ collection, prompt }: MessageProps) => {
       setDoScroll(false);
     }
   }, [doScroll]);
-  useMount(() => {
-    saveSplitMessages();
-  });
 
   const replyMessages: any[] = [];
 
