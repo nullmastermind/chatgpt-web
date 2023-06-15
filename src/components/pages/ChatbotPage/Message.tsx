@@ -544,9 +544,7 @@ const MessageItem = forwardRef(
                   {collection?.emoji}
                 </Avatar>
                 {message.source === "assistant" && (
-                  <div className={classNames("absolute", classes.assistantAvatarInfo)}>
-                    {collection?.emoji}
-                  </div>
+                  <div className={classNames("absolute", classes.assistantAvatarInfo)}>{collection?.emoji}</div>
                 )}
               </div>
               {!isChild && (
@@ -557,7 +555,7 @@ const MessageItem = forwardRef(
               )}
             </div>
           </div>
-          <div className={classNames("flex-grow")}>
+          <div className={classNames("flex-grow w-full")}>
             {isChild && (
               <div
                 className={"flex flex-row gap-2 items-center mb-2"}
