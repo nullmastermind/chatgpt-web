@@ -36,6 +36,7 @@
     "embla-carousel-react": "^7.1.0",
     "eventsource-parser": "^1.0.0",
     "fuse.js": "^6.6.2",
+    "gpt-3-encoder": "^1.1.4",
     "lodash": "^4.17.21",
     "next": "13.3.0",
     "openai": "^3.2.1",
