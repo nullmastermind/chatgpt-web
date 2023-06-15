@@ -80,7 +80,6 @@ const Message = ({ collection, prompt }: MessageProps) => {
   const [streamMessageIndex, setStreamMessageIndex] = useState(-1);
   const [includes, setIncludes] = useState<MessageItemType[]>([]);
   const [model] = useModel();
-  const isIdle = useIdle(10000);
 
   const scrollToBottom = (offset: number = 0) => {
     const scrollHeight = viewport.current?.scrollHeight || 0;
@@ -140,6 +139,26 @@ const Message = ({ collection, prompt }: MessageProps) => {
   };
   const focusTextBox = () => {
     boxRef.current?.focus();
+  };
+  const saveSplitMessages = () => {
+    if (Object.keys(isDone).length === 0) return;
+
+    doneMessages.current = {};
+
+    let canSave = true;
+    forEach(isDone, value => {
+      if (!value) {
+        canSave = false;
+        return false;
+      }
+    });
+    if (canSave) {
+      const maxMessages = parseInt(localStorage.getItem(":maxMessages") || "10");
+      const saveMessages = messages.splice(-maxMessages);
+      localStorage.setItem(`:messages${collection}`, JSON.stringify(saveMessages));
+      setMessages(saveMessages);
+      setAllIsDone({});
+    }
   };
 
   useUnmount(() => {
@@ -281,28 +300,10 @@ const Message = ({ collection, prompt }: MessageProps) => {
   }, [containerHeight]);
   useDebounce(
     () => {
-      if (!isIdle) return;
-      if (Object.keys(isDone).length === 0) return;
-
-      doneMessages.current = {};
-
-      let canSave = true;
-      forEach(isDone, value => {
-        if (!value) {
-          canSave = false;
-          return false;
-        }
-      });
-      if (canSave) {
-        const maxMessages = parseInt(localStorage.getItem(":maxMessages") || "10");
-        const saveMessages = messages.splice(-maxMessages);
-        localStorage.setItem(`:messages${collection}`, JSON.stringify(saveMessages));
-        setMessages(saveMessages);
-        setAllIsDone({});
-      }
+      saveSplitMessages();
     },
-    42,
-    [isDone, messages, isIdle]
+    30000,
+    [isDone, messages]
   );
   useEffect(() => {
     boxRef.current?.focus();
@@ -313,6 +314,9 @@ const Message = ({ collection, prompt }: MessageProps) => {
       setDoScroll(false);
     }
   }, [doScroll]);
+  useUnmount(() => {
+    saveSplitMessages();
+  });
 
   const replyMessages: any[] = [];
 
