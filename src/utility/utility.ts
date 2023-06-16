@@ -2,6 +2,7 @@ import { Language } from "prism-react-renderer";
 import Fuse from "fuse.js";
 import IFuseOptions = Fuse.IFuseOptions;
 import { findIndex, forEach } from "lodash";
+import dayjs from "dayjs";
 
 export type KeyValue = {
   [key: string]: any;
@@ -28,6 +29,67 @@ export type Node = {
     };
   };
 };
+
+export function importLocalStorageFromFile(cb?: () => any) {
+  let inputFile = document.getElementById("import_config_input");
+
+  if (inputFile) {
+    const new_element = inputFile.cloneNode(true);
+    inputFile.parentNode?.replaceChild(new_element, inputFile);
+    inputFile = document.getElementById("import_config_input")!;
+
+    inputFile.addEventListener("change", (ev: Event) => {
+      const file = (ev.target as HTMLInputElement).files?.[0];
+      const reader = new FileReader();
+
+      reader.onload = function (e: ProgressEvent<FileReader>) {
+        const content = e.target?.result as string;
+        const jsonData: Record<string, string> = JSON.parse(content);
+        forEach(jsonData, (value, key) => {
+          localStorage.setItem(key, value);
+        });
+
+        if (cb) cb();
+      };
+
+      reader.readAsText(file as any);
+    });
+
+    inputFile.click();
+  }
+}
+
+export function exportLocalStorageToJSON(): void {
+  // Retrieve all keys from localStorage
+  const keys: string[] = Object.keys(localStorage);
+
+  // Create an object to store the key-value pairs
+  const data: { [key: string]: string } = {};
+
+  // Iterate over the keys and retrieve the values
+  keys.forEach((key: string) => {
+    data[key] = localStorage.getItem(key) || "";
+  });
+
+  // Convert the object to a JSON string
+  const jsonString: string = JSON.stringify(data, null, 2);
+
+  // Create a Blob object with the JSON string
+  const blob: Blob = new Blob([jsonString], { type: "application/json" });
+
+  // Create a download link
+  const downloadLink: HTMLAnchorElement = document.createElement("a");
+  downloadLink.href = URL.createObjectURL(blob);
+  downloadLink.download = `nullgpt-${dayjs().format("YYYY-MM-DD_HH-mm")}.json`;
+
+  // Append the link to the document body and click it programmatically
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+
+  // Clean up
+  document.body.removeChild(downloadLink);
+  URL.revokeObjectURL(downloadLink.href);
+}
 
 export const wrapRawContent = (content: string) => {
   if (content.startsWith("`") && content.endsWith("`")) {

@@ -1,8 +1,35 @@
-import { ActionIcon, Avatar, Badge, Group, Kbd, Navbar, rem, Text, Title, UnstyledButton } from "@mantine/core";
-import { IconArrowDown, IconArrowUp, IconBulb, IconEdit, IconPlus, IconSettings, IconTrash } from "@tabler/icons-react";
-import React, { useEffect, useMemo } from "react";
+import {
+  ActionIcon,
+  Avatar,
+  Badge,
+  Button,
+  Divider,
+  Group,
+  Kbd,
+  Menu,
+  Navbar,
+  rem,
+  ScrollArea,
+  Text,
+  Title,
+  UnstyledButton,
+} from "@mantine/core";
+import {
+  IconAlertCircle,
+  IconArrowDown,
+  IconArrowUp,
+  IconBackpack,
+  IconBulb,
+  IconCircleCheckFilled,
+  IconDatabaseCog,
+  IconEdit,
+  IconPlus,
+  IconSettings,
+  IconTrash,
+} from "@tabler/icons-react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useStyles } from "@/components/pages/MainPage/MainPage.style";
-import { useDebounce, useLocalStorage } from "react-use";
+import { useDebounce, useLocalStorage, useMeasure, useMount, useWindowSize } from "react-use";
 import {
   useAddCollectionAction,
   useCollections,
@@ -13,11 +40,12 @@ import {
   useCurrentCollectionUpId,
   useCurrentTool,
 } from "@/states/states";
-import { Notifications } from "@mantine/notifications";
+import { notifications, Notifications } from "@mantine/notifications";
 import { find, range } from "lodash";
 import classNames from "classnames";
 import { ChatBotName } from "@/config";
 import { useHotkeys } from "@mantine/hooks";
+import { exportLocalStorageToJSON, importLocalStorageFromFile } from "@/utility/utility";
 
 export type CollectionItem = {
   emoji: string;
@@ -55,6 +83,9 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const [, setCollectionRemoveId] = useCurrentCollectionRemoveId();
   const [, setCollectionUpId] = useCurrentCollectionUpId();
   const [, setCollectionDownId] = useCurrentCollectionDownId();
+  const [refScrollDiv, scrollDivInfo] = useMeasure();
+  const [scrollAreaHeight, setScrollAreaHeight] = useState(0);
+  const { height: wHeight } = useWindowSize();
 
   const hotkeySwitchCollection = (index: number) => {
     if (index <= collections.length - 1) {
@@ -90,6 +121,27 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       localStorage.setItem(`:currentCollection:${currentTool}`, currentCollection.toString());
     }
   }, [currentCollection, currentTool]);
+  useEffect(() => {
+    if (scrollDivInfo.height > 0 && scrollAreaHeight === 0) {
+      setScrollAreaHeight(scrollDivInfo.height);
+    }
+  }, [scrollAreaHeight, scrollDivInfo, wHeight]);
+  useEffect(() => {
+    setScrollAreaHeight(0);
+  }, [wHeight]);
+  useMount(() => {
+    if (sessionStorage.getItem(":importLocalStorageFromFile")) {
+      sessionStorage.removeItem(":importLocalStorageFromFile");
+      notifications.show({
+        title: "Success",
+        message: "Data import successful.",
+        radius: "lg",
+        withCloseButton: true,
+        color: "green",
+        icon: <IconCircleCheckFilled />,
+      });
+    }
+  });
 
   const mainLinks = links.map(link => (
     <UnstyledButton key={link.label} className={classes.mainLink} onClick={() => setCurrentTool(link.key)}>
@@ -179,11 +231,27 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     </Text>
   ));
 
+  const renderedScrollContent = (
+    <>
+      <Group className={classes.collectionsHeader} position="apart">
+        <Text size="xs" weight={500} color="dimmed">
+          {currentLink?.collectionsLabel}
+        </Text>
+        {currentLink?.canAddCollections && (
+          <ActionIcon variant="default" size={18} onClick={addAction}>
+            <IconPlus size="1rem" stroke={1.5} />
+          </ActionIcon>
+        )}
+      </Group>
+      <div className={classes.collections}>{collectionLinks}</div>
+    </>
+  );
+
   return (
     <>
       <Notifications />
-      <div className="flex">
-        <Navbar height={"100vh"} width={{ sm: 300 }} p="md" className={classes.navbar}>
+      <div className="flex flex-row">
+        <Navbar width={{ sm: 300 }} p="md" className={classNames("flex flex-col h-screen", classes.navbar)}>
           <Navbar.Section className={classes.section}>
             <div className="px-5 py-3 flex flex-grow items-center gap-3">
               <Avatar size="xl" src="/assets/bot1.png" />
@@ -196,21 +264,44 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           <Navbar.Section className={classes.section}>
             <div className={classes.mainLinks}>{mainLinks}</div>
           </Navbar.Section>
-          <Navbar.Section className={classes.section}>
-            <Group className={classes.collectionsHeader} position="apart">
-              <Text size="xs" weight={500} color="dimmed">
-                {currentLink?.collectionsLabel}
-              </Text>
-              {currentLink?.canAddCollections && (
-                <ActionIcon variant="default" size={18} onClick={addAction}>
-                  <IconPlus size="1rem" stroke={1.5} />
-                </ActionIcon>
-              )}
-            </Group>
-            <div className={classes.collections}>{collectionLinks}</div>
+          <Navbar.Section className={classNames("flex-grow", classes.section)} ref={refScrollDiv as any}>
+            {scrollAreaHeight > 0 ? (
+              <ScrollArea h={scrollAreaHeight}>{renderedScrollContent}</ScrollArea>
+            ) : (
+              renderedScrollContent
+            )}
+          </Navbar.Section>
+          <Navbar.Section>
+            <Menu shadow="md" width={210}>
+              <Menu.Target>
+                <Button size={"xs"} variant={"default"} leftIcon={<IconDatabaseCog />}>
+                  Backup configuration
+                </Button>
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Text size={"xs"} color={"yellow"} className={"p-2"}>
+                  <IconAlertCircle size={"1rem"} className={"mr-2"} />
+                  After importing new data, all existing data will be overwritten, so please consider using it
+                  carefully!
+                </Text>
+                <Divider />
+                <Menu.Item
+                  onClick={() =>
+                    importLocalStorageFromFile(() => {
+                      sessionStorage.setItem(":importLocalStorageFromFile", "OK");
+                      location.reload();
+                    })
+                  }
+                >
+                  Import
+                </Menu.Item>
+                <Menu.Item onClick={() => exportLocalStorageToJSON()}>Export</Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
           </Navbar.Section>
         </Navbar>
         <div className="flex-grow">{children}</div>
+        <input id="import_config_input" type="file" accept="application/json" className={"hidden"} />
       </div>
     </>
   );
