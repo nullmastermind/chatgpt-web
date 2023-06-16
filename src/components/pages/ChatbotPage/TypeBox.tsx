@@ -26,6 +26,7 @@ import { requestChatStream } from "@/components/pages/ChatbotPage/Message.api";
 import ModelSelect from "@/components/pages/ChatbotPage/ModelSelect";
 import { MessageItemType } from "@/components/pages/ChatbotPage/Message";
 import CountTokens from "@/components/pages/ChatbotPage/CountTokens";
+import warmup from "@/utility/warmup";
 
 export const TypeBox = forwardRef(
   (
@@ -163,12 +164,13 @@ export const TypeBox = forwardRef(
       setSelectionEnd(inputRef.current.selectionEnd);
 
       requestChatStream(
-        "v1/completions",
+        "v1/chat/completions",
         [
           {
             role: "system",
-            content: `Help me improve my prompt, making it easier for other chatbot (LLM) to understand. Reply only result in English, don't write explanations and don't use any opening phrases such as: "Translated Text:", "Prompt:", "Translated Prompt:", "Prompt is:",....:`,
+            content: `Help me improve my prompt, making it easier for other chatbot (LLM) to understand. Reply only result in English, don't write explanations and don't use any opening phrases such as: "Translated Text:", "Prompt:", "Translated Prompt:", "Prompt is:",...`,
           },
+          ...warmup.improve,
           {
             role: "user",
             content: `My prompt:\n\n${wrapRawContent(selectedText)}`,
@@ -177,9 +179,9 @@ export const TypeBox = forwardRef(
         {
           token: openaiAPIKey,
           modelConfig: {
-            model: "text-davinci-003",
-            temperature: 0.0,
-            max_tokens: 2000,
+            model: "gpt-3.5-turbo-0613",
+            temperature: 0.2,
+            max_tokens: 2867,
           },
           onMessage: (message, done) => {
             message = unWrapRawContent(postprocessAnswer(message, done));
