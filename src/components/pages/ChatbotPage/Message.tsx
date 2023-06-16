@@ -603,13 +603,18 @@ const MessageItem = forwardRef(
                 >
                   {collection?.emoji}
                 </Avatar>
-                {/*{message.source === "assistant" && (*/}
-                {/*  <div className={classNames("absolute", classes.assistantAvatarInfo)}>{collection?.emoji}</div>*/}
-                {/*)}*/}
               </div>
               {!isChild && (
                 <div className={"flex flex-row gap-2 items-center"}>
-                  <Text className={"font-bold"}>{message.source === "assistant" ? collection?.label : "You"}</Text>
+                  <Text className={"font-bold"}>
+                    {message.source === "assistant" ? (
+                      <>
+                        {collection?.emoji} {collection?.label}
+                      </>
+                    ) : (
+                      "You"
+                    )}
+                  </Text>
                   <DateInfo message={message} />
                 </div>
               )}
@@ -623,7 +628,15 @@ const MessageItem = forwardRef(
                   height: 34,
                 }}
               >
-                <Text className={"font-bold"}>{message.source === "assistant" ? collection?.label : "You"}</Text>
+                <Text className={"font-bold"}>
+                  {message.source === "assistant" ? (
+                    <>
+                      {collection?.emoji} {collection?.label}
+                    </>
+                  ) : (
+                    "You"
+                  )}
+                </Text>
                 <DateInfo message={message} />
               </div>
             )}
