@@ -11,7 +11,7 @@ const useStyles = createStyles(theme => ({
   assistantAvatar: {
     borderStyle: "solid",
     borderWidth: "2px",
-    borderColor: "#1be8c4",
+    borderColor: "transparent",
     borderRadius: "0.3rem",
   },
   assistantAvatarInfo: {
@@ -146,7 +146,7 @@ const useStyles = createStyles(theme => ({
     animation: "color-animation 1.5s forwards",
     "@keyframes color-animation": {
       from: {
-        backgroundColor: "#1be8c4",
+        backgroundColor: "green",
       },
       to: {
         backgroundColor: "inherit",
