@@ -8,6 +8,22 @@ const warmup = {
   improve: [
     {
       role: "user",
+      content: buildContent(`js quick sort`),
+    },
+    {
+      role: "assistant",
+      content: "Quick sort implementation in JavaScript",
+    },
+    {
+      role: "user",
+      content: buildContent(`ts quick select`),
+    },
+    {
+      role: "assistant",
+      content: "Quick select implementation in TypeScript",
+    },
+    {
+      role: "user",
       content: buildContent(`Sử dụng vật lý trong Unity ECS`),
     },
     {
