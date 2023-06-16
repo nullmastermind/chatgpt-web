@@ -34,26 +34,26 @@ export function importLocalStorageFromFile(cb?: () => any) {
   let inputFile = document.getElementById("import_config_input");
 
   if (inputFile) {
-    const new_element = inputFile.cloneNode(true);
-    inputFile.parentNode?.replaceChild(new_element, inputFile);
-    inputFile = document.getElementById("import_config_input")!;
-
-    inputFile.addEventListener("change", (ev: Event) => {
+    inputFile.onchange = (ev: Event) => {
       const file = (ev.target as HTMLInputElement).files?.[0];
       const reader = new FileReader();
 
       reader.onload = function (e: ProgressEvent<FileReader>) {
         const content = e.target?.result as string;
-        const jsonData: Record<string, string> = JSON.parse(content);
-        forEach(jsonData, (value, key) => {
-          localStorage.setItem(key, value);
-        });
+        try {
+          const jsonData: Record<string, string> = JSON.parse(content);
+          forEach(jsonData, (value, key) => {
+            localStorage.setItem(key, value);
+          });
 
-        if (cb) cb();
+          if (cb) cb();
+        } catch (error) {
+          console.error("Invalid JSON format:", error);
+        }
       };
 
       reader.readAsText(file as any);
-    });
+    };
 
     inputFile.click();
   }
