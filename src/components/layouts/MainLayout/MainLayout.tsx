@@ -18,7 +18,6 @@ import {
   IconAlertCircle,
   IconArrowDown,
   IconArrowUp,
-  IconBackpack,
   IconBulb,
   IconCircleCheckFilled,
   IconDatabaseCog,
@@ -275,7 +274,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             <Menu shadow="md" width={210}>
               <Menu.Target>
                 <Button size={"xs"} variant={"default"} leftIcon={<IconDatabaseCog />}>
-                  Backup configuration
+                  Backup
                 </Button>
               </Menu.Target>
               <Menu.Dropdown>
