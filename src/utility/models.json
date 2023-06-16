@@ -1,8 +1,8 @@
 [
-  { "label": "[AUTO] gpt-3.5-turbo", "value": "auto|gpt-3.5-turbo|gpt-3.5-turbo-16k|2048" },
-  { "label": "[AUTO] gpt-3.5-turbo-0613", "value": "auto|gpt-3.5-turbo-0613|gpt-3.5-turbo-16k-0613|2048" },
-  { "label": "[AUTO] gpt-4", "value": "auto|gpt-4|gpt-4-32k|4096" },
-  { "label": "[AUTO] gpt-4-0613", "value": "auto|gpt-4-0613|gpt-4-32k-0613|4096" },
+  { "label": "[AUTO] gpt-3.5-turbo", "value": "auto|gpt-3.5-turbo|gpt-3.5-turbo-16k|2867" },
+  { "label": "[AUTO] gpt-3.5-turbo-0613", "value": "auto|gpt-3.5-turbo-0613|gpt-3.5-turbo-16k-0613|2867" },
+  { "label": "[AUTO] gpt-4", "value": "auto|gpt-4|gpt-4-32k|5734" },
+  { "label": "[AUTO] gpt-4-0613", "value": "auto|gpt-4-0613|gpt-4-32k-0613|5734" },
 
   { "label": "gpt-3.5-turbo", "value": "gpt-3.5-turbo", "maxTokens": 4096 },
   { "label": "gpt-3.5-turbo-16k", "value": "gpt-3.5-turbo-16k", "maxTokens": 16384 },
