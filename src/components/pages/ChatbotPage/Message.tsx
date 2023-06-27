@@ -1,6 +1,6 @@
 import { useCopyToClipboard, useDebounce, useList, useMap, useMeasure, useMount, useUnmount } from "react-use";
-import { ActionIcon, Avatar, Badge, Button, Container, ScrollArea, Text, Tooltip } from "@mantine/core";
-import { forwardRef, MutableRefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
+import { ActionIcon, Avatar, Badge, Button, Container, Modal, ScrollArea, Text, Tooltip } from "@mantine/core";
+import React, { forwardRef, MutableRefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { clone, cloneDeep, find, findIndex, forEach, map, throttle, uniqBy, uniqueId } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import classNames from "classnames";
@@ -28,7 +28,7 @@ import { IconCopy } from "@tabler/icons-react";
 import ReplyItem from "@/components/pages/ChatbotPage/ReplyItem";
 import { TypeBox } from "@/components/pages/ChatbotPage/TypeBox";
 import DateInfo from "@/components/pages/ChatbotPage/DateInfo";
-import { useIdle } from "@mantine/hooks";
+import { useDisclosure, useIdle } from "@mantine/hooks";
 import axios from "axios";
 import { indexerHost } from "@/config";
 
@@ -561,6 +561,7 @@ const MessageItem = forwardRef(
     const hasDocs = useMemo(() => {
       return Array.isArray(message.docs) && message.docs.length > 0;
     }, [message]);
+    const [isShowDocs, { open: showDocs, close: closeDocs }] = useDisclosure(false);
 
     useImperativeHandle(ref, () => ({
       editMessage(newMessage: string, isDone: boolean) {
@@ -613,6 +614,63 @@ const MessageItem = forwardRef(
 
     return (
       <>
+        <Modal
+          opened={isShowDocs}
+          onClose={closeDocs}
+          title="Documents"
+          centered
+          scrollAreaComponent={ScrollArea.Autosize}
+          size={"lg"}
+        >
+          {isShowDocs &&
+            map(message.docs, (doc, index) => {
+              return (
+                <div key={index} className={"text-xs"}>
+                  <ReactMarkdown
+                    linkTarget="_blank"
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeRaw]}
+                    components={{
+                      code({ node: rawNode, inline, className, children, ...props }) {
+                        const node = rawNode as Node;
+
+                        const rawContent = String(children);
+                        let codeContent = postprocessAnswer(rawContent.replace(/\n$/, ""), true);
+
+                        if (inline && !message.content.includes("```" + rawContent + "```")) {
+                          if (node.position.end.offset - rawContent.length - node.position.start.offset === 2) {
+                            return <code className={classes.inlineCode}>{codeContent}</code>;
+                          }
+                        }
+
+                        const match = /language-(\w+)/.exec(className || "");
+                        let lang: any = "javascript";
+
+                        if (!match) {
+                          try {
+                            lang = detectProgramLang(codeContent);
+                          } catch (e) {}
+                        } else {
+                          lang = match[1] as any;
+                        }
+
+                        return (
+                          <Prism
+                            children={codeContent}
+                            language={convertToSupportLang(lang)}
+                            scrollAreaComponent={ScrollArea}
+                            className={classNames("mb-1", classes.codeWrap)}
+                          />
+                        );
+                      },
+                    }}
+                  >
+                    {preprocessMessageContent(doc)}
+                  </ReactMarkdown>
+                </div>
+              );
+            })}
+        </Modal>
         {!isChild && <div className={"h-10"} />}
         <div
           className={classNames(
@@ -756,7 +814,12 @@ const MessageItem = forwardRef(
             </div>
             <div className={"pt-2"}>
               {hasDocs && (
-                <Badge className={"cursor-pointer"} size={"xs"} leftSection={<Text>{message.docs?.length}</Text>}>
+                <Badge
+                  onClick={showDocs}
+                  className={"cursor-pointer"}
+                  size={"xs"}
+                  leftSection={<Text>{message.docs?.length}</Text>}
+                >
                   Documents
                 </Badge>
               )}
