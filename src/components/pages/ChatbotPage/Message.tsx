@@ -629,7 +629,7 @@ const MessageItem = forwardRef(
 
           setMessage(nextMessage);
 
-          if (nextMessage.docs && nextMessage.docs.length) {
+          if (nextMessage.docs) {
             const saveMessagesFn = () => {
               const dbMessages = JSON.parse(localStorage.getItem(`:messages${collection}`) || "[]");
               const dbMsgIndex = findIndex(dbMessages, (v: any) => v.id === nextMessage.id);
@@ -860,7 +860,7 @@ const MessageItem = forwardRef(
                     <div className={"flex items-center relative w-3.5 justify-center"}>
                       <div className={"absolute top-0 left-0 w-full"} style={{ height: 16 }}>
                         {(() => {
-                          if (!message.docs || message.docs.length === 0) {
+                          if (!Array.isArray(messages.docs)) {
                             return <Loader size={"xs"} className={"relative -top-2 -left-1"} variant="dots" />;
                           }
 
