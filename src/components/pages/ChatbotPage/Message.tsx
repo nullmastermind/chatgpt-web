@@ -624,7 +624,21 @@ const MessageItem = forwardRef(
 
       const intervalId = setInterval(() => {
         if (needRefreshMessageIds.current[message.id]) {
-          setMessage(cloneDeep(needRefreshMessageIds.current[message.id]));
+          const nextMessage = cloneDeep(needRefreshMessageIds.current[message.id]);
+
+          setMessage(nextMessage);
+
+          const saveMessagesFn = () => {
+            const dbMessages = JSON.parse(localStorage.getItem(`:messages${collection}`) || "[]");
+            const dbMsgIndex = findIndex(dbMessages, (v: any) => v.id === nextMessage.id);
+            if (dbMsgIndex >= 0) {
+              dbMessages[dbMsgIndex] = nextMessage;
+              localStorage.setItem(`:messages${collection}`, JSON.stringify(dbMessages));
+            }
+          };
+
+          saveMessagesFn();
+
           delete needRefreshMessageIds.current[message.id];
         }
       }, 500);
@@ -849,7 +863,7 @@ const MessageItem = forwardRef(
                           }
 
                           return (
-                            <Text size={'sm'} className={"text-center w-full"} style={{ lineHeight: 0 }}>
+                            <Text size={"sm"} className={"text-center w-full"} style={{ lineHeight: 0 }}>
                               {message.docs?.length}
                             </Text>
                           );
