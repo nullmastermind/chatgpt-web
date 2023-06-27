@@ -10,7 +10,7 @@ type ReplyItemProps = {
   viewport: RefObject<HTMLDivElement>;
   includeMessages: any[];
   position: number;
-  onSend: (content: string, index?: number, includeMessages?: any[], tokens?: number) => any;
+  onSend: (content: string, index?: number, includeMessages?: any[], tokens?: number, docId?: string) => any;
   exId: any;
 };
 
@@ -49,7 +49,7 @@ const ReplyItem = ({ messages, includeMessages, position, onSend, exId }: ReplyI
               exId={exId}
               ref={boxRef}
               collection={collection}
-              onSubmit={(content, tokens) => onSend(content, position, includeMessages, tokens)}
+              onSubmit={(content, tokens, docId) => onSend(content, position, includeMessages, tokens, undefined)}
               messages={messages}
               onCancel={() => setShowFullEdit(false)}
               isReplyBox={true}

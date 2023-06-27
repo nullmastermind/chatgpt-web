@@ -123,8 +123,18 @@ const Message = ({ collection, prompt }: MessageProps) => {
       top: scrollHeight - clientHeight - offset,
     });
   };
-  const onSend = (content: string, index?: number, includeMessages?: MessageItemType[], tokens?: number) => {
+  const onSend = (
+    content: string,
+    index?: number,
+    includeMessages?: MessageItemType[],
+    tokens?: number,
+    docId?: string
+  ) => {
     if (content.length === 0) return;
+
+    if (docId) {
+      console.log("docId", docId);
+    }
 
     const userMessage: MessageItemType = {
       source: "user",
@@ -434,7 +444,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
           <TypeBox
             ref={boxRef}
             collection={collection}
-            onSubmit={(content, tokens) => onSend(content, undefined, [], tokens)}
+            onSubmit={(content, tokens, docId) => onSend(content, undefined, [], tokens, docId)}
             messages={messages}
             includeMessages={[]}
           />
