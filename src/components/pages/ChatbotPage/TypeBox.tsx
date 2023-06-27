@@ -522,7 +522,7 @@ export const TypeBox = forwardRef(
           <div className={"flex-grow self-start"}>
             <CountTokens ref={countTokenRef} content={messageContent} includeMessages={includeMessages} />
           </div>
-          {docs.length && (
+          {docs.length > 0 && (
             <NativeSelect
               value={docId}
               size={"xs"}
