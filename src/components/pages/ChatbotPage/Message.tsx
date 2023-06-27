@@ -28,7 +28,7 @@ import { IconCopy } from "@tabler/icons-react";
 import ReplyItem from "@/components/pages/ChatbotPage/ReplyItem";
 import { TypeBox } from "@/components/pages/ChatbotPage/TypeBox";
 import DateInfo from "@/components/pages/ChatbotPage/DateInfo";
-import { useDisclosure, useForceUpdate, useIdle } from "@mantine/hooks";
+import { useDisclosure, useIdle } from "@mantine/hooks";
 import axios from "axios";
 import { indexerHost } from "@/config";
 
@@ -566,7 +566,6 @@ const MessageItem = forwardRef(
       return Array.isArray(message.docs) && message.docs.length > 0;
     }, [message]);
     const [isShowDocs, { open: showDocs, close: closeDocs }] = useDisclosure(false);
-    const forceUpdate = useForceUpdate();
 
     useImperativeHandle(ref, () => ({
       editMessage(newMessage: string, isDone: boolean) {
@@ -624,7 +623,6 @@ const MessageItem = forwardRef(
 
       const intervalId = setInterval(() => {
         if (needRefreshMessageIds.current[message.id]) {
-          console.log("refresh", needRefreshMessageIds.current[message.id]);
           setMessage(cloneDeep(needRefreshMessageIds.current[message.id]));
           delete needRefreshMessageIds.current[message.id];
         }
@@ -839,7 +837,7 @@ const MessageItem = forwardRef(
               {hasDocs && (
                 <Badge
                   onClick={showDocs}
-                  className={"cursor-pointer"}
+                  className={classNames("cursor-pointer", classes.fadeIn)}
                   size={"xs"}
                   leftSection={<Text>{message.docs?.length}</Text>}
                 >
