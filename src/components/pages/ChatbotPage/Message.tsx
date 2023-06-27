@@ -1,5 +1,5 @@
 import { useCopyToClipboard, useDebounce, useList, useMap, useMeasure, useMount, useUnmount } from "react-use";
-import { ActionIcon, Avatar, Container, ScrollArea, Text, Tooltip } from "@mantine/core";
+import { ActionIcon, Avatar, Badge, Button, Container, ScrollArea, Text, Tooltip } from "@mantine/core";
 import { forwardRef, MutableRefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { clone, cloneDeep, find, findIndex, forEach, map, throttle, uniqBy, uniqueId } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
@@ -558,6 +558,9 @@ const MessageItem = forwardRef(
       return find(collections, v => v.key === collectionId);
     }, [collectionId, collections]);
     const scrollElementRef = useRef<HTMLDivElement>(null);
+    const hasDocs = useMemo(() => {
+      return Array.isArray(message.docs) && message.docs.length > 0;
+    }, [message]);
 
     useImperativeHandle(ref, () => ({
       editMessage(newMessage: string, isDone: boolean) {
@@ -750,6 +753,13 @@ const MessageItem = forwardRef(
                 </ReactMarkdown>
               )}
               {(isTyping || message.content === "...") && <TypingBlinkCursor />}
+            </div>
+            <div className={"pt-2"}>
+              {hasDocs && (
+                <Badge className={"cursor-pointer"} size={"xs"} leftSection={<Text>{message.docs?.length}</Text>}>
+                  Documents
+                </Badge>
+              )}
             </div>
           </div>
         </div>
