@@ -75,7 +75,7 @@ export function doc2ChatContent(doc: Doc) {
   const lines = doc.pageContent
     .split("\n")
     .map(v => {
-      return v.replace(/`/g, "\\`");
+      return v.replace(/```/g, "\\`\\`\\`");
     })
     .map((line, index) => {
       return `${startLine + index}\t${line}`;
