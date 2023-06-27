@@ -1,5 +1,5 @@
 import { useCopyToClipboard, useDebounce, useList, useMap, useMeasure, useMount, useUnmount } from "react-use";
-import { ActionIcon, Avatar, Badge, Container, Modal, ScrollArea, Text, Tooltip } from "@mantine/core";
+import { ActionIcon, Avatar, Badge, Container, Loader, Modal, ScrollArea, Text, Tooltip } from "@mantine/core";
 import React, { forwardRef, MutableRefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { clone, cloneDeep, find, findIndex, forEach, map, throttle, uniqBy, uniqueId } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
@@ -563,6 +563,7 @@ const MessageItem = forwardRef(
     }, [collectionId, collections]);
     const scrollElementRef = useRef<HTMLDivElement>(null);
     const hasDocs = useMemo(() => {
+      if (message.docId) return true;
       return Array.isArray(message.docs) && message.docs.length > 0;
     }, [message]);
     const [isShowDocs, { open: showDocs, close: closeDocs }] = useDisclosure(false);
@@ -616,8 +617,6 @@ const MessageItem = forwardRef(
       doneMessages.current[message.id] = false;
     });
     useEffect(() => {
-      if (!message.isChild) return;
-
       if (hasDocs) {
         delete needRefreshMessageIds.current[message.id];
         return;
@@ -633,7 +632,7 @@ const MessageItem = forwardRef(
       return () => {
         clearInterval(intervalId);
       };
-    }, [message, hasDocs]);
+    }, [message, hasDocs, isBottom]);
 
     return (
       <>
@@ -835,18 +834,34 @@ const MessageItem = forwardRef(
               )}
               {(isTyping || message.content === "...") && <TypingBlinkCursor />}
             </div>
-            <div className={"pt-2"}>
-              {hasDocs && (
+            {hasDocs && (
+              <div>
                 <Badge
                   onClick={showDocs}
                   className={classNames("cursor-pointer", classes.fadeIn)}
                   size={"xs"}
-                  leftSection={<Text>{message.docs?.length}</Text>}
+                  leftSection={
+                    <div className={"flex items-center relative w-3.5 justify-center"}>
+                      <div className={"absolute top-0 left-0 w-full"} style={{ height: 16 }}>
+                        {(() => {
+                          if (message.docId) {
+                            return <Loader size={"xs"} className={"relative -top-2 -left-1"} variant="dots" />;
+                          }
+
+                          return (
+                            <Text size={'sm'} className={"text-center w-full"} style={{ lineHeight: 0 }}>
+                              {message.docs?.length}
+                            </Text>
+                          );
+                        })()}
+                      </div>
+                    </div>
+                  }
                 >
                   Documents
                 </Badge>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </>
