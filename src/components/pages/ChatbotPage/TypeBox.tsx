@@ -18,7 +18,7 @@ import {
   validateField,
   wrapRawContent,
 } from "@/utility/utility";
-import { Button, Highlight, Modal, ScrollArea, Textarea, TextInput } from "@mantine/core";
+import { Button, Highlight, Modal, NativeSelect, ScrollArea, Textarea, TextInput } from "@mantine/core";
 import { spotlight, SpotlightAction } from "@mantine/spotlight";
 import { useForm } from "@mantine/form";
 import { cloneDeep, findIndex, uniqueId } from "lodash";
@@ -27,6 +27,9 @@ import ModelSelect from "@/components/pages/ChatbotPage/ModelSelect";
 import { MessageItemType } from "@/components/pages/ChatbotPage/Message";
 import CountTokens from "@/components/pages/ChatbotPage/CountTokens";
 import warmup from "@/utility/warmup";
+import axios from "axios";
+import { indexerHost } from "@/pages/const";
+import models from "@/utility/models.json";
 
 export const TypeBox = forwardRef(
   (
@@ -40,7 +43,7 @@ export const TypeBox = forwardRef(
       includeMessages,
     }: {
       collection: any;
-      onSubmit: (content: string, tokens: number) => any;
+      onSubmit: (content: string, tokens: number, docId: string) => any;
       messages: any[];
       onCancel?: () => any;
       isReplyBox?: boolean;
@@ -143,6 +146,8 @@ export const TypeBox = forwardRef(
     const [, setQuickActions] = useQuickActions();
     const [currentTypeBoxId, setCurrentTypeBoxId] = useCurrentTypeBoxId();
     const countTokenRef = createRef<any>();
+    const [docs, setDocs] = useSessionStorage<string[]>(`docs:${includeMessages.length}`, []);
+    const [docId, setDocId] = useSessionStorage<string>(`doc:messageBox:${collection}`, "");
 
     const handleImprove = () => {
       if (!inputRef.current) return;
@@ -231,7 +236,7 @@ export const TypeBox = forwardRef(
     }, [quickCommandList, currentTypeBoxId, id]);
 
     const onSend = (c?: string) => {
-      onSubmit(c || messageContent, countTokenRef.current?.getTokens());
+      onSubmit(c || messageContent, countTokenRef.current?.getTokens(), docId);
       setMessageContent("");
       if (inputRef.current) {
         inputRef.current.value = "";
@@ -281,6 +286,20 @@ export const TypeBox = forwardRef(
       },
       100,
       [nextFocus]
+    );
+    useDebounce(
+      () => {
+        if (includeMessages.length === 0) {
+          axios
+            .get(`${indexerHost}/api/docs`)
+            .then(({ data }) => {
+              setDocs(data.data);
+            })
+            .catch(e => {});
+        }
+      },
+      300,
+      [includeMessages]
     );
 
     return (
@@ -503,6 +522,14 @@ export const TypeBox = forwardRef(
           <div className={"flex-grow self-start"}>
             <CountTokens ref={countTokenRef} content={messageContent} includeMessages={includeMessages} />
           </div>
+          {docs.length && (
+            <NativeSelect
+              value={docId}
+              size={"xs"}
+              data={["Choose document", ...docs]}
+              onChange={e => setDocId(e.target.value)}
+            />
+          )}
           <ModelSelect />
           {onCancel && (
             <Button size={"xs"} onClick={onCancel} variant="default">
