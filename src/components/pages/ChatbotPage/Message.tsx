@@ -1,7 +1,7 @@
 import { useCopyToClipboard, useDebounce, useList, useMap, useMeasure, useMount, useUnmount } from "react-use";
 import { ActionIcon, Avatar, Badge, Container, Modal, ScrollArea, Text, Tooltip } from "@mantine/core";
 import React, { forwardRef, MutableRefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { clone, find, findIndex, forEach, map, throttle, uniqBy, uniqueId } from "lodash";
+import { clone, cloneDeep, find, findIndex, forEach, map, throttle, uniqBy, uniqueId } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import classNames from "classnames";
 import ReactMarkdown from "react-markdown";
@@ -28,7 +28,7 @@ import { IconCopy } from "@tabler/icons-react";
 import ReplyItem from "@/components/pages/ChatbotPage/ReplyItem";
 import { TypeBox } from "@/components/pages/ChatbotPage/TypeBox";
 import DateInfo from "@/components/pages/ChatbotPage/DateInfo";
-import { useDisclosure, useIdle } from "@mantine/hooks";
+import { useDisclosure, useForceUpdate, useIdle } from "@mantine/hooks";
 import axios from "axios";
 import { indexerHost } from "@/config";
 
@@ -59,6 +59,9 @@ export type MessageItemType = {
 const messageRefs = { current: {} as KeyValue };
 const autoScrollIds = { current: {} as KeyValue };
 const doneMessages = { current: {} as KeyValue };
+const needRefreshMessageIds = {
+  current: {} as Record<string, any>,
+};
 
 const Message = ({ collection, prompt }: MessageProps) => {
   const { classes } = useStyles();
@@ -252,6 +255,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
 
         messages[streamIndex - 2].docId = undefined;
         userMessage.docId = undefined;
+        needRefreshMessageIds.current[userMessage.id] = userMessage;
       }
 
       if (streamIndex === messages.length) {
@@ -562,6 +566,7 @@ const MessageItem = forwardRef(
       return Array.isArray(message.docs) && message.docs.length > 0;
     }, [message]);
     const [isShowDocs, { open: showDocs, close: closeDocs }] = useDisclosure(false);
+    const forceUpdate = useForceUpdate();
 
     useImperativeHandle(ref, () => ({
       editMessage(newMessage: string, isDone: boolean) {
@@ -611,6 +616,24 @@ const MessageItem = forwardRef(
     useUnmount(() => {
       doneMessages.current[message.id] = false;
     });
+    useEffect(() => {
+      if (hasDocs) {
+        delete needRefreshMessageIds.current[message.id];
+        return;
+      }
+
+      const intervalId = setInterval(() => {
+        if (needRefreshMessageIds.current[message.id]) {
+          console.log("refresh", needRefreshMessageIds.current[message.id]);
+          setMessage(cloneDeep(needRefreshMessageIds.current[message.id]));
+          delete needRefreshMessageIds.current[message.id];
+        }
+      }, 500);
+
+      return () => {
+        clearInterval(intervalId);
+      };
+    }, [message, hasDocs]);
 
     return (
       <>
