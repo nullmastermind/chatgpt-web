@@ -256,7 +256,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
         messages[streamIndex - 2].docId = undefined;
         userMessage.docId = undefined;
         needRefreshMessageIds.current[userMessage.id] = userMessage;
-        setMessages(messages);
+        localStorage.setItem(`:messages${collection}`, JSON.stringify(messages));
       }
 
       if (streamIndex === messages.length) {
