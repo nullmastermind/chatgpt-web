@@ -60,7 +60,7 @@ export function doc2ChatContent(doc: Doc) {
     });
 
   return (
-    `source: ${doc.metadata.source}:${doc.metadata.loc.lines.from}:${doc.metadata.loc.lines.to}\n\n` +
+    `Reference source: ${doc.metadata.source}:${doc.metadata.loc.lines.from}:${doc.metadata.loc.lines.to}\n` +
     "```\n" +
     lines.join("\r\n") +
     "\n```"
