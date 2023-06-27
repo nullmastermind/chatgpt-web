@@ -244,7 +244,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
             query: [...includes.filter(v => v.source === "user").map(v => v.content), userMessage.content].join("\n"),
             apiKey: openaiAPIKey.split(",")[0],
             // maxScore: includes.length > 0 ? 0.4 : 0.45,
-            k: includes.length > 0 ? 3 : 5,
+            k: includes.length > 0 ? 2 : 4,
           });
 
           messages[streamIndex - 2].docs = map(filterDocs(query.data, 0.05), value => {
