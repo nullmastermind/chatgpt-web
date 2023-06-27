@@ -240,7 +240,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
             query: userMessage.content,
             apiKey: openaiAPIKey.split(",")[0],
             // maxScore: includes.length > 0 ? 0.4 : 0.45,
-            k: includes.length > 0 ? 3 : 20,
+            k: includes.length > 0 ? 3 : 5,
           });
 
           messages[streamIndex - 2].docs = map(query.data, value => {
