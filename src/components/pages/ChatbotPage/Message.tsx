@@ -264,12 +264,6 @@ const Message = ({ collection, prompt }: MessageProps) => {
       forEach(clone(prompt.prompts), prompt => {
         if (prompt === "your") {
           const userMessages = [
-            ...map(userMessage.docs, doc => {
-              return {
-                role: "system",
-                content: doc,
-              };
-            }),
             ...map(includes, v => {
               const rs = [
                 {
@@ -293,6 +287,12 @@ const Message = ({ collection, prompt }: MessageProps) => {
               role: v.source,
               content: v.content,
             })),
+            ...map(userMessage.docs, doc => {
+              return {
+                role: "system",
+                content: doc,
+              };
+            }),
           ];
           if (!messages[streamIndex - 2].checked) {
             userMessages.push({
