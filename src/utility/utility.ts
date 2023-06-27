@@ -48,6 +48,28 @@ export type Docs = {
   tokens: number;
 };
 
+export function filterDocs(docs: [Doc, number][], maxStep = 0.05) {
+  let lastScore = -1;
+  let alwaysFalse = false;
+
+  return docs.filter(([doc, score]) => {
+    if (alwaysFalse) {
+      return false;
+    }
+
+    if (lastScore >= 0) {
+      if (score - lastScore > maxStep) {
+        alwaysFalse = true;
+        return false;
+      }
+    }
+
+    lastScore = score;
+
+    return true;
+  });
+}
+
 export function doc2ChatContent(doc: Doc) {
   const startLine = doc.metadata.loc.lines.from;
   const lines = doc.pageContent
@@ -60,9 +82,9 @@ export function doc2ChatContent(doc: Doc) {
     });
 
   return (
-    `Reference source: ${doc.metadata.source}:${doc.metadata.loc.lines.from}:${doc.metadata.loc.lines.to}\n` +
+    `Reference source: ${doc.metadata.source}:${doc.metadata.loc.lines.from}:${doc.metadata.loc.lines.to}\n\n` +
     "```\n" +
-    lines.join("\r\n") +
+    lines.join("\n") +
     "\n```"
   );
 }

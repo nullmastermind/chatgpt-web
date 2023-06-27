@@ -15,6 +15,7 @@ import {
   detectProgramLang,
   doc2ChatContent,
   Docs,
+  filterDocs,
   KeyValue,
   Node,
   postprocessAnswer,
@@ -243,7 +244,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
             k: includes.length > 0 ? 3 : 5,
           });
 
-          messages[streamIndex - 2].docs = map(query.data, value => {
+          messages[streamIndex - 2].docs = map(filterDocs(query.data, 0.05), value => {
             return doc2ChatContent(value[0]);
           });
           userMessage.docs = messages[streamIndex - 2].docs;
