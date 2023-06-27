@@ -139,8 +139,6 @@ const Message = ({ collection, prompt }: MessageProps) => {
 
     if (docId === "Choose document" || docId === "") docId = undefined;
 
-    console.log("docId", docId);
-
     const userMessage: MessageItemType = {
       source: "user",
       content: content,
@@ -241,6 +239,8 @@ const Message = ({ collection, prompt }: MessageProps) => {
             doc_id: userMessage.docId,
             query: userMessage.content,
             apiKey: openaiAPIKey.split(",")[0],
+            maxScore: includes.length > 0 ? 0.4 : 0.45,
+            k: includes.length > 0 ? 2 : 20,
           });
 
           messages[streamIndex - 2].docs = map(query.data, value => {
