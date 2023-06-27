@@ -1,7 +1,7 @@
 import { useCopyToClipboard, useDebounce, useList, useMap, useMeasure, useMount, useUnmount } from "react-use";
-import { ActionIcon, Avatar, Badge, Button, Container, Modal, ScrollArea, Text, Tooltip } from "@mantine/core";
+import { ActionIcon, Avatar, Badge, Container, Modal, ScrollArea, Text, Tooltip } from "@mantine/core";
 import React, { forwardRef, MutableRefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { clone, cloneDeep, find, findIndex, forEach, map, throttle, uniqBy, uniqueId } from "lodash";
+import { clone, find, findIndex, forEach, map, throttle, uniqBy, uniqueId } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import classNames from "classnames";
 import ReactMarkdown from "react-markdown";
@@ -631,7 +631,7 @@ const MessageItem = forwardRef(
                     remarkPlugins={[remarkGfm]}
                     rehypePlugins={[rehypeRaw]}
                     components={{
-                      code({ node: rawNode, inline, className, children, ...props }) {
+                      code({ node: rawNode, inline, className, children }) {
                         const node = rawNode as Node;
 
                         const rawContent = String(children);
@@ -773,7 +773,7 @@ const MessageItem = forwardRef(
                   remarkPlugins={[remarkGfm]}
                   rehypePlugins={[rehypeRaw]}
                   components={{
-                    code({ node: rawNode, inline, className, children, ...props }) {
+                    code({ node: rawNode, inline, className, children }) {
                       const node = rawNode as Node;
 
                       const rawContent = String(children);
