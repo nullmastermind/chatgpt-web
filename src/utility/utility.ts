@@ -30,6 +30,43 @@ export type Node = {
   };
 };
 
+export type Doc = {
+  pageContent: string;
+  metadata: {
+    source: string;
+    loc: {
+      lines: {
+        from: number;
+        to: number;
+      };
+    };
+  };
+};
+
+export type Docs = {
+  data: [Doc, number][];
+  tokens: number;
+};
+
+export function doc2ChatContent(doc: Doc) {
+  const startLine = doc.metadata.loc.lines.from;
+  const lines = doc.pageContent
+    .split("\n")
+    .map(v => {
+      return v.replace(/`/g, "\\`");
+    })
+    .map((line, index) => {
+      return `${startLine + index}\t${line}`;
+    });
+
+  return (
+    `source: ${doc.metadata.source}:${doc.metadata.loc.lines.from}:${doc.metadata.loc.lines.to}\n\n` +
+    "```\n" +
+    lines.join("\r\n") +
+    "\n```"
+  );
+}
+
 export function importLocalStorageFromFile(cb?: () => any) {
   let inputFile = document.getElementById("import_config_input");
 

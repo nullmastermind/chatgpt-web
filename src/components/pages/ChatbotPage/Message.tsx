@@ -13,6 +13,8 @@ import { useCollections, useCurrentCollection, useModel, useOpenaiAPIKey } from 
 import {
   convertToSupportLang,
   detectProgramLang,
+  doc2ChatContent,
+  Docs,
   KeyValue,
   Node,
   postprocessAnswer,
@@ -27,6 +29,7 @@ import { TypeBox } from "@/components/pages/ChatbotPage/TypeBox";
 import DateInfo from "@/components/pages/ChatbotPage/DateInfo";
 import { useIdle } from "@mantine/hooks";
 import axios from "axios";
+import { indexerHost } from "@/config";
 
 export type MessageProps = {
   collection: any;
@@ -48,6 +51,8 @@ export type MessageItemType = {
   isChild: boolean;
   scrollToBottom: boolean;
   tokens: number;
+  docId?: string;
+  docs?: string[];
 };
 
 const messageRefs = { current: {} as KeyValue };
@@ -123,7 +128,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
       top: scrollHeight - clientHeight - offset,
     });
   };
-  const onSend = (
+  const onSend = async (
     content: string,
     index?: number,
     includeMessages?: MessageItemType[],
@@ -131,10 +136,6 @@ const Message = ({ collection, prompt }: MessageProps) => {
     docId?: string
   ) => {
     if (content.length === 0) return;
-
-    if (docId) {
-      console.log("docId", docId);
-    }
 
     const userMessage: MessageItemType = {
       source: "user",
@@ -145,6 +146,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
       isChild: false,
       scrollToBottom: true,
       tokens: tokens || 0,
+      docId: docId,
     };
     const assistantMessage: MessageItemType = {
       source: "assistant",
@@ -225,6 +227,28 @@ const Message = ({ collection, prompt }: MessageProps) => {
       const userMessage = messages[streamIndex - 2];
       const assistantPreMessage: MessageItemType = messages[streamIndex - 1];
 
+      if (userMessage.docId) {
+        try {
+          const {
+            data: query,
+          }: {
+            data: Docs;
+          } = await axios.post(`${indexerHost}/api/query`, {
+            doc_id: userMessage.docId,
+            query: userMessage.content,
+            apiKey: openaiAPIKey.split(",")[0],
+          });
+
+          messages[streamIndex - 2].docs = map(query.data, value => {
+            return doc2ChatContent(value[0]);
+          });
+          userMessage.docs = messages[streamIndex - 2].docs;
+        } catch (e) {}
+
+        messages[streamIndex - 2].docId = undefined;
+        userMessage.docId = undefined;
+      }
+
       if (streamIndex === messages.length) {
         setDoScroll(true);
       }
@@ -236,10 +260,31 @@ const Message = ({ collection, prompt }: MessageProps) => {
       forEach(clone(prompt.prompts), prompt => {
         if (prompt === "your") {
           const userMessages = [
-            ...map(includes, v => ({
-              role: v.source,
-              content: v.content,
-            })),
+            ...map(userMessage.docs, doc => {
+              return {
+                role: "system",
+                content: doc,
+              };
+            }),
+            ...map(includes, v => {
+              const rs = [
+                {
+                  role: v.source,
+                  content: v.content,
+                },
+              ] as any[];
+              if (Array.isArray(v.docs) && v.docs.length) {
+                rs.unshift(
+                  ...map(v.docs, doc => {
+                    return {
+                      role: "system",
+                      content: doc,
+                    };
+                  })
+                );
+              }
+              return rs;
+            }).flat(),
             ...checkedMessages.map(v => ({
               role: v.source,
               content: v.content,

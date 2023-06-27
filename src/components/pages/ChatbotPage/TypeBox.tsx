@@ -28,7 +28,7 @@ import { MessageItemType } from "@/components/pages/ChatbotPage/Message";
 import CountTokens from "@/components/pages/ChatbotPage/CountTokens";
 import warmup from "@/utility/warmup";
 import axios from "axios";
-import { indexerHost } from "@/utility/const";
+import { indexerHost } from "@/config";
 
 export const TypeBox = forwardRef(
   (
