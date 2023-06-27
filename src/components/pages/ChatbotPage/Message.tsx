@@ -1,7 +1,7 @@
 import { useCopyToClipboard, useDebounce, useList, useMap, useMeasure, useMount, useUnmount } from "react-use";
 import { ActionIcon, Avatar, Container, ScrollArea, Text, Tooltip } from "@mantine/core";
 import { forwardRef, MutableRefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { clone, cloneDeep, find, findIndex, forEach, map, throttle } from "lodash";
+import { clone, cloneDeep, find, findIndex, forEach, map, throttle, uniqBy, uniqueId } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import classNames from "classnames";
 import ReactMarkdown from "react-markdown";
@@ -342,25 +342,30 @@ const Message = ({ collection, prompt }: MessageProps) => {
         }
       }
 
+      const apiMessages = requestMessages
+        .filter(v => {
+          return !(v.role === "assistant" && v.content === "...");
+        })
+        .map(v => {
+          if (v.role === "user") {
+            // if (prompt.wrapSingleLine && !content.includes("\n")) {
+            if (prompt.wrapSingleLine) {
+              // if (!/^".*?"$/.test(v.content) && !/^'.*?'$/.test(v.content)) {
+              //   v.content = `"${v.content.replace(/"/g, '\\"')}"`;
+              //   // content = JSON.stringify(content);
+              // }
+              v.content = wrapRawContent(v.content);
+            }
+          }
+          return v;
+        });
+
       requestChatStream(
         "v1/chat/completions",
-        requestMessages
-          .filter(v => {
-            return !(v.role === "assistant" && v.content === "...");
-          })
-          .map(v => {
-            if (v.role === "user") {
-              // if (prompt.wrapSingleLine && !content.includes("\n")) {
-              if (prompt.wrapSingleLine) {
-                // if (!/^".*?"$/.test(v.content) && !/^'.*?'$/.test(v.content)) {
-                //   v.content = `"${v.content.replace(/"/g, '\\"')}"`;
-                //   // content = JSON.stringify(content);
-                // }
-                v.content = wrapRawContent(v.content);
-              }
-            }
-            return v;
-          }),
+        uniqBy(apiMessages, v => {
+          const b = v.role === "system" ? v.role : uniqueId("apiMessages");
+          return [v.content, b].join(":");
+        }),
         {
           onMessage(message: string, done: boolean): void {
             if (done) {
