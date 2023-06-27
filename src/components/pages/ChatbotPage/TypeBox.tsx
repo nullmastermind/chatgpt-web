@@ -4,6 +4,7 @@ import {
   useCollections,
   useCurrentCollection,
   useCurrentTypeBoxId,
+  useDocId,
   useOpenaiAPIKey,
   useQuickActions,
   useQuickActionsQuery,
@@ -145,8 +146,8 @@ export const TypeBox = forwardRef(
     const [, setQuickActions] = useQuickActions();
     const [currentTypeBoxId, setCurrentTypeBoxId] = useCurrentTypeBoxId();
     const countTokenRef = createRef<any>();
-    const [docs, setDocs] = useSessionStorage<string[]>(`docs:${includeMessages.length}`, []);
-    const [docId, setDocId] = useSessionStorage<string>(`doc:messageBox:${collection}`, "");
+    const [docs, setDocs] = useSessionStorage<string[]>(`docs:`, []);
+    const [docId, setDocId] = useDocId();
 
     const handleImprove = () => {
       if (!inputRef.current) return;
@@ -288,18 +289,21 @@ export const TypeBox = forwardRef(
     );
     useDebounce(
       () => {
-        if (includeMessages.length === 0) {
-          axios
-            .get(`${indexerHost}/api/docs`)
-            .then(({ data }) => {
-              setDocs(data.data);
-            })
-            .catch(e => {});
-        }
+        // if (includeMessages.length === 0) {
+        axios
+          .get(`${indexerHost}/api/docs`)
+          .then(({ data }) => {
+            setDocs(data.data);
+          })
+          .catch(e => {});
+        // }
       },
       300,
       [includeMessages]
     );
+    useEffect(() => {
+      localStorage.setItem(":docId", docId);
+    }, [docId]);
 
     return (
       <>

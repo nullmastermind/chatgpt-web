@@ -49,7 +49,7 @@ const ReplyItem = ({ messages, includeMessages, position, onSend, exId }: ReplyI
               exId={exId}
               ref={boxRef}
               collection={collection}
-              onSubmit={(content, tokens, docId) => onSend(content, position, includeMessages, tokens, undefined)}
+              onSubmit={(content, tokens, docId) => onSend(content, position, includeMessages, tokens, docId)}
               messages={messages}
               onCancel={() => setShowFullEdit(false)}
               isReplyBox={true}

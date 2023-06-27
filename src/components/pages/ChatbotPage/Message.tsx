@@ -137,6 +137,10 @@ const Message = ({ collection, prompt }: MessageProps) => {
   ) => {
     if (content.length === 0) return;
 
+    if (docId === "Choose document" || docId === "") docId = undefined;
+
+    console.log("docId", docId);
+
     const userMessage: MessageItemType = {
       source: "user",
       content: content,
