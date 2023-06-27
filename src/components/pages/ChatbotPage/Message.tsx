@@ -616,6 +616,8 @@ const MessageItem = forwardRef(
       doneMessages.current[message.id] = false;
     });
     useEffect(() => {
+      if (!message.isChild) return;
+
       if (hasDocs) {
         delete needRefreshMessageIds.current[message.id];
         return;
