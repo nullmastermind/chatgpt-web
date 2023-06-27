@@ -56,7 +56,7 @@ nullgpt is released under the [MIT License](https://github.com/nullmastermind/ch
 
 ## Contact
 
-If you have any questions or need assistance, you can reach out to the project maintainers at [nullgpt@example.com](mailto:thenullmastermind@gmail.com). We are happy to help and provide support.
+If you have any questions or need assistance, you can reach out to the project maintainers at [thenullmastermind@gmail.com](mailto:thenullmastermind@gmail.com). We are happy to help and provide support.
 
 ---
 
