@@ -48,6 +48,13 @@ export type Docs = {
   tokens: number;
 };
 
+export type IndexedDocument = {
+  doc_id: string;
+  extensions: string[];
+  indexAt: string;
+  isIndexed: boolean;
+};
+
 export function filterDocs(docs: [Doc, number][], maxStep = 0.05) {
   let lastScore = -1;
   let alwaysFalse = false;

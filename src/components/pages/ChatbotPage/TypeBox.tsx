@@ -5,6 +5,7 @@ import {
   useCurrentCollection,
   useCurrentTypeBoxId,
   useDocId,
+  useIndexedDocs,
   useOpenaiAPIKey,
   useQuickActions,
   useQuickActionsQuery,
@@ -13,13 +14,25 @@ import { useDisclosure, useHotkeys } from "@mantine/hooks";
 import {
   findHighlight,
   formatString,
+  IndexedDocument,
   postprocessAnswer,
   searchArray,
   unWrapRawContent,
   validateField,
   wrapRawContent,
 } from "@/utility/utility";
-import { Button, Highlight, Modal, NativeSelect, ScrollArea, Textarea, TextInput } from "@mantine/core";
+import {
+  ActionIcon,
+  Button,
+  Divider,
+  Highlight,
+  Modal,
+  NativeSelect,
+  ScrollArea,
+  Textarea,
+  TextInput,
+  Tooltip,
+} from "@mantine/core";
 import { spotlight, SpotlightAction } from "@mantine/spotlight";
 import { useForm } from "@mantine/form";
 import { cloneDeep, findIndex, uniqueId } from "lodash";
@@ -30,6 +43,8 @@ import CountTokens from "@/components/pages/ChatbotPage/CountTokens";
 import warmup from "@/utility/warmup";
 import axios from "axios";
 import { indexerHost } from "@/config";
+import { IconSettings, IconSettings2 } from "@tabler/icons-react";
+import DocsModal from "@/components/pages/ChatbotPage/DocsModal";
 
 export const TypeBox = forwardRef(
   (
@@ -146,8 +161,9 @@ export const TypeBox = forwardRef(
     const [, setQuickActions] = useQuickActions();
     const [currentTypeBoxId, setCurrentTypeBoxId] = useCurrentTypeBoxId();
     const countTokenRef = createRef<any>();
-    const [docs, setDocs] = useSessionStorage<string[]>(`docs:`, []);
+    const [docs, setDocs] = useIndexedDocs();
     const [docId, setDocId] = useDocId();
+    const [docModalOpened, { open: openDocModal, close: closeDocModal }] = useDisclosure(false);
 
     const handleImprove = () => {
       if (!inputRef.current) return;
@@ -292,8 +308,8 @@ export const TypeBox = forwardRef(
         // if (includeMessages.length === 0) {
         axios
           .get(`${indexerHost}/api/docs`)
-          .then(({ data }) => {
-            setDocs(data.data);
+          .then(({ data: { data: docs } }) => {
+            setDocs((docs as IndexedDocument[]).filter(v => v.isIndexed).map(v => v.doc_id));
           })
           .catch(e => {});
         // }
@@ -373,6 +389,7 @@ export const TypeBox = forwardRef(
             </Button>
           </div>
         </Modal>
+        <DocsModal opened={docModalOpened} close={closeDocModal} />
         <div className="flex flex-row items-baseline gap-3">
           <Modal
             opened={opened}
@@ -526,12 +543,20 @@ export const TypeBox = forwardRef(
             <CountTokens ref={countTokenRef} content={messageContent} includeMessages={includeMessages} />
           </div>
           {docs.length > 0 && (
-            <NativeSelect
-              value={docId}
-              size={"xs"}
-              data={["Choose document", ...docs]}
-              onChange={e => setDocId(e.target.value)}
-            />
+            <div className="flex flex-row items-center border border-blue-500">
+              <Tooltip label={"Private Document Management"}>
+                <ActionIcon onClick={() => openDocModal()}>
+                  <IconSettings size={"1.25rem"} />
+                </ActionIcon>
+              </Tooltip>
+              <NativeSelect
+                value={docId}
+                size={"xs"}
+                data={["Choose document", ...docs]}
+                onChange={e => setDocId(e.target.value)}
+              />
+              <Divider orientation={"vertical"} className={"ml-2"} />
+            </div>
           )}
           <ModelSelect />
           {onCancel && (
