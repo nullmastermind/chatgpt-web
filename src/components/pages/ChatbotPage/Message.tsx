@@ -245,6 +245,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
             apiKey: openaiAPIKey.split(",")[0],
             // maxScore: includes.length > 0 ? 0.4 : 0.45,
             k: includes.length > 0 ? 2 : 5,
+            includeAllIfKLessThanScore: 0.3,
           });
 
           messages[streamIndex - 2].docs = map(filterDocs(query.data, 0.05), value => {
