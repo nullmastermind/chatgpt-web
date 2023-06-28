@@ -75,6 +75,7 @@ const useStyles = createStyles(theme => ({
     "&>pre": {
       margin: 0,
     },
+    wordBreak: "break-all",
   },
   inlineCode: {
     display: "inline-block",
