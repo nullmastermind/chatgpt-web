@@ -244,11 +244,11 @@ const Message = ({ collection, prompt }: MessageProps) => {
             query: [...includes.filter(v => v.source === "user").map(v => v.content), userMessage.content].join("\n"),
             apiKey: openaiAPIKey.split(",")[0],
             // maxScore: includes.length > 0 ? 0.4 : 0.45,
-            k: includes.length > 0 ? 2 : 4,
+            k: includes.length > 0 ? 2 : 5,
             includeAllIfKLessThanScore: 0.3,
           });
 
-          messages[streamIndex - 2].docs = map(filterDocs(query.data, 0.05), value => {
+          messages[streamIndex - 2].docs = map(filterDocs(query.data, 0.06), value => {
             return doc2ChatContent(value[0], 1.0 - value[1]);
           });
           userMessage.docs = messages[streamIndex - 2].docs;
