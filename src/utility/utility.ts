@@ -82,7 +82,7 @@ export function doc2ChatContent(doc: Doc, score: number) {
     });
 
   return (
-    `Snippet: ${doc.metadata.source}:${doc.metadata.loc.lines.from}:${doc.metadata.loc.lines.to}\n\n` +
+    `Reference source: ${doc.metadata.source}:${doc.metadata.loc.lines.from}:${doc.metadata.loc.lines.to}\n\n` +
     "```\n" +
     lines.join("\n") +
     "\n```"
