@@ -80,13 +80,11 @@ export function doc2ChatContent(doc: Doc, score: number) {
     .map((line, index) => {
       return `${startLine + index}\t${line}`;
     });
+  const source = doc.metadata.source.replace(/\.\.\//g, "").replace(/\.\//g, "");
+  const { from, to } = doc.metadata.loc.lines;
+  const c = lines.join("\n");
 
-  return (
-    `Reference source: ${doc.metadata.source}:${doc.metadata.loc.lines.from}:${doc.metadata.loc.lines.to}\n\n` +
-    "```\n" +
-    lines.join("\n") +
-    "\n```"
-  );
+  return `Reference source: ${source}:${from}:${to}\n\n` + "```\n" + c + "\n```";
 }
 
 export function importLocalStorageFromFile(cb?: () => any) {
