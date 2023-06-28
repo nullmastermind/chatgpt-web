@@ -170,6 +170,17 @@ const DocsModal = ({ opened, close }: DocsModalProps) => {
             );
           })}
         </div>
+        {docs.length === 0 && (
+          <div>
+            <div>Please visit the following address:</div>
+            <a href={"https://github.com/nullmastermind/nullgpt-indexer"} target={"_blank"}>
+              https://github.com/nullmastermind/nullgpt-indexer
+            </a>
+            <div>
+              This is where you will find the necessary information and resources to set up your private document.
+            </div>
+          </div>
+        )}
       </Modal>
     </>
   );

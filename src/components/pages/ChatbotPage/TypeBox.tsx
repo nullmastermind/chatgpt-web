@@ -542,22 +542,20 @@ export const TypeBox = forwardRef(
           <div className={"flex-grow self-start"}>
             <CountTokens ref={countTokenRef} content={messageContent} includeMessages={includeMessages} />
           </div>
-          {docs.length > 0 && (
-            <div className="flex flex-row items-center border border-blue-500">
-              <Tooltip label={"Private Document Management"}>
-                <ActionIcon onClick={() => openDocModal()}>
-                  <IconSettings size={"1.25rem"} />
-                </ActionIcon>
-              </Tooltip>
-              <NativeSelect
-                value={docId}
-                size={"xs"}
-                data={["Choose document", ...docs]}
-                onChange={e => setDocId(e.target.value)}
-              />
-              <Divider orientation={"vertical"} className={"ml-2"} />
-            </div>
-          )}
+          <div className="flex flex-row items-center border border-blue-500">
+            <Tooltip label={"Private Document Management"}>
+              <ActionIcon onClick={() => openDocModal()}>
+                <IconSettings size={"1.25rem"} />
+              </ActionIcon>
+            </Tooltip>
+            <NativeSelect
+              value={docId}
+              size={"xs"}
+              data={["Choose document", ...docs]}
+              onChange={e => setDocId(e.target.value)}
+            />
+            <Divider orientation={"vertical"} className={"ml-2"} />
+          </div>
           <ModelSelect />
           {onCancel && (
             <Button size={"xs"} onClick={onCancel} variant="default">
