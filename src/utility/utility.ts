@@ -70,7 +70,7 @@ export function filterDocs(docs: [Doc, number][], maxStep = 0.05) {
   });
 }
 
-export function doc2ChatContent(doc: Doc) {
+export function doc2ChatContent(doc: Doc, score: number) {
   const startLine = doc.metadata.loc.lines.from;
   const lines = doc.pageContent
     .split("\n")
@@ -82,7 +82,7 @@ export function doc2ChatContent(doc: Doc) {
     });
 
   return (
-    `Reference source: ${doc.metadata.source}:${doc.metadata.loc.lines.from}:${doc.metadata.loc.lines.to}\n\n` +
+    `Reference source: ${doc.metadata.source}:${doc.metadata.loc.lines.from}:${doc.metadata.loc.lines.to} Matching score: ${score}\n\n` +
     "```\n" +
     lines.join("\n") +
     "\n```"

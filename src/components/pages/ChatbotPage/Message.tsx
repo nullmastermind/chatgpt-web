@@ -249,7 +249,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
           });
 
           messages[streamIndex - 2].docs = map(filterDocs(query.data, 0.05), value => {
-            return doc2ChatContent(value[0]);
+            return doc2ChatContent(value[0], 1.0 - value[1]);
           });
           userMessage.docs = messages[streamIndex - 2].docs;
         } catch (e) {}
