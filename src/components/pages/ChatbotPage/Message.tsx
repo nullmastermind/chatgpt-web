@@ -659,56 +659,58 @@ const MessageItem = forwardRef(
           title="Documents"
           centered
           scrollAreaComponent={ScrollArea.Autosize}
-          size={"lg"}
+          size={"auto"}
         >
-          {isShowDocs &&
-            map(message.docs, (doc, index) => {
-              return (
-                <div key={index} className={classNames("text-xs", classes.pBreakAll)}>
-                  <ReactMarkdown
-                    linkTarget="_blank"
-                    remarkPlugins={[remarkGfm]}
-                    rehypePlugins={[rehypeRaw]}
-                    components={{
-                      code({ node: rawNode, inline, className, children }) {
-                        const node = rawNode as Node;
+          <Container p={0} size={"sm"}>
+            {isShowDocs &&
+              map(message.docs, (doc, index) => {
+                return (
+                  <div key={index} className={classNames("text-xs", classes.pBreakAll)}>
+                    <ReactMarkdown
+                      linkTarget="_blank"
+                      remarkPlugins={[remarkGfm]}
+                      rehypePlugins={[rehypeRaw]}
+                      components={{
+                        code({ node: rawNode, inline, className, children }) {
+                          const node = rawNode as Node;
 
-                        const rawContent = String(children);
-                        let codeContent = postprocessAnswer(rawContent.replace(/\n$/, ""), true);
+                          const rawContent = String(children);
+                          let codeContent = postprocessAnswer(rawContent.replace(/\n$/, ""), true);
 
-                        if (inline && !message.content.includes("```" + rawContent + "```")) {
-                          if (node.position.end.offset - rawContent.length - node.position.start.offset === 2) {
-                            return <code className={classes.inlineCode}>{codeContent}</code>;
+                          if (inline && !message.content.includes("```" + rawContent + "```")) {
+                            if (node.position.end.offset - rawContent.length - node.position.start.offset === 2) {
+                              return <code className={classes.inlineCode}>{codeContent}</code>;
+                            }
                           }
-                        }
 
-                        const match = /language-(\w+)/.exec(className || "");
-                        let lang: any = "javascript";
+                          const match = /language-(\w+)/.exec(className || "");
+                          let lang: any = "javascript";
 
-                        if (!match) {
-                          try {
-                            lang = detectProgramLang(codeContent);
-                          } catch (e) {}
-                        } else {
-                          lang = match[1] as any;
-                        }
+                          if (!match) {
+                            try {
+                              lang = detectProgramLang(codeContent);
+                            } catch (e) {}
+                          } else {
+                            lang = match[1] as any;
+                          }
 
-                        return (
-                          <Prism
-                            children={codeContent}
-                            language={convertToSupportLang(lang)}
-                            scrollAreaComponent={ScrollArea}
-                            className={classNames("mb-1", classes.codeWrap)}
-                          />
-                        );
-                      },
-                    }}
-                  >
-                    {preprocessMessageContent(doc)}
-                  </ReactMarkdown>
-                </div>
-              );
-            })}
+                          return (
+                            <Prism
+                              children={codeContent}
+                              language={convertToSupportLang(lang)}
+                              scrollAreaComponent={ScrollArea}
+                              className={classNames("mb-1", classes.codeWrap)}
+                            />
+                          );
+                        },
+                      }}
+                    >
+                      {preprocessMessageContent(doc)}
+                    </ReactMarkdown>
+                  </div>
+                );
+              })}
+          </Container>
         </Modal>
         {!isChild && <div className={"h-10"} />}
         <div
