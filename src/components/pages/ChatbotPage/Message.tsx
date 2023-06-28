@@ -859,17 +859,13 @@ const MessageItem = forwardRef(
                   leftSection={
                     <div className={"flex items-center relative w-3.5 justify-center"}>
                       <div className={"absolute top-0 left-0 w-full"} style={{ height: 16 }}>
-                        {(() => {
-                          if (!Array.isArray(messages.docs)) {
-                            return <Loader size={"xs"} className={"relative -top-2 -left-1"} variant="dots" />;
-                          }
-
-                          return (
-                            <Text size={"sm"} className={"text-center w-full"} style={{ lineHeight: 0 }}>
-                              {message.docs?.length}
-                            </Text>
-                          );
-                        })()}
+                        {Array.isArray(message.docs) ? (
+                          <Text size={"sm"} className={"text-center w-full"} style={{ lineHeight: 0 }}>
+                            {message.docs?.length}
+                          </Text>
+                        ) : (
+                          <Loader size={"xs"} className={"relative -top-2 -left-1"} variant="dots" />
+                        )}
                       </div>
                     </div>
                   }
