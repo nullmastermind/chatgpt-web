@@ -164,6 +164,11 @@ const useStyles = createStyles(theme => ({
       },
     },
   },
+  pBreakAll: {
+    p: {
+      wordBreak: "break-all",
+    },
+  },
 }));
 
 export default useStyles;

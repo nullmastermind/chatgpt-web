@@ -664,7 +664,7 @@ const MessageItem = forwardRef(
           {isShowDocs &&
             map(message.docs, (doc, index) => {
               return (
-                <div key={index} className={"text-xs"}>
+                <div key={index} className={classNames("text-xs", classes.pBreakAll)}>
                   <ReactMarkdown
                     linkTarget="_blank"
                     remarkPlugins={[remarkGfm]}
