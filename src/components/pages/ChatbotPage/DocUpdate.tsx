@@ -1,7 +1,7 @@
 import axios from "axios";
 import { indexerHost } from "@/config";
 import React, { useEffect } from "react";
-import { useList, useSetState } from "react-use";
+import { useDebounce, useList, useSetState } from "react-use";
 import { map } from "lodash";
 import { ActionIcon, Button, Input, Text } from "@mantine/core";
 import { IconCircleCheckFilled, IconTrash, IconTrashX } from "@tabler/icons-react";
@@ -47,6 +47,14 @@ const DocUpdate = ({ docId }: DocUpdateProps) => {
   useEffect(() => {
     getDirs();
   }, [docId]);
+  useEffect(() => {
+    if (items.length === 0) {
+      setItems.push({
+        f: "",
+        editable: true,
+      });
+    }
+  }, [items]);
 
   return (
     <>
@@ -56,7 +64,9 @@ const DocUpdate = ({ docId }: DocUpdateProps) => {
             <div key={index} className={"flex flex-row gap-2 items-center"}>
               <Text size={"xs"}>{index + 1}.</Text>
               <Input
-                placeholder={"Full path of a file or directory on your computer (e.g: C:\\Users\\admin\\Documents\\Private)"}
+                placeholder={
+                  "Full path of a file or directory on your computer (e.g: C:\\Users\\admin\\Documents\\Private)"
+                }
                 size={"xs"}
                 value={item.f}
                 disabled={!item.editable}

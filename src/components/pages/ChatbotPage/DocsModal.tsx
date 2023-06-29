@@ -1,5 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { ActionIcon, Badge, Button, Card, Divider, Modal, ScrollArea, Text, Textarea, Tooltip } from "@mantine/core";
+import {
+  ActionIcon,
+  Badge,
+  Button,
+  Card,
+  Divider,
+  Modal,
+  ScrollArea,
+  Text,
+  Textarea,
+  TextInput,
+  Tooltip,
+} from "@mantine/core";
 import axios from "axios";
 import { indexerHost } from "@/config";
 import { IndexedDocument } from "@/utility/utility";
@@ -11,6 +23,7 @@ import { IconArrowDown, IconArrowUp, IconTrash } from "@tabler/icons-react";
 import DocUpdate from "@/components/pages/ChatbotPage/DocUpdate";
 import classNames from "classnames";
 import { modals } from "@mantine/modals";
+import slug from "slug";
 
 type DocsModalProps = {
   opened: boolean;
@@ -24,9 +37,10 @@ const DocsModal = ({ opened, close }: DocsModalProps) => {
   const [removeIndexLoadings, setRemoveIndexLoadings] = useSetState<Record<string, boolean>>({});
   const [, setIndexedDocs] = useIndexedDocs();
   const [currentDocId, setCurrentDocId] = useState<string>();
+  const [newDocName, setNewDocName] = useState("");
 
   const updateDocs = (first?: boolean) => {
-    axios
+    return axios
       .get(`${indexerHost}/api/docs`)
       .then(({ data }) => {
         const docs = data.data as IndexedDocument[];
@@ -73,6 +87,10 @@ const DocsModal = ({ opened, close }: DocsModalProps) => {
       });
   };
   const removeIndex = (docId: string) => {
+    if (currentDocId === docId) {
+      setCurrentDocId("");
+    }
+
     setRemoveIndexLoadings({
       [docId]: true,
     });
@@ -108,6 +126,42 @@ const DocsModal = ({ opened, close }: DocsModalProps) => {
         size={"lg"}
       >
         <div className={"flex flex-col gap-2"}>
+          <Card withBorder shadow={"xl"}>
+            <div className={"flex flex-row items-end gap-2"}>
+              <TextInput
+                value={newDocName}
+                onChange={e => setNewDocName(e.target.value)}
+                className={"flex-grow"}
+                label={"Name"}
+                placeholder={"Name of the new document"}
+              />
+              <Button
+                onClick={() => {
+                  const docId = slug(newDocName);
+
+                  if (docId.length === 0) return;
+
+                  axios
+                    .post(`${indexerHost}/api/add-doc`, {
+                      doc_id: docId,
+                    })
+                    .then(() => {
+                      updateDocs(true).then(() => {
+                        setCurrentDocId(docId);
+                        setNewDocName("");
+
+                        setTimeout(() => {
+                          document.getElementById(`doc-${docId}`)?.scrollIntoView({ behavior: "smooth" });
+                        }, 100);
+                      });
+                    })
+                    .catch(Promise.resolve);
+                }}
+              >
+                New document
+              </Button>
+            </div>
+          </Card>
           {map(docs, (doc, index) => {
             return (
               <Card key={index}>
@@ -223,12 +277,13 @@ const DocsModal = ({ opened, close }: DocsModalProps) => {
                     </Button>
                   </>
                 )}
+                <div id={`doc-${doc.doc_id}`} />
               </Card>
             );
           })}
         </div>
         {docs.length === 0 && (
-          <div>
+          <div className={"py-3 text-sm"}>
             <div>Please visit the following address:</div>
             <a href={"https://github.com/nullmastermind/nullgpt-indexer"} target={"_blank"}>
               https://github.com/nullmastermind/nullgpt-indexer
