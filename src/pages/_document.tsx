@@ -5,7 +5,7 @@ export default function Document() {
   return (
     <Html lang="en">
       <Head>
-        <link rel="shortcut icon" href="/bot.png" />
+        <link rel="shortcut icon" href="/bot.ico" />
         <script src="https://unpkg.com/@highlightjs/cdn-assets@11.7.0/highlight.min.js"></script>
         <script>hljs.highlightAll();</script>
         <GoogleTagManager />
