@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { useDebounce, useList, useSetState } from "react-use";
 import { map } from "lodash";
 import { ActionIcon, Button, Input, Text } from "@mantine/core";
-import { IconCircleCheckFilled, IconTrash, IconTrashX } from "@tabler/icons-react";
+import { IconCircleCheckFilled, IconPlus, IconTrash, IconTrashX } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
 
 type DocUpdateProps = {
@@ -96,7 +96,7 @@ const DocUpdate = ({ docId }: DocUpdateProps) => {
       </div>
       <div className={"flex flex-row items-center justify-end mt-2 gap-2"}>
         <Button
-          variant={"outline"}
+          variant={"default"}
           size={"xs"}
           onClick={() => {
             setItems.push({
@@ -104,8 +104,9 @@ const DocUpdate = ({ docId }: DocUpdateProps) => {
               editable: true,
             });
           }}
+          className={"flex-grow"}
         >
-          Add
+          <IconPlus size={"1.25rem"} className={'opacity-60'} />
         </Button>
         <Button
           variant={"filled"}
