@@ -123,20 +123,15 @@ const DocsModal = ({ opened, close }: DocsModalProps) => {
                         });
                       }}
                     />
-                    {doc.isIndexed && (
-                      <div className={"flex items-center gap-1"}>
-                        <Text size={"sm"} className={"-mb-0.5"}>
-                          At:
-                        </Text>
-                        <DateInfo
-                          message={
-                            {
-                              date: new Date(doc.indexAt),
-                            } as any
-                          }
-                        />
-                      </div>
-                    )}
+                    <div className={"flex items-center gap-1"}>
+                      <DateInfo
+                        message={
+                          {
+                            date: new Date(doc.indexAt),
+                          } as any
+                        }
+                      />
+                    </div>
                   </div>
                   <Divider orientation={"vertical"} />
                   <div>
