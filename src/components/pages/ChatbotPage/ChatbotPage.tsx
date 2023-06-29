@@ -1,6 +1,7 @@
 import CenterCard from "@/components/CenterCard";
 import { useMount, useUnmount } from "react-use";
 import {
+  confirmUtil,
   useAddCollectionAction,
   useCollections,
   useCurrentCollection,
@@ -124,8 +125,13 @@ const ChatbotPage = () => {
           ignorePromptId(deleteId);
           getCollections();
         };
-        if (!force && confirm(`Remove ${collection.label}?`)) {
-          doRemove();
+        if (!force) {
+          confirmUtil.show({
+            message: `Remove ${collection.label}?`,
+            onConfirm: () => {
+              doRemove();
+            },
+          });
         } else if (force) {
           doRemove();
         }
