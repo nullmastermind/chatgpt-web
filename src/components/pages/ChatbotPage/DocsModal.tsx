@@ -19,11 +19,12 @@ import { forEach, map } from "lodash";
 import { useSetState } from "react-use";
 import DateInfo from "@/components/pages/ChatbotPage/DateInfo";
 import { useIndexedDocs } from "@/states/states";
-import { IconArrowDown, IconArrowUp, IconTrash } from "@tabler/icons-react";
+import { IconArrowDown, IconArrowUp, IconTrash, IconX } from "@tabler/icons-react";
 import DocUpdate from "@/components/pages/ChatbotPage/DocUpdate";
 import classNames from "classnames";
 import { modals } from "@mantine/modals";
 import slug from "slug";
+import { notifications } from "@mantine/notifications";
 
 type DocsModalProps = {
   opened: boolean;
@@ -59,6 +60,19 @@ const DocsModal = ({ opened, close }: DocsModalProps) => {
       .catch(() => {});
   };
   const startTrain = (docId: string) => {
+    if (!fileExtensions[docId] || fileExtensions[docId].trim() === "") {
+      // Show error notification
+      notifications.show({
+        title: "Error",
+        message: "Extensions field is empty",
+        radius: "lg",
+        withCloseButton: true,
+        color: "red",
+        icon: <IconX />,
+      });
+      return;
+    }
+
     setLoadings({
       [docId]: true,
     });
