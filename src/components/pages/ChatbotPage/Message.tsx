@@ -268,6 +268,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
       setIsDone(assistantPreMessage.id, false);
 
       const requestMessages: any[] = [];
+      let hasDoc = (userMessage.docs || []).length > 0;
 
       forEach(clone(prompt.prompts), prompt => {
         if (prompt === "your") {
@@ -288,6 +289,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
                     };
                   })
                 );
+                hasDoc = true;
               }
               return rs;
             }).flat(),
@@ -367,44 +369,48 @@ const Message = ({ collection, prompt }: MessageProps) => {
           }
           return v;
         });
+      const finalMessages = uniqBy(apiMessages, v => {
+        const b = v.role === "system" ? v.role : uniqueId("apiMessages");
+        return [v.content, b].join(":");
+      });
 
-      requestChatStream(
-        "v1/chat/completions",
-        uniqBy(apiMessages, v => {
-          const b = v.role === "system" ? v.role : uniqueId("apiMessages");
-          return [v.content, b].join(":");
-        }),
-        {
-          onMessage(message: string, done: boolean): void {
-            if (done) {
-              message = postprocessAnswer(message, done);
-              if (prompt.wrapSingleLine) {
-                message = unWrapRawContent(message);
-              }
-            }
+      if (hasDoc) {
+        finalMessages.unshift({
+          role: "system",
+          content: "Please prioritize answering the question based on the provided documentation.",
+        });
+      }
 
-            saveMessagesThr(message);
+      requestChatStream("v1/chat/completions", finalMessages, {
+        onMessage(message: string, done: boolean): void {
+          if (done) {
+            message = postprocessAnswer(message, done);
+            if (prompt.wrapSingleLine) {
+              message = unWrapRawContent(message);
+            }
+          }
 
-            if (messageRefs.current[assistantPreMessage.id]) {
-              messageRefs.current[assistantPreMessage.id].editMessage(message, done);
-            }
-            if (done) {
-              saveMessagesFn(message);
-              delete messageRefs.current[assistantPreMessage.id];
-              setIsDone(assistantPreMessage.id, true);
-            }
-          },
-          token: openaiAPIKey,
-          modelConfig: {
-            model: autoModel,
-            temperature: prompt.temperature,
-          },
-          onController(): void {},
-          onError(error: Error): void {
-            console.log("error", error);
-          },
-        }
-      ).finally();
+          saveMessagesThr(message);
+
+          if (messageRefs.current[assistantPreMessage.id]) {
+            messageRefs.current[assistantPreMessage.id].editMessage(message, done);
+          }
+          if (done) {
+            saveMessagesFn(message);
+            delete messageRefs.current[assistantPreMessage.id];
+            setIsDone(assistantPreMessage.id, true);
+          }
+        },
+        token: openaiAPIKey,
+        modelConfig: {
+          model: autoModel,
+          temperature: prompt.temperature,
+        },
+        onController(): void {},
+        onError(error: Error): void {
+          console.log("error", error);
+        },
+      }).finally();
     },
     42,
     [messages, checkedMessages, viewport, collection, streamMessageIndex, includes, model]
