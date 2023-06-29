@@ -7,7 +7,9 @@ import { forEach, map } from "lodash";
 import { useSetState } from "react-use";
 import DateInfo from "@/components/pages/ChatbotPage/DateInfo";
 import { useIndexedDocs } from "@/states/states";
-import { IconTrash } from "@tabler/icons-react";
+import { IconArrowDown, IconArrowUp, IconTrash } from "@tabler/icons-react";
+import DocUpdate from "@/components/pages/ChatbotPage/DocUpdate";
+import classNames from "classnames";
 
 type DocsModalProps = {
   opened: boolean;
@@ -20,6 +22,7 @@ const DocsModal = ({ opened, close }: DocsModalProps) => {
   const [loadings, setLoadings] = useSetState<Record<string, boolean>>({});
   const [removeIndexLoadings, setRemoveIndexLoadings] = useSetState<Record<string, boolean>>({});
   const [, setIndexedDocs] = useIndexedDocs();
+  const [currentDocId, setCurrentDocId] = useState<string>();
 
   const updateDocs = (first?: boolean) => {
     axios
@@ -101,12 +104,17 @@ const DocsModal = ({ opened, close }: DocsModalProps) => {
         onClose={close}
         title="Private Document Management"
         scrollAreaComponent={ScrollArea.Autosize}
+        size={"lg"}
       >
         <div className={"flex flex-col gap-2"}>
           {map(docs, (doc, index) => {
             return (
               <Card key={index}>
-                <div className={"flex flex-row gap-2 items-center"}>
+                <div
+                  className={classNames("flex flex-row gap-2 items-center", {
+                    "opacity-20": currentDocId && currentDocId !== doc.doc_id,
+                  })}
+                >
                   <div className={"flex-grow"}>
                     <Badge className={"rounded"} variant={"outline"}>
                       {doc.doc_id}
@@ -123,14 +131,33 @@ const DocsModal = ({ opened, close }: DocsModalProps) => {
                         });
                       }}
                     />
-                    <div className={"flex items-center gap-1"}>
-                      <DateInfo
-                        message={
-                          {
-                            date: new Date(doc.indexAt),
-                          } as any
-                        }
-                      />
+                    <div className={"flex items-center gap-1 justify-center"}>
+                      <div className={"flex-grow"}>
+                        <DateInfo
+                          message={
+                            {
+                              date: new Date(doc.indexAt),
+                            } as any
+                          }
+                        />
+                      </div>
+                      <div
+                        className={"flex flex-row items-center gap-1 hover:text-blue-500 cursor-pointer"}
+                        onClick={() => {
+                          if (currentDocId === doc.doc_id) {
+                            setCurrentDocId("");
+                          } else {
+                            setCurrentDocId(doc.doc_id);
+                          }
+                        }}
+                      >
+                        <Text size={"xs"}>Show files</Text>
+                        {currentDocId !== doc.doc_id ? (
+                          <IconArrowDown size={"1.25rem"} />
+                        ) : (
+                          <IconArrowUp size={"1.25rem"} />
+                        )}
+                      </div>
                     </div>
                   </div>
                   <Divider orientation={"vertical"} />
@@ -161,6 +188,12 @@ const DocsModal = ({ opened, close }: DocsModalProps) => {
                     </div>
                   </div>
                 </div>
+                {currentDocId === doc.doc_id && (
+                  <div className={"pt-2"}>
+                    <Divider className={"mb-2"} />
+                    <DocUpdate docId={doc.doc_id} />
+                  </div>
+                )}
               </Card>
             );
           })}
