@@ -189,10 +189,21 @@ const DocsModal = ({ opened, close }: DocsModalProps) => {
                   </div>
                 </div>
                 {currentDocId === doc.doc_id && (
-                  <div className={"pt-2"}>
-                    <Divider className={"mb-2"} />
-                    <DocUpdate docId={doc.doc_id} />
-                  </div>
+                  <>
+                    <div className={"pt-2"}>
+                      <Divider className={"mb-2"} />
+                      <DocUpdate docId={doc.doc_id} />
+                    </div>
+                    <Divider className={"mt-2"} />
+                    <Button
+                      className={"w-full border-0"}
+                      variant={"default"}
+                      size={"xs"}
+                      onClick={() => setCurrentDocId("")}
+                    >
+                      <Text className={"opacity-80"}>Close edit</Text>
+                    </Button>
+                  </>
                 )}
               </Card>
             );

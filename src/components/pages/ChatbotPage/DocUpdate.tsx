@@ -3,7 +3,7 @@ import { indexerHost } from "@/config";
 import React, { useEffect } from "react";
 import { useList, useSetState } from "react-use";
 import { map } from "lodash";
-import { ActionIcon, Button, Input } from "@mantine/core";
+import { ActionIcon, Button, Input, Text } from "@mantine/core";
 import { IconCircleCheckFilled, IconTrash, IconTrashX } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
 
@@ -54,8 +54,9 @@ const DocUpdate = ({ docId }: DocUpdateProps) => {
         {map(items, (item, index) => {
           return (
             <div key={index} className={"flex flex-row gap-2 items-center"}>
+              <Text size={"xs"}>{index + 1}.</Text>
               <Input
-                placeholder={"File or Directory"}
+                placeholder={"Full path of a file or directory on your computer (e.g: C:\\Users\\admin\\Documents\\Private)"}
                 size={"xs"}
                 value={item.f}
                 disabled={!item.editable}
