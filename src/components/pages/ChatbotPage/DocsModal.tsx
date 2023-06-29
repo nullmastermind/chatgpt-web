@@ -201,7 +201,7 @@ const DocsModal = ({ opened, close }: DocsModalProps) => {
                       size={"xs"}
                       onClick={() => setCurrentDocId("")}
                     >
-                      <Text className={"opacity-80"}>Close edit (!!! ignore unsaved)</Text>
+                      <Text className={"opacity-80"}>Close edit (⚠️ ignore unsaved)</Text>
                     </Button>
                   </>
                 )}
