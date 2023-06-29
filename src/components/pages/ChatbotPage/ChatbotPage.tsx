@@ -1,7 +1,5 @@
-import CenterCard from "@/components/CenterCard";
 import { useMount, useUnmount } from "react-use";
 import {
-  confirmUtil,
   useAddCollectionAction,
   useCollections,
   useCurrentCollection,
@@ -13,13 +11,13 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import React, { useEffect, useState } from "react";
 import { clone, cloneDeep, find, findIndex } from "lodash";
-import { IconCircleCheckFilled, IconX } from "@tabler/icons-react";
-import axios from "axios";
+import { IconCircleCheckFilled } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
 import AddPrompt, { PromptSaveData } from "@/components/pages/ChatbotPage/AddPrompt";
 import Message from "@/components/pages/ChatbotPage/Message";
 import { ignorePromptId } from "@/utility/utility";
 import QuickActions from "@/components/pages/ChatbotPage/QuickActions";
+import { modals } from "@mantine/modals";
 
 const ChatbotPage = () => {
   const [, setAddCollectionAction] = useAddCollectionAction();
@@ -126,9 +124,15 @@ const ChatbotPage = () => {
           getCollections();
         };
         if (!force) {
-          confirmUtil.show({
-            message: `Remove ${collection.label}?`,
-            onConfirm: () => {
+          modals.openConfirmModal({
+            title: "Confirmation",
+            children: `Remove ${collection.label}?`,
+            centered: true,
+            labels: {
+              cancel: "Cancel",
+              confirm: "Confirm",
+            },
+            onConfirm() {
               doRemove();
             },
           });

@@ -10,6 +10,7 @@ import { useIndexedDocs } from "@/states/states";
 import { IconArrowDown, IconArrowUp, IconTrash } from "@tabler/icons-react";
 import DocUpdate from "@/components/pages/ChatbotPage/DocUpdate";
 import classNames from "classnames";
+import { modals } from "@mantine/modals";
 
 type DocsModalProps = {
   opened: boolean;
@@ -177,7 +178,24 @@ const DocsModal = ({ opened, close }: DocsModalProps) => {
                       <Tooltip label={"Remove the index of this document."}>
                         <ActionIcon
                           loading={removeIndexLoadings[doc.doc_id]}
-                          onClick={() => removeIndex(doc.doc_id)}
+                          onClick={() => {
+                            if (doc.isIndexed) {
+                              removeIndex(doc.doc_id);
+                            } else {
+                              modals.openConfirmModal({
+                                title: "Confirmation",
+                                centered: true,
+                                children: `Remove ${doc.doc_id}?`,
+                                labels: {
+                                  cancel: "Cancel",
+                                  confirm: "Confirm",
+                                },
+                                onConfirm() {
+                                  removeIndex(doc.doc_id);
+                                },
+                              });
+                            }
+                          }}
                           size={"xs"}
                           variant={"outline"}
                           color={"red"}
