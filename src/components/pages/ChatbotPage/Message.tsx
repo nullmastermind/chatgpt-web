@@ -375,10 +375,15 @@ const Message = ({ collection, prompt }: MessageProps) => {
       });
 
       if (hasDoc) {
-        finalMessages.unshift({
-          role: "system",
-          content: "Please prioritize answering the question based on the provided documentation.",
+        const insertToIndex = findIndex(finalMessages, v => {
+          return v.content.includes("DOCUMENT NAME:");
         });
+        if (insertToIndex !== -1) {
+          finalMessages.splice(insertToIndex, 0, {
+            role: "system",
+            content: "Please prioritize answering the question based on the provided documentation.",
+          });
+        }
       }
 
       requestChatStream("v1/chat/completions", finalMessages, {
