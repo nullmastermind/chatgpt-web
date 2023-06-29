@@ -79,13 +79,23 @@ export function filterDocs(docs: [Doc, number][], maxStep = 0.05) {
 
 export function doc2ChatContent(doc: Doc, score: number) {
   const startLine = doc.metadata.loc.lines.from;
+  const offsetLine = { value: 0 };
+
+  if (doc.pageContent.startsWith("DOCUMENT NAME:")) {
+    offsetLine.value = 2;
+  }
+
   const lines = doc.pageContent
     .split("\n")
     .map(v => {
       return v.replace(/```/g, "\\`\\`\\`");
     })
     .map((line, index) => {
-      return `${startLine + index}\t${line}`;
+      if (index < offsetLine.value) {
+        return line;
+      }
+
+      return `${startLine + index - offsetLine.value}\t${line}`;
     });
   const source = doc.metadata.source.replace(/\.\.\//g, "").replace(/\.\//g, "");
   const { from, to } = doc.metadata.loc.lines;
