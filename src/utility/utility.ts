@@ -34,6 +34,8 @@ export type Doc = {
   pageContent: string;
   metadata: {
     source: string;
+    hash: string;
+    md5: string;
     loc: {
       lines: {
         from: number;
@@ -58,10 +60,11 @@ export type IndexedDocument = {
 export function filterDocs(docs: [Doc, number][], maxStep = 0.05) {
   let lastScore = -1;
   let alwaysFalse = false;
+  const fileHashes = new Set<string>();
 
   return docs.filter(([doc, score]) => {
     if (alwaysFalse) {
-      return false;
+      return fileHashes.has(doc.metadata.md5);
     }
 
     if (lastScore >= 0) {
@@ -72,6 +75,7 @@ export function filterDocs(docs: [Doc, number][], maxStep = 0.05) {
     }
 
     lastScore = score;
+    fileHashes.add(doc.metadata.md5);
 
     return true;
   });

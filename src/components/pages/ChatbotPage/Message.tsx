@@ -13,6 +13,7 @@ import { useCollections, useCurrentCollection, useModel, useOpenaiAPIKey } from 
 import {
   convertToSupportLang,
   detectProgramLang,
+  Doc,
   doc2ChatContent,
   Docs,
   filterDocs,
@@ -54,6 +55,7 @@ export type MessageItemType = {
   tokens: number;
   docId?: string;
   docs?: string[];
+  docHashes?: string[];
 };
 
 const messageRefs = { current: {} as KeyValue };
@@ -234,7 +236,17 @@ const Message = ({ collection, prompt }: MessageProps) => {
       const assistantPreMessage: MessageItemType = messages[streamIndex - 1];
 
       if (userMessage.docId) {
+        console.log("includes", includes);
+
         try {
+          const ignoreHashes: string[] = [];
+
+          forEach(includes, m => {
+            if (Array.isArray(m.docHashes)) {
+              ignoreHashes.push(...m.docHashes);
+            }
+          });
+
           const {
             data: query,
           }: {
@@ -247,11 +259,16 @@ const Message = ({ collection, prompt }: MessageProps) => {
             maxScore: 0.55,
             k: includes.length > 0 ? 2 : 5,
             includeAllIfKLessThanScore: 0.3,
+            ignoreHashes,
           });
 
-          messages[streamIndex - 2].docs = map(filterDocs(query.data, 0.06), value => {
+          const filteredDocs = filterDocs(query.data, 0.06);
+
+          messages[streamIndex - 2].docHashes = filteredDocs.map(v => v[0].metadata.hash);
+          messages[streamIndex - 2].docs = map(filteredDocs, value => {
             return doc2ChatContent(value[0], 1.0 - value[1]);
           });
+          userMessage.docHashes = messages[streamIndex - 2].docHashes;
           userMessage.docs = messages[streamIndex - 2].docs;
         } catch (e) {}
 
