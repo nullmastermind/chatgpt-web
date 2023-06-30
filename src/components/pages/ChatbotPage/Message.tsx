@@ -1,7 +1,7 @@
 import { useCopyToClipboard, useDebounce, useList, useMap, useMeasure, useMount, useUnmount } from "react-use";
 import { ActionIcon, Avatar, Badge, Container, Loader, Modal, ScrollArea, Text, Tooltip } from "@mantine/core";
 import React, { forwardRef, MutableRefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { clone, cloneDeep, find, findIndex, forEach, map, throttle, uniqBy, uniqueId } from "lodash";
+import { clone, cloneDeep, find, findIndex, findLastIndex, forEach, map, throttle, uniqBy, uniqueId } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import classNames from "classnames";
 import ReactMarkdown from "react-markdown";
@@ -13,7 +13,6 @@ import { useCollections, useCurrentCollection, useModel, useOpenaiAPIKey } from 
 import {
   convertToSupportLang,
   detectProgramLang,
-  Doc,
   doc2ChatContent,
   Docs,
   filterDocs,
@@ -390,11 +389,11 @@ const Message = ({ collection, prompt }: MessageProps) => {
       });
 
       if (hasDoc) {
-        const insertToIndex = findIndex(finalMessages, v => {
+        const insertToIndex = findLastIndex(finalMessages, v => {
           return v.content.includes("DOCUMENT NAME:");
         });
         if (insertToIndex !== -1) {
-          finalMessages.splice(insertToIndex, 0, {
+          finalMessages.splice(insertToIndex + 1, 0, {
             role: "system",
             content: "PRIORITIZE PROVIDING ANSWERS BASED ON THE PROVIDED REFERENCE SOURCES.",
           });
