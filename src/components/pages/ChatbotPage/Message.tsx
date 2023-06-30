@@ -236,8 +236,6 @@ const Message = ({ collection, prompt }: MessageProps) => {
       const assistantPreMessage: MessageItemType = messages[streamIndex - 1];
 
       if (userMessage.docId) {
-        console.log("includes", includes);
-
         try {
           const ignoreHashes: string[] = [];
 
@@ -398,7 +396,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
         if (insertToIndex !== -1) {
           finalMessages.splice(insertToIndex, 0, {
             role: "system",
-            content: "Please prioritize answering the question based on the provided documentation.",
+            content: "PRIORITIZE PROVIDING ANSWERS BASED ON THE PROVIDED REFERENCE SOURCES.",
           });
         }
       }
