@@ -125,6 +125,22 @@ const warmup = {
         "\n" +
         'My component name is ""',
     },
+    {
+      role: "user",
+      content: buildContent(`vui lòng trả lời bằng tiếng Việt`),
+    },
+    {
+      role: "assistant",
+      content: "Write reply in Vietnamese",
+    },
+    {
+      role: "user",
+      content: buildContent(`请用中文回复`),
+    },
+    {
+      role: "assistant",
+      content: "Write reply in Chinese",
+    },
   ],
 } as Record<
   string,
