@@ -141,6 +141,14 @@ const warmup = {
       role: "assistant",
       content: "Write reply in Chinese",
     },
+    {
+      role: "user",
+      content: buildContent(`Help me write python quick sort function. Vui lòng trả lời bằng tiếng Việt`),
+    },
+    {
+      role: "assistant",
+      content: "Help me write a Python function for quick sort. Write reply in Vietnamese.",
+    },
   ],
 } as Record<
   string,
