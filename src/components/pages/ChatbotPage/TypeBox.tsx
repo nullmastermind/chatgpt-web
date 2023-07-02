@@ -1,5 +1,5 @@
 import React, { createRef, forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { useDebounce, useLocalStorage, useMeasure, useMount, useSessionStorage } from "react-use";
+import { useDebounce, useLocalStorage, useMeasure, useMount, useSessionStorage, useSetState } from "react-use";
 import {
   useCollections,
   useCurrentCollection,
@@ -164,6 +164,10 @@ export const TypeBox = forwardRef(
     const [docs, setDocs] = useIndexedDocs();
     const [docId, setDocId] = useDocId();
     const [docModalOpened, { open: openDocModal, close: closeDocModal }] = useDisclosure(false);
+    const [docModalOpenSettings, setDocModalOpenSettings] = useSetState({
+      initSearchValue: "",
+      initDocId: "",
+    });
 
     const handleImprove = () => {
       if (!inputRef.current) return;
@@ -389,7 +393,7 @@ export const TypeBox = forwardRef(
             </Button>
           </div>
         </Modal>
-        <DocsModal opened={docModalOpened} close={closeDocModal} />
+        <DocsModal opened={docModalOpened} close={closeDocModal} {...docModalOpenSettings} />
         <div className="flex flex-row items-baseline gap-3">
           <Modal
             opened={opened}
@@ -544,14 +548,28 @@ export const TypeBox = forwardRef(
           </div>
           <div className="flex flex-row items-center border border-blue-500">
             <Tooltip label={"Private Document Management"}>
-              <ActionIcon onClick={() => openDocModal()}>
+              <ActionIcon
+                onClick={() => {
+                  setDocModalOpenSettings({
+                    initDocId: docId,
+                    initSearchValue: docId,
+                  });
+                  openDocModal();
+                }}
+              >
                 <IconSettings size={"1.25rem"} />
               </ActionIcon>
             </Tooltip>
             <NativeSelect
               value={docId}
               size={"xs"}
-              data={["Choose document", ...docs]}
+              data={[
+                {
+                  label: "Choose document",
+                  value: "",
+                },
+                ...docs,
+              ]}
               onChange={e => setDocId(e.target.value)}
             />
             <Divider orientation={"vertical"} className={"ml-2"} />

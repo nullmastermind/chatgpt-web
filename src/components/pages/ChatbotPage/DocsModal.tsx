@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActionIcon,
   Badge,
   Button,
   Card,
   Divider,
+  Input,
   Modal,
   ScrollArea,
   Text,
@@ -19,7 +20,7 @@ import { forEach, map } from "lodash";
 import { useSetState } from "react-use";
 import DateInfo from "@/components/pages/ChatbotPage/DateInfo";
 import { useIndexedDocs } from "@/states/states";
-import { IconArrowDown, IconArrowUp, IconTrash, IconX } from "@tabler/icons-react";
+import { IconArrowDown, IconArrowUp, IconSearch, IconTrash, IconX } from "@tabler/icons-react";
 import DocUpdate from "@/components/pages/ChatbotPage/DocUpdate";
 import classNames from "classnames";
 import { modals } from "@mantine/modals";
@@ -29,16 +30,31 @@ import { notifications } from "@mantine/notifications";
 type DocsModalProps = {
   opened: boolean;
   close: () => any;
+  initSearchValue?: string;
+  initDocId?: string;
 };
 
-const DocsModal = ({ opened, close }: DocsModalProps) => {
+const DocsModal = ({ opened, close, initSearchValue, initDocId }: DocsModalProps) => {
   const [docs, setDocs] = useState<IndexedDocument[]>([]);
   const [fileExtensions, setFileExtensions] = useSetState<Record<string, string>>({});
   const [loadings, setLoadings] = useSetState<Record<string, boolean>>({});
   const [removeIndexLoadings, setRemoveIndexLoadings] = useSetState<Record<string, boolean>>({});
   const [, setIndexedDocs] = useIndexedDocs();
-  const [currentDocId, setCurrentDocId] = useState<string>();
+  const [currentDocId, setCurrentDocId] = useState<string>(initDocId || "");
   const [newDocName, setNewDocName] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [searchValue, setSearchValue] = useState(initSearchValue || "");
+  const filteredDocs = useMemo(() => {
+    return docs.filter(v => {
+      return v.doc_id.toLowerCase().includes(searchValue.toLowerCase().trim());
+    });
+  }, [docs, searchValue]);
+
+  const focusSearch = () => {
+    if (searchInputRef.current) {
+      searchInputRef.current.focus({ preventScroll: true });
+    }
+  };
 
   const updateDocs = (first?: boolean) => {
     return axios
@@ -105,6 +121,15 @@ const DocsModal = ({ opened, close }: DocsModalProps) => {
       setCurrentDocId("");
     }
 
+    if (docId.toLowerCase().includes(searchValue.toLowerCase().trim())) {
+      if (filteredDocs.length === 1) {
+        setSearchValue("");
+        setTimeout(() => {
+          focusSearch();
+        }, 100);
+      }
+    }
+
     setRemoveIndexLoadings({
       [docId]: true,
     });
@@ -125,9 +150,20 @@ const DocsModal = ({ opened, close }: DocsModalProps) => {
 
   useEffect(() => {
     if (opened) {
-      updateDocs(true);
+      setSearchValue(initSearchValue || "");
+      focusSearch();
+      updateDocs(true).finally(() => {
+        // setCurrentDocId(initDocId || "");
+        focusSearch();
+      });
     }
-  }, [opened]);
+  }, [opened, searchInputRef, initSearchValue, initDocId]);
+  useEffect(() => {
+    setCurrentDocId("");
+    if (searchValue.length === 0) {
+      focusSearch();
+    }
+  }, [searchValue]);
 
   return (
     <>
@@ -151,6 +187,7 @@ const DocsModal = ({ opened, close }: DocsModalProps) => {
               />
               <Button
                 onClick={() => {
+                  setSearchValue("");
                   const docId = slug(newDocName);
 
                   if (docId.length === 0) return;
@@ -163,7 +200,7 @@ const DocsModal = ({ opened, close }: DocsModalProps) => {
                       updateDocs(true).then(() => {
                         setCurrentDocId(docId);
                         setNewDocName("");
-
+                        setSearchValue(docId);
                         setTimeout(() => {
                           document.getElementById(`doc-${docId}`)?.scrollIntoView({ behavior: "smooth" });
                         }, 100);
@@ -176,7 +213,24 @@ const DocsModal = ({ opened, close }: DocsModalProps) => {
               </Button>
             </div>
           </Card>
-          {map(docs, (doc, index) => {
+          <div>
+            <Input
+              icon={<IconSearch size={"1rem"} />}
+              value={searchValue}
+              ref={searchInputRef}
+              placeholder={"Search..."}
+              className={"max-w-xs"}
+              onChange={e => setSearchValue(e.target.value)}
+              rightSection={
+                searchValue.length > 0 ? (
+                  <ActionIcon onClick={() => setSearchValue("")}>
+                    <IconX size={"1rem"} />
+                  </ActionIcon>
+                ) : null
+              }
+            />
+          </div>
+          {map(filteredDocs, (doc, index) => {
             return (
               <Card key={index}>
                 <div
