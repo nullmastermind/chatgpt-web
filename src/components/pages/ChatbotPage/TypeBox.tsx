@@ -200,7 +200,7 @@ export const TypeBox = forwardRef(
           const prefix = "<document>";
           const suffix = "</document>";
 
-          if (message.length >= prefix.length) {
+          if (message.length >= prefix.length || done) {
             if (message.startsWith(prefix)) {
               message = message.replace(prefix, "");
             }
