@@ -21,16 +21,8 @@ const makeRequestParam = (
   if (path === "v1/completions") {
     return {
       prompt: messages
-        .map(v => {
-          if (v.role === "system") {
-            v.content = `${v.content.trim()}\n\n`;
-          } else {
-            v.content = `${v.content.trim()}\n`;
-          }
-          return v;
-        })
         .map(v => v.content)
-        .join("")
+        .join("\n\n")
         .trim(),
       stream: options?.stream,
     };
@@ -61,7 +53,7 @@ export type APIPath = "v1/chat/completions" | "v1/completions";
 
 export async function requestChatStream(
   path: APIPath,
-  messages: Message[],
+  messages: Message[] | string[] | string,
   options?: {
     token?: string;
     filterBot?: boolean;
@@ -71,6 +63,18 @@ export async function requestChatStream(
     onController?: (controller: AbortController) => void;
   }
 ) {
+  if (!Array.isArray(messages)) {
+    messages = [messages];
+  }
+  messages = messages.map(message => {
+    if (typeof message === "string") {
+      return {
+        role: "system",
+        content: message,
+      } as Message;
+    }
+    return message;
+  }) as Message[];
   const req = {
     ...makeRequestParam(path, messages, {
       stream: true,

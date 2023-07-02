@@ -40,7 +40,7 @@ import { requestChatStream } from "@/components/pages/ChatbotPage/Message.api";
 import ModelSelect from "@/components/pages/ChatbotPage/ModelSelect";
 import { MessageItemType } from "@/components/pages/ChatbotPage/Message";
 import CountTokens from "@/components/pages/ChatbotPage/CountTokens";
-import warmup from "@/utility/warmup";
+import warmup, { getImprovePrompt } from "@/utility/warmup";
 import axios from "axios";
 import { indexerHost } from "@/config";
 import { IconSettings, IconSettings2 } from "@tabler/icons-react";
@@ -188,39 +188,34 @@ export const TypeBox = forwardRef(
       setSelectionStart(inputRef.current.selectionStart);
       setSelectionEnd(inputRef.current.selectionEnd);
 
-      requestChatStream(
-        "v1/chat/completions",
-        [
-          {
-            role: "system",
-            content: `Help me improve my prompt, making it easier for other chatbot (LLM) to understand. Reply only result in English, don't write explanations and don't use any opening phrases such as: "Translated Text:", "Prompt:", "Translated Prompt:", "Prompt is:",...`,
-          },
-          ...warmup.improve,
-          {
-            role: "user",
-            content: `My prompt:\n\n${wrapRawContent(selectedText)}`,
-          },
-        ],
-        {
-          token: openaiAPIKey,
-          modelConfig: {
-            model: "gpt-3.5-turbo-0613",
-            temperature: 0.2,
-            max_tokens: 2867,
-          },
-          onMessage: (message, done) => {
-            message = unWrapRawContent(postprocessAnswer(message, done));
+      requestChatStream("v1/completions", getImprovePrompt(selectedText), {
+        token: openaiAPIKey,
+        modelConfig: {
+          model: "text-davinci-003",
+          temperature: 0.0,
+          max_tokens: 2867,
+        },
+        onMessage: (message, done) => {
+          message = message.trim();
 
-            setImprovedPrompt(message);
-            if (done) {
-              setCanEdit(true);
-              inputImproveRef.current?.focus();
-            }
-          },
-          onController: () => {},
-          onError: () => {},
-        }
-      ).finally();
+          if (message.startsWith("<document>")) {
+            message = message.replace("<document>", "");
+          }
+          if (done && message.endsWith("</document>")) {
+            const temp = message.split("</document>");
+            temp.pop();
+            message = temp.join("</document>");
+          }
+
+          setImprovedPrompt(message);
+          if (done) {
+            setCanEdit(true);
+            inputImproveRef.current?.focus();
+          }
+        },
+        onController: () => {},
+        onError: () => {},
+      }).finally();
     };
 
     useHotkeys([
