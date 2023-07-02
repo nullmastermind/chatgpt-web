@@ -20,6 +20,7 @@ import {
   Node,
   postprocessAnswer,
   preprocessMessageContent,
+  processTaggedMessage,
   unWrapRawContent,
   wrapRawContent,
 } from "@/utility/utility";
@@ -31,16 +32,14 @@ import DateInfo from "@/components/pages/ChatbotPage/DateInfo";
 import { useDisclosure, useIdle } from "@mantine/hooks";
 import axios from "axios";
 import { indexerHost } from "@/config";
+import { PromptSaveData } from "@/components/pages/ChatbotPage/AddPrompt";
 
 export type MessageProps = {
   collection: any;
   prompt: {
     id: number;
-    name: string;
     prompts: any[];
-    temperature: number;
-    wrapSingleLine: boolean;
-  };
+  } & PromptSaveData;
 };
 
 export type MessageItemType = {
@@ -380,6 +379,11 @@ const Message = ({ collection, prompt }: MessageProps) => {
               // }
               v.content = wrapRawContent(v.content);
             }
+
+            if (prompt.wrapCustomXmlTag && prompt.customXmlTag) {
+              const tag = prompt.customXmlTag;
+              v.content = `<${tag}>${v.content}</${tag}>`;
+            }
           }
           return v;
         });
@@ -407,6 +411,10 @@ const Message = ({ collection, prompt }: MessageProps) => {
             if (prompt.wrapSingleLine) {
               message = unWrapRawContent(message);
             }
+          }
+
+          if (prompt.wrapCustomXmlTag) {
+            message = processTaggedMessage(prompt.customXmlTag as string, message, done);
           }
 
           saveMessagesThr(message);

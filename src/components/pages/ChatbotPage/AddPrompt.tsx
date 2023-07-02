@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { clone, findIndex, map } from "lodash";
 import { useForm } from "@mantine/form";
 import {
@@ -8,10 +8,12 @@ import {
   Checkbox,
   Chip,
   Divider,
+  Input,
   Modal,
   NativeSelect,
   NumberInput,
   ScrollArea,
+  Text,
   Textarea,
   TextInput,
   Tooltip,
@@ -25,6 +27,8 @@ export type PromptSaveData = {
   name: string;
   temperature: number;
   wrapSingleLine: boolean;
+  wrapCustomXmlTag?: boolean;
+  customXmlTag?: string;
   prompts: any[];
   id?: any;
 };
@@ -66,12 +70,15 @@ const AddPrompt = ({
       name: editData?.name || "",
       temperature: editData && editData.temperature >= 0 ? editData?.temperature : 0.7,
       wrapSingleLine: Boolean(editData?.wrapSingleLine),
+      wrapCustomXmlTag: Boolean(editData?.wrapCustomXmlTag),
+      customXmlTag: editData?.customXmlTag || "document",
     },
     validate: {
       name: v => (["", null, undefined].includes(v) ? "Invalid field" : null),
       temperature: v => (+v < 0 || +v > 2 ? "Invalid field" : null),
     },
   });
+  const customXmlTagRef = useRef<HTMLInputElement>(null);
 
   const addPromptSetup = (posIndex: number) => {
     prompts.splice(posIndex, 0, { ...defaultValue, role: posIndex === 0 ? "system" : "user" });
@@ -81,6 +88,12 @@ const AddPrompt = ({
     prompts.splice(index, 1);
     setPrompts(clone(prompts));
   };
+
+  useEffect(() => {
+    if (addForm.values.wrapCustomXmlTag && customXmlTagRef.current) {
+      customXmlTagRef.current.focus();
+    }
+  }, [addForm.values.wrapCustomXmlTag, customXmlTagRef]);
 
   return (
     <Modal
@@ -108,6 +121,28 @@ const AddPrompt = ({
           <Checkbox
             label="Wrap user's chat content with quotation marks."
             {...addForm.getInputProps("wrapSingleLine", {
+              type: "checkbox",
+            })}
+            className="mt-3"
+          />
+          <Checkbox
+            label={
+              <>
+                <div className={"flex flex-row gap-2 items-center -mt-1"}>
+                  <Text>Wrap user's chat content with a custom XML tag:</Text>
+                  <Input
+                    disabled={!addForm.values.wrapCustomXmlTag}
+                    size={"xs"}
+                    placeholder={"document, content,..."}
+                    ref={customXmlTagRef}
+                    {...addForm.getInputProps("customXmlTag", {
+                      type: "input",
+                    })}
+                  />
+                </div>
+              </>
+            }
+            {...addForm.getInputProps("wrapCustomXmlTag", {
               type: "checkbox",
             })}
             className="mt-3"
@@ -249,6 +284,7 @@ const AddPrompt = ({
                   onClick={() => {
                     if (!addForm.validate().hasErrors) {
                       onSave({
+                        ...addForm.values,
                         name: nameWithEmoji(addForm.values.name),
                         temperature: +addForm.values.temperature,
                         wrapSingleLine: Boolean(addForm.values.wrapSingleLine),
@@ -273,6 +309,7 @@ const AddPrompt = ({
               onClick={() => {
                 if (!addForm.validate().hasErrors) {
                   onSave({
+                    ...addForm.values,
                     name: nameWithEmoji(addForm.values.name),
                     temperature: +addForm.values.temperature,
                     wrapSingleLine: Boolean(addForm.values.wrapSingleLine),

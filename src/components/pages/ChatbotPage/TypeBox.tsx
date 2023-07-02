@@ -16,6 +16,7 @@ import {
   formatString,
   IndexedDocument,
   postprocessAnswer,
+  processTaggedMessage,
   searchArray,
   unWrapRawContent,
   validateField,
@@ -196,46 +197,7 @@ export const TypeBox = forwardRef(
           max_tokens: 2867,
         },
         onMessage: (message, done) => {
-          message = message.trim();
-          const prefix = "<document>";
-          const suffix = "</document>";
-
-          if (message.length >= prefix.length || done) {
-            if (message.startsWith(prefix)) {
-              message = message.replace(prefix, "");
-            }
-          } else {
-            const prefixChecker = { current: "", parts: prefix.split("") };
-            for (let i = 0; i < prefixChecker.parts.length; i++) {
-              prefixChecker.current = prefixChecker.parts.join("");
-
-              if (message.startsWith(prefixChecker.current)) {
-                message = message.replace(prefixChecker.current, "");
-                break;
-              }
-
-              prefixChecker.parts.pop();
-            }
-          }
-
-          if (done) {
-            if (message.endsWith(suffix)) {
-              const temp = message.split(suffix);
-              temp.pop();
-              message = temp.join(suffix);
-            }
-          } else {
-            const suffixChecker = { current: "", parts: suffix.split("") };
-            for (let i = 0; i < suffixChecker.parts.length; i++) {
-              suffixChecker.current += suffixChecker.parts[i];
-              if (message.endsWith(suffixChecker.current)) {
-                const temp = message.split(suffixChecker.current);
-                temp.pop();
-                message = temp.join(suffixChecker.current);
-                break;
-              }
-            }
-          }
+          message = processTaggedMessage("document", message, done);
 
           setImprovedPrompt(message);
           if (done) {

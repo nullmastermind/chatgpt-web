@@ -57,6 +57,51 @@ export type IndexedDocument = {
   isIndexed: boolean;
 };
 
+export function processTaggedMessage(tagName: string, message: string, done: boolean): string {
+  message = message.trim();
+  const prefix = `<${tagName}>`;
+  const suffix = `</${tagName}>`;
+
+  if (message.length >= prefix.length || done) {
+    if (message.startsWith(prefix)) {
+      message = message.replace(prefix, "");
+    }
+  } else {
+    const prefixChecker = { current: "", parts: prefix.split("") };
+    for (let i = 0; i < prefixChecker.parts.length; i++) {
+      prefixChecker.current = prefixChecker.parts.join("");
+
+      if (message.startsWith(prefixChecker.current)) {
+        message = message.replace(prefixChecker.current, "");
+        break;
+      }
+
+      prefixChecker.parts.pop();
+    }
+  }
+
+  if (done) {
+    if (message.endsWith(suffix)) {
+      const temp = message.split(suffix);
+      temp.pop();
+      message = temp.join(suffix);
+    }
+  } else {
+    const suffixChecker = { current: "", parts: suffix.split("") };
+    for (let i = 0; i < suffixChecker.parts.length; i++) {
+      suffixChecker.current += suffixChecker.parts[i];
+      if (message.endsWith(suffixChecker.current)) {
+        const temp = message.split(suffixChecker.current);
+        temp.pop();
+        message = temp.join(suffixChecker.current);
+        break;
+      }
+    }
+  }
+
+  return message;
+}
+
 export function filterDocs(docs: [Doc, number][], maxStep = 0.05) {
   let lastScore = -1;
   let alwaysFalse = false;
