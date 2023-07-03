@@ -1,10 +1,10 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { indexerHost } from "@/config";
-import React, { useEffect } from "react";
-import { useDebounce, useList, useSetState } from "react-use";
+import React, { ReactNode, useEffect } from "react";
+import { useList, useSetState } from "react-use";
 import { map } from "lodash";
-import { ActionIcon, Button, Input, Text } from "@mantine/core";
-import { IconCircleCheckFilled, IconPlus, IconTrash, IconTrashX } from "@tabler/icons-react";
+import { ActionIcon, Badge, Button, Input, Text, Tooltip } from "@mantine/core";
+import { IconCircleCheckFilled, IconGitCompare, IconPlus, IconTrash } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
 
 type DocUpdateProps = {
@@ -14,6 +14,8 @@ type DocUpdateProps = {
 type DataItem = {
   f: string;
   editable: boolean;
+  git?: string;
+  exists: boolean;
 };
 
 type MyData = {
@@ -21,9 +23,10 @@ type MyData = {
 };
 
 const DocUpdate = ({ docId }: DocUpdateProps) => {
-  const [loadings, setLoadings] = useSetState({
+  const [loadings, setLoadings] = useSetState<Record<any, boolean>>({
     data: false,
     saving: false,
+    pull: false,
   });
   const [items, setItems] = useList<DataItem>([]);
 
@@ -52,6 +55,7 @@ const DocUpdate = ({ docId }: DocUpdateProps) => {
       setItems.push({
         f: "",
         editable: true,
+        exists: true,
       });
     }
   }, [items]);
@@ -77,18 +81,85 @@ const DocUpdate = ({ docId }: DocUpdateProps) => {
                     f: e.target.value,
                   });
                 }}
+                error={item.exists === false ? "Path does not exists" : undefined}
               />
               {item.editable && (
-                <ActionIcon
-                  size={"xs"}
-                  variant={"outline"}
-                  color={"red"}
-                  onClick={() => {
-                    setItems.removeAt(index);
-                  }}
-                >
-                  <IconTrash />
-                </ActionIcon>
+                <div className={"flex flex-row items-center gap-1"}>
+                  {item.git && (
+                    <Tooltip
+                      label={
+                        <div className={"flex flex-col gap-2"}>
+                          <Text className={"text-xs"}>{item.git}</Text>
+                          <div className={"flex flex-row gap-1 items-center"}>
+                            <Text className={"font-bold text-xs"}>Run:</Text>
+                            <Badge variant={"filled"} color={"blue"} className={"rounded"}>
+                              git pull
+                            </Badge>
+                          </div>
+                        </div>
+                      }
+                    >
+                      <ActionIcon
+                        size={"xs"}
+                        variant={"outline"}
+                        color={"blue"}
+                        loading={loadings.pull}
+                        onClick={() => {
+                          setLoadings({ [item.git as string]: true });
+                          axios
+                            .post(`${indexerHost}/api/git-pull`, {
+                              cwd: item.git,
+                            })
+                            .then(({ data }: { data: string | undefined }) => {
+                              if (typeof data !== "string") return;
+
+                              data = data.trim() as string;
+
+                              if (data.includes("\n")) {
+                                data = (
+                                  <>
+                                    <div style={{ maxHeight: 60 }} className={"overflow-auto"}>
+                                      <code>{data}</code>
+                                    </div>
+                                  </>
+                                ) as ReactNode as any;
+                              } else {
+                                data = "Pull OK:\n\n" + data;
+                              }
+
+                              notifications.show({
+                                title: "Success",
+                                message: data,
+                                color: "green",
+                              });
+                            })
+                            .catch((e: AxiosError) => {
+                              notifications.show({
+                                title: "Error",
+                                message: "Failed to perform git pull: " + e.response?.data,
+                                color: "red",
+                              });
+                            })
+                            .finally(() => {
+                              setLoadings({ [item.git as string]: false });
+                            });
+                        }}
+                      >
+                        <IconGitCompare />
+                      </ActionIcon>
+                    </Tooltip>
+                  )}
+                  <ActionIcon
+                    size={"xs"}
+                    variant={"outline"}
+                    color={"red"}
+                    onClick={() => {
+                      setItems.removeAt(index);
+                    }}
+                  >
+                    <IconTrash />
+                  </ActionIcon>
+                </div>
               )}
             </div>
           );
@@ -102,11 +173,12 @@ const DocUpdate = ({ docId }: DocUpdateProps) => {
             setItems.push({
               f: "",
               editable: true,
+              exists: true,
             });
           }}
           className={"flex-grow"}
         >
-          <IconPlus size={"1.25rem"} className={'opacity-60'} />
+          <IconPlus size={"1.25rem"} className={"opacity-60"} />
         </Button>
         <Button
           variant={"filled"}
