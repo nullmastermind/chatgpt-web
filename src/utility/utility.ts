@@ -3,6 +3,7 @@ import Fuse from "fuse.js";
 import IFuseOptions = Fuse.IFuseOptions;
 import { findIndex, forEach } from "lodash";
 import dayjs from "dayjs";
+import slug from "slug";
 
 export type KeyValue = {
   [key: string]: any;
@@ -273,6 +274,9 @@ export const detectProgramLang = (code: string) => {
 };
 
 export const searchArray = (query: string, stringArray: string[]): string[] => {
+  query = slug(query, "_");
+  stringArray = stringArray.map(v => slug(v, "_"));
+
   if (query.length === 0) return stringArray;
 
   const options = {
