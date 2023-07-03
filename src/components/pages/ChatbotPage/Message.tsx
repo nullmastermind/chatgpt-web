@@ -16,6 +16,7 @@ import {
   doc2ChatContent,
   Docs,
   filterDocs,
+  htmlEncode,
   KeyValue,
   Node,
   postprocessAnswer,
@@ -370,7 +371,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
           return !(v.role === "assistant" && v.content === "...");
         })
         .map(v => {
-          if (v.role === "user") {
+          if (v.role === "user" && !userMessage.isChild) {
             // if (prompt.wrapSingleLine && !content.includes("\n")) {
             if (prompt.wrapSingleLine) {
               // if (!/^".*?"$/.test(v.content) && !/^'.*?'$/.test(v.content)) {
@@ -382,7 +383,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
 
             if (prompt.wrapCustomXmlTag && prompt.customXmlTag) {
               const tag = prompt.customXmlTag;
-              v.content = `<${tag}>${v.content}</${tag}>`;
+              v.content = `<${tag}>${htmlEncode(v.content)}</${tag}>`;
             }
           }
           return v;
@@ -408,17 +409,13 @@ const Message = ({ collection, prompt }: MessageProps) => {
         onMessage(message: string, done: boolean): void {
           if (done) {
             message = postprocessAnswer(message, done);
-            if (!userMessage.isChild) {
-              if (prompt.wrapSingleLine) {
-                message = unWrapRawContent(message);
-              }
+            if (prompt.wrapSingleLine) {
+              message = unWrapRawContent(message);
             }
           }
 
-          if (!userMessage.isChild) {
-            if (prompt.wrapCustomXmlTag) {
-              message = processTaggedMessage(prompt.customXmlTag as string, message, done);
-            }
+          if (prompt.wrapCustomXmlTag) {
+            message = processTaggedMessage(prompt.customXmlTag as string, message, done);
           }
 
           saveMessagesThr(message);

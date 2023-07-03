@@ -57,14 +57,28 @@ export type IndexedDocument = {
   isIndexed: boolean;
 };
 
+export function htmlEncode(text: string): string {
+  const element = document.createElement("div");
+  element.innerText = text;
+  return element.innerHTML;
+}
+
+export function htmlDecode(encodedText: string): string {
+  const parser = new DOMParser();
+  const decodedText = parser.parseFromString(encodedText, "text/html").body.textContent;
+  return decodedText || "";
+}
+
 export function processTaggedMessage(tagName: string, message: string, done: boolean): string {
   message = message.trim();
   const prefix = `<${tagName}>`;
   const suffix = `</${tagName}>`;
+  const isTagged = { current: false };
 
   if (message.length >= prefix.length || done) {
     if (message.startsWith(prefix)) {
       message = message.replace(prefix, "");
+      isTagged.current = true;
     }
   } else {
     const prefixChecker = { current: "", parts: prefix.split("") };
@@ -85,6 +99,7 @@ export function processTaggedMessage(tagName: string, message: string, done: boo
       const temp = message.split(suffix);
       temp.pop();
       message = temp.join(suffix);
+      isTagged.current = true;
     }
   } else {
     const suffixChecker = { current: "", parts: suffix.split("") };
@@ -97,6 +112,10 @@ export function processTaggedMessage(tagName: string, message: string, done: boo
         break;
       }
     }
+  }
+
+  if (isTagged.current) {
+    return htmlDecode(message);
   }
 
   return message;

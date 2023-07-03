@@ -1,4 +1,4 @@
-import { wrapRawContent } from "@/utility/utility";
+import { htmlEncode, wrapRawContent } from "@/utility/utility";
 
 function buildContent(c: string) {
   // return `My prompt:\n\n${wrapRawContent(c)}`;
@@ -6,7 +6,7 @@ function buildContent(c: string) {
 Human: Here is a document, in <document></document> XML tags:
 
 <document>
-${c}
+${htmlEncode(c)}
 </document>
 
 Improve the document, making it easier for other chatbot (LLM) to understand. Reply only result in English, don't write explanations.
