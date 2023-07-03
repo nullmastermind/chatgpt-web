@@ -16,5 +16,5 @@ export const useQuickActions = createGlobalState<any[]>([]);
 export const useQuickActionsQuery = createGlobalState<string>("");
 export const useCurrentTypeBoxId = createGlobalState<any>(-1);
 export const useModel = createGlobalState<string>(localStorage.getItem(":model") || "gpt-3.5-turbo");
-export const useDocId = createGlobalState<string>(localStorage.getItem(":docId") || "Choose document");
+export const useDocId = createGlobalState<string>(localStorage.getItem(":docId") || "");
 export const useIndexedDocs = createGlobalState<string[]>([]);
