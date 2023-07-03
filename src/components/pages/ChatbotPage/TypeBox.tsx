@@ -15,12 +15,9 @@ import {
   findHighlight,
   formatString,
   IndexedDocument,
-  postprocessAnswer,
   processTaggedMessage,
   searchArray,
-  unWrapRawContent,
   validateField,
-  wrapRawContent,
 } from "@/utility/utility";
 import {
   ActionIcon,
@@ -41,10 +38,10 @@ import { requestChatStream } from "@/components/pages/ChatbotPage/Message.api";
 import ModelSelect from "@/components/pages/ChatbotPage/ModelSelect";
 import { MessageItemType } from "@/components/pages/ChatbotPage/Message";
 import CountTokens from "@/components/pages/ChatbotPage/CountTokens";
-import warmup, { getImprovePrompt } from "@/utility/warmup";
+import { getImprovePrompt } from "@/utility/warmup";
 import axios from "axios";
 import { indexerHost } from "@/config";
-import { IconSettings, IconSettings2 } from "@tabler/icons-react";
+import { IconSettings } from "@tabler/icons-react";
 import DocsModal from "@/components/pages/ChatbotPage/DocsModal";
 
 export const TypeBox = forwardRef(
