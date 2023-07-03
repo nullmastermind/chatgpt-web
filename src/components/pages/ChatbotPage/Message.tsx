@@ -408,13 +408,17 @@ const Message = ({ collection, prompt }: MessageProps) => {
         onMessage(message: string, done: boolean): void {
           if (done) {
             message = postprocessAnswer(message, done);
-            if (prompt.wrapSingleLine) {
-              message = unWrapRawContent(message);
+            if (!userMessage.isChild) {
+              if (prompt.wrapSingleLine) {
+                message = unWrapRawContent(message);
+              }
             }
           }
 
-          if (prompt.wrapCustomXmlTag) {
-            message = processTaggedMessage(prompt.customXmlTag as string, message, done);
+          if (!userMessage.isChild) {
+            if (prompt.wrapCustomXmlTag) {
+              message = processTaggedMessage(prompt.customXmlTag as string, message, done);
+            }
           }
 
           saveMessagesThr(message);
