@@ -282,7 +282,13 @@ const Message = ({ collection, prompt }: MessageProps) => {
       setIsDone(assistantPreMessage.id, false);
 
       const requestMessages: any[] = [];
-      let hasDoc = (userMessage.docs || []).length > 0;
+      const allDocs = [];
+
+      forEach(includes, includedMessage => {
+        allDocs.push(...(includedMessage.docs || []));
+      });
+
+      allDocs.push(...(userMessage.docs || []));
 
       forEach(clone(prompt.prompts), prompt => {
         if (prompt === "your") {
@@ -294,30 +300,32 @@ const Message = ({ collection, prompt }: MessageProps) => {
                   content: v.content,
                 },
               ] as any[];
-              if (Array.isArray(v.docs) && v.docs.length) {
-                rs.unshift(
-                  ...map(v.docs, doc => {
-                    return {
-                      role: "system",
-                      content: doc,
-                    };
-                  })
-                );
-                hasDoc = true;
-              }
+              // if (Array.isArray(v.docs) && v.docs.length) {
+              //   rs.unshift(
+              //     ...map(v.docs, doc => {
+              //       return {
+              //         role: "system",
+              //         content: doc,
+              //       };
+              //     })
+              //   );
+              //   hasDoc = true;
+              // }
               return rs;
             }).flat(),
             ...checkedMessages.map(v => ({
               role: v.source,
               content: v.content,
             })),
-            ...map(userMessage.docs, doc => {
-              return {
-                role: "system",
-                content: doc,
-              };
-            }),
+            // If you want to insert before the last user message
+            // ...map(userMessage.docs, doc => {
+            //   return {
+            //     role: "system",
+            //     content: doc,
+            //   };
+            // }),
           ];
+
           if (!messages[streamIndex - 2].checked) {
             userMessages.push({
               role: "user",
@@ -350,22 +358,6 @@ const Message = ({ collection, prompt }: MessageProps) => {
         saveMessagesFn(message);
       }, 1000);
 
-      // choose model
-      let autoModel = model;
-      if (autoModel.startsWith("auto")) {
-        const { data: reqTokens } = await axios.post("/api/tokens", {
-          content: requestMessages.map(v => v.content).join(""),
-        });
-        const countTokens = +reqTokens.data;
-        const [, model1, model2, switchValue] = autoModel.split("|");
-
-        if (countTokens > +switchValue) {
-          autoModel = model2;
-        } else {
-          autoModel = model1;
-        }
-      }
-
       const apiMessages = requestMessages
         .filter(v => {
           return !(v.role === "assistant" && v.content === "...");
@@ -393,15 +385,37 @@ const Message = ({ collection, prompt }: MessageProps) => {
         return [v.content, b].join(":");
       });
 
-      if (hasDoc) {
+      if (allDocs.length > 0) {
         const insertToIndex = findLastIndex(finalMessages, v => {
-          return v.content.includes("DOCUMENT NAME:");
+          return v.role === "system";
         });
+        const docMessages = allDocs.map(doc => ({
+          role: "user",
+          content: doc,
+        }));
+        docMessages.push({
+          role: "user",
+          content: "PRIORITIZE PROVIDING ANSWERS BASED ON THE PROVIDED REFERENCE SOURCES.",
+        });
+
         if (insertToIndex !== -1) {
-          finalMessages.splice(insertToIndex + 1, 0, {
-            role: "system",
-            content: "PRIORITIZE PROVIDING ANSWERS BASED ON THE PROVIDED REFERENCE SOURCES.",
-          });
+          finalMessages.splice(insertToIndex + 1, 0, ...docMessages);
+        }
+      }
+
+      // choose model
+      let autoModel = model;
+      if (autoModel.startsWith("auto")) {
+        const { data: reqTokens } = await axios.post("/api/tokens", {
+          content: finalMessages.map(v => v.content).join(""),
+        });
+        const countTokens = +reqTokens.data;
+        const [, model1, model2, switchValue] = autoModel.split("|");
+
+        if (countTokens > +switchValue) {
+          autoModel = model2;
+        } else {
+          autoModel = model1;
         }
       }
 
