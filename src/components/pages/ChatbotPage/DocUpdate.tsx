@@ -3,7 +3,7 @@ import { indexerHost } from "@/config";
 import React, { ReactNode, useEffect } from "react";
 import { useList, useSetState } from "react-use";
 import { map } from "lodash";
-import { ActionIcon, Badge, Button, Input, Text, Tooltip } from "@mantine/core";
+import { ActionIcon, Badge, Button, Input, ScrollArea, Text, Tooltip } from "@mantine/core";
 import { IconCircleCheckFilled, IconGitCompare, IconPlus, IconTrash } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
 
@@ -41,6 +41,14 @@ const DocUpdate = ({ docId }: DocUpdateProps) => {
       })
       .then(({ data }: { data: MyData }) => {
         setItems.set(data.data);
+        const emptyItems = data.data.filter(v => v.f.length === 0);
+        if (emptyItems.length === 0) {
+          setItems.push({
+            f: "",
+            editable: true,
+            exists: true,
+          });
+        }
       })
       .finally(() => {
         setLoadings({ data: false });
@@ -103,9 +111,9 @@ const DocUpdate = ({ docId }: DocUpdateProps) => {
                         size={"xs"}
                         variant={"outline"}
                         color={"blue"}
-                        loading={loadings.pull}
+                        loading={loadings[item.f]}
                         onClick={() => {
-                          setLoadings({ [item.git as string]: true });
+                          setLoadings({ [item.f]: true });
                           axios
                             .post(`${indexerHost}/api/git-pull`, {
                               cwd: item.git,
@@ -118,9 +126,9 @@ const DocUpdate = ({ docId }: DocUpdateProps) => {
                               if (data.includes("\n")) {
                                 data = (
                                   <>
-                                    <div style={{ maxHeight: 60 }} className={"overflow-auto"}>
+                                    <ScrollArea h={60}>
                                       <code>{data}</code>
-                                    </div>
+                                    </ScrollArea>
                                   </>
                                 ) as ReactNode as any;
                               } else {
@@ -141,7 +149,7 @@ const DocUpdate = ({ docId }: DocUpdateProps) => {
                               });
                             })
                             .finally(() => {
-                              setLoadings({ [item.git as string]: false });
+                              setLoadings({ [item.f]: false });
                             });
                         }}
                       >
