@@ -244,13 +244,26 @@ const Message = ({ collection, prompt }: MessageProps) => {
             }
           });
 
+          const lastAssistantMessage =
+            messages[
+              findIndex(messages, value => {
+                return value.id === userMessage.id;
+              }) - 1
+            ];
+
           const {
             data: query,
           }: {
             data: Docs;
           } = await axios.post(`${indexerHost}/api/query`, {
             doc_id: userMessage.docId,
-            query: [...includes.filter(v => v.source === "user").map(v => v.content), userMessage.content].join("\n"),
+            query: [
+              ...includes.filter(v => v.source === "user").map(v => v.content),
+              lastAssistantMessage?.content,
+              userMessage.content,
+            ]
+              .filter(v => typeof v === "string" && v.length > 0)
+              .join("\n"),
             apiKey: openaiAPIKey.split(",")[0],
             // maxScore: includes.length > 0 ? 0.4 : 0.45,
             maxScore: 0.55,
