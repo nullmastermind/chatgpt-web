@@ -54,10 +54,17 @@ const CountTokens = forwardRef(({ content, includeMessages }: CountTokensProps, 
     [content, includeMessages]
   );
 
+  const canShowLoading = (() => {
+    if (includeMessages.length) {
+      return true;
+    }
+    return content.length > 0;
+  })();
+
   return (
     <>
       <Text size={"xs"} className={"opacity-60"}>
-        Tokens: {loadings.count ? <NumberChangeEffect fromNumber={tokens} /> : tokens}
+        Tokens: {loadings.count && canShowLoading ? <NumberChangeEffect fromNumber={tokens} /> : tokens}
       </Text>
     </>
   );
