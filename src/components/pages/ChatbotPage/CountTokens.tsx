@@ -1,9 +1,10 @@
 import { Text } from "@mantine/core";
-import { useDebounce, useMount } from "react-use";
+import { useDebounce, useMount, useSetState } from "react-use";
 import axios from "axios";
 import { forwardRef, useImperativeHandle, useState } from "react";
 import { MessageItemType } from "@/components/pages/ChatbotPage/Message";
 import { forEach } from "lodash";
+import NumberChangeEffect from "@/components/misc/NumberChangeEffect";
 
 type CountTokensProps = {
   content: string;
@@ -12,8 +13,13 @@ type CountTokensProps = {
 
 const CountTokens = forwardRef(({ content, includeMessages }: CountTokensProps, ref) => {
   const [tokens, setTokens] = useState<number>(0);
+  const [loadings, setLoadings] = useSetState({
+    count: false,
+  });
 
   const countTokens = () => {
+    setLoadings({ count: true });
+
     let preContent = "";
 
     forEach(includeMessages, m => {
@@ -26,6 +32,9 @@ const CountTokens = forwardRef(({ content, includeMessages }: CountTokensProps, 
       })
       .then(({ data }) => {
         setTokens(+data.data);
+      })
+      .finally(() => {
+        setLoadings({ count: false });
       });
   };
 
@@ -48,7 +57,7 @@ const CountTokens = forwardRef(({ content, includeMessages }: CountTokensProps, 
   return (
     <>
       <Text size={"xs"} className={"opacity-60"}>
-        Tokens: {tokens}
+        Tokens: {loadings.count ? <NumberChangeEffect fromNumber={tokens} /> : tokens}
       </Text>
     </>
   );
