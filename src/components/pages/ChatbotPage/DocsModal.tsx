@@ -14,7 +14,7 @@ import {
   Tooltip,
 } from "@mantine/core";
 import axios from "axios";
-import { indexerHost } from "@/config";
+import { indexerHost, indexerVersion } from "@/config";
 import { IndexedDocument } from "@/utility/utility";
 import { forEach, map } from "lodash";
 import { useSetState } from "react-use";
@@ -353,7 +353,10 @@ const DocsModal = ({ opened, close, initSearchValue, initDocId }: DocsModalProps
         {docs.length === 0 && (
           <div className={"py-3 text-sm"}>
             <div>Please visit the following address:</div>
-            <a href={"https://github.com/nullmastermind/nullgpt-indexer"} target={"_blank"}>
+            <a
+              href={`https://github.com/nullmastermind/nullgpt-indexer/releases/tag/${indexerVersion}`}
+              target={"_blank"}
+            >
               https://github.com/nullmastermind/nullgpt-indexer
             </a>
             <div>
