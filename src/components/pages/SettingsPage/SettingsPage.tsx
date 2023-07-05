@@ -1,11 +1,12 @@
-import { useMount, useUnmount } from "react-use";
+import { useMount, useSetState, useUnmount } from "react-use";
 import { useCollections, useOpenaiAPIKey } from "@/states/states";
-import { Button, Card, Container, Input, NumberInput, PasswordInput } from "@mantine/core";
+import { Button, Card, Container, Input, NumberInput, PasswordInput, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import React from "react";
 import { notifications } from "@mantine/notifications";
 import { IconCircleCheckFilled, IconX } from "@tabler/icons-react";
 import CenterCard from "@/components/CenterCard";
+import { indexerHost } from "@/config";
 
 const SettingsPage = () => {
   const [, setCollections] = useCollections();
@@ -14,26 +15,26 @@ const SettingsPage = () => {
     initialValues: {
       openaiKey: openaiAPIKey,
       maxMessagesPerBox: parseInt(localStorage.getItem(":maxMessages") || "10"),
+      indexerHost: indexerHost,
     },
     validate: {
       openaiKey: v => (["", null, undefined, "null"].includes(v) ? "Invalid" : null),
       maxMessagesPerBox: v => (v <= 0 || v >= 100 ? "Invalid. Max 100" : null),
     },
   });
+  const [loadings, setLoadings] = useSetState({
+    save: false,
+  });
 
   const saveSettings = () => {
+    setLoadings({ save: true });
     if (!settingsForm.validate().hasErrors) {
       localStorage.setItem(":maxMessages", `${settingsForm.values.maxMessagesPerBox}`);
       localStorage.setItem(":openaiKey", settingsForm.values.openaiKey as string);
+      localStorage.setItem(":indexerHost", settingsForm.values.indexerHost);
       setOpenaiAPIKey(settingsForm.values.openaiKey as string);
-      notifications.show({
-        title: "Success",
-        message: "Settings saved",
-        radius: "lg",
-        withCloseButton: true,
-        color: "green",
-        icon: <IconCircleCheckFilled />,
-      });
+      sessionStorage.setItem(":settingSaved", "1");
+      window.location.reload();
     } else {
       notifications.show({
         title: "Error",
@@ -55,6 +56,17 @@ const SettingsPage = () => {
         key: 0,
       },
     ]);
+    if (sessionStorage.getItem(":settingSaved")) {
+      notifications.show({
+        title: "Success",
+        message: "Settings saved",
+        radius: "lg",
+        withCloseButton: true,
+        color: "green",
+        icon: <IconCircleCheckFilled />,
+      });
+      sessionStorage.removeItem(":settingSaved");
+    }
   });
   useUnmount(() => setCollections([]));
 
@@ -73,8 +85,15 @@ const SettingsPage = () => {
           required
           {...settingsForm.getInputProps("maxMessagesPerBox")}
         />
+        <TextInput
+          label="Null-gpt indexer host"
+          placeholder="http://localhost:3456"
+          {...settingsForm.getInputProps("indexerHost")}
+        />
         <div>
-          <Button onClick={() => saveSettings()}>Save</Button>
+          <Button loading={loadings.save} onClick={() => saveSettings()}>
+            Save
+          </Button>
         </div>
       </div>
     </CenterCard>
