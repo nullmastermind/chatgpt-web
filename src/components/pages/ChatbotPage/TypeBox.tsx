@@ -15,6 +15,7 @@ import {
   findHighlight,
   formatString,
   IndexedDocument,
+  notifyIndexerVersionError,
   processTaggedMessage,
   searchArray,
   validateField,
@@ -40,9 +41,10 @@ import { MessageItemType } from "@/components/pages/ChatbotPage/Message";
 import CountTokens from "@/components/pages/ChatbotPage/CountTokens";
 import { getImprovePrompt } from "@/utility/warmup";
 import axios from "axios";
-import { indexerHost } from "@/config";
+import { indexerHost, indexerVersion } from "@/config";
 import { IconSettings } from "@tabler/icons-react";
 import DocsModal from "@/components/pages/ChatbotPage/DocsModal";
+import { notifications } from "@mantine/notifications";
 
 export const TypeBox = forwardRef(
   (
@@ -308,6 +310,24 @@ export const TypeBox = forwardRef(
     useEffect(() => {
       localStorage.setItem(":docId", docId);
     }, [docId]);
+    useEffect(() => {
+      if (docId && docId !== "Choose document" && sessionStorage.getItem(":indexerVersion") !== indexerVersion) {
+        const currentIndexerVersion = { value: "1.0.0" };
+        axios
+          .get(`${indexerHost}/api/get-version`)
+          .then(({ data }) => {
+            currentIndexerVersion.value = data.data;
+          })
+          .finally(() => {
+            if (currentIndexerVersion.value !== indexerVersion) {
+              sessionStorage.setItem(":indexerVersionError", "1");
+            } else {
+              sessionStorage.removeItem(":indexerVersionError");
+              sessionStorage.setItem(":indexerVersion", currentIndexerVersion.value);
+            }
+          });
+      }
+    }, [docId]);
 
     return (
       <>
@@ -534,6 +554,7 @@ export const TypeBox = forwardRef(
             <Tooltip label={"Private Document Management"}>
               <ActionIcon
                 onClick={() => {
+                  notifyIndexerVersionError();
                   setDocModalOpenSettings({
                     initDocId: docId,
                     initSearchValue: docId,

@@ -4,6 +4,9 @@ import IFuseOptions = Fuse.IFuseOptions;
 import { findIndex, forEach } from "lodash";
 import dayjs from "dayjs";
 import slug from "slug";
+import { NotificationProps, notifications } from "@mantine/notifications";
+import { IconX } from "@tabler/icons-react";
+import React from "react";
 
 export type KeyValue = {
   [key: string]: any;
@@ -57,6 +60,22 @@ export type IndexedDocument = {
   indexAt: string;
   isIndexed: boolean;
 };
+
+export function notifyIndexerVersionError() {
+  if (sessionStorage.getItem(":indexerVersionError")) {
+    notifications.show({
+      title: "Require update nullgpt-indexer",
+      message:
+        "Your nullgpt-indexer is outdated, and some features may break or not work correctly. Please update your nullgpt-indexer to the latest version.",
+      radius: "lg",
+      withCloseButton: true,
+      color: "red",
+      icon: <IconX />,
+      autoClose: false,
+      onClose(props: NotificationProps) {},
+    });
+  }
+}
 
 export function htmlEncode(text: string): string {
   const element = document.createElement("div");

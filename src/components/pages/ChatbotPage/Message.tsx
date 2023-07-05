@@ -19,6 +19,7 @@ import {
   htmlEncode,
   KeyValue,
   Node,
+  notifyIndexerVersionError,
   postprocessAnswer,
   preprocessMessageContent,
   processTaggedMessage,
@@ -143,6 +144,10 @@ const Message = ({ collection, prompt }: MessageProps) => {
     if (content.length === 0) return;
 
     if (docId === "Choose document" || docId === "") docId = undefined;
+
+    if (docId) {
+      notifyIndexerVersionError();
+    }
 
     const userMessage: MessageItemType = {
       source: "user",
