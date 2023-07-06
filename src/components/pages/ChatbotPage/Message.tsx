@@ -1,6 +1,15 @@
 import { useCopyToClipboard, useDebounce, useList, useMap, useMeasure, useMount, useUnmount } from "react-use";
 import { ActionIcon, Avatar, Badge, Container, Loader, Modal, ScrollArea, Text, Tooltip } from "@mantine/core";
-import React, { forwardRef, MutableRefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
+import React, {
+  forwardRef,
+  memo,
+  MutableRefObject,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { clone, cloneDeep, find, findIndex, findLastIndex, forEach, map, throttle, uniqBy, uniqueId } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import classNames from "classnames";
@@ -35,6 +44,7 @@ import { useDisclosure, useIdle } from "@mantine/hooks";
 import axios from "axios";
 import { indexerHost } from "@/config";
 import { PromptSaveData } from "@/components/pages/ChatbotPage/AddPrompt";
+import MemoizedReactMarkdown from "@/components/pages/ChatbotPage/MemoizedReactMarkdown";
 
 export type MessageProps = {
   collection: any;
@@ -291,6 +301,8 @@ const Message = ({ collection, prompt }: MessageProps) => {
         userMessage.docId = undefined;
         needRefreshMessageIds.current[userMessage.id] = userMessage;
         localStorage.setItem(`:messages${collection}`, JSON.stringify(messages));
+        setMessages(clone(messages));
+        return;
       }
 
       if (streamIndex === messages.length) {
@@ -582,264 +594,247 @@ const Message = ({ collection, prompt }: MessageProps) => {
   );
 };
 
-const MessageItem = forwardRef(
-  (
-    {
-      classes,
-      message: inputMessage,
-      setMessages,
-      index,
-      messages,
-      isBottom,
-      scrollToBottom,
-      autoScrollIds,
-      focusTextBox,
-      isChild,
-    }: {
-      classes: any;
-      message: any;
-      setMessages: any;
-      index: any;
-      messages: any;
-      isBottom: () => boolean;
-      scrollToBottom: () => any;
-      focusTextBox: () => any;
-      autoScrollIds: MutableRefObject<KeyValue>;
-      isChild: boolean;
-    },
-    ref
-  ) => {
-    const [message, setMessage] = useState<MessageItemType>(inputMessage);
-    const [isTyping, setIsTyping] = useState(false);
-    const [doScrollToBottom, setDoScrollToBottom] = useState<boolean>(true);
-    const [, setCopyText] = useCopyToClipboard();
-    const [isCopied, setIsCopied] = useState(false);
-    const updateIsCopied = useMemo(() => {
-      let timeoutId: any;
-      return () => {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          setIsCopied(false);
-        }, 2000);
-        setIsCopied(true);
-      };
-    }, []);
-    const [isEffect, setIsEffect] = useState(false);
-    const [collectionId] = useCurrentCollection();
-    const [collections] = useCollections();
-    const collection = useMemo(() => {
-      return find(collections, v => v.key === collectionId);
-    }, [collectionId, collections]);
-    const scrollElementRef = useRef<HTMLDivElement>(null);
-    const hasDocs = useMemo(() => {
-      if (message.docId) return true;
-      return Array.isArray(message.docs) && message.docs.length > 0;
-    }, [message]);
-    const [isShowDocs, { open: showDocs, close: closeDocs }] = useDisclosure(false);
-
-    useImperativeHandle(ref, () => ({
-      editMessage(newMessage: string, isDone: boolean) {
-        messages[index].content = newMessage;
-        setMessage({
-          ...message,
-          content: newMessage,
-        });
-        setIsTyping(!isDone);
-        if (isDone || !isBottom()) {
-          setDoScrollToBottom(false);
-        } else if (isBottom() && !doScrollToBottom) {
-          setDoScrollToBottom(true);
-        }
-
-        if (isDone) {
-          doneMessages.current[message.id] = true;
-          if (!isBottom()) {
-            scrollElementRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "start" });
-          }
-        }
+const MessageItem = memo(
+  forwardRef(
+    (
+      {
+        classes,
+        message: inputMessage,
+        setMessages,
+        index,
+        messages,
+        isBottom,
+        scrollToBottom,
+        autoScrollIds,
+        focusTextBox,
+        isChild,
+      }: {
+        classes: any;
+        message: any;
+        setMessages: any;
+        index: any;
+        messages: any;
+        isBottom: () => boolean;
+        scrollToBottom: () => any;
+        focusTextBox: () => any;
+        autoScrollIds: MutableRefObject<KeyValue>;
+        isChild: boolean;
       },
-    }));
-    useEffect(() => {
-      if (!isTyping) return;
-      if (doScrollToBottom) {
-        scrollToBottom();
-      }
-    }, [doScrollToBottom, message.content, isTyping]);
-    useMount(() => {
-      if (message.source === "user" && !autoScrollIds.current[message.id]) {
-        if (message.scrollToBottom) {
+      ref
+    ) => {
+      const [message, setMessage] = useState<MessageItemType>(inputMessage);
+      const [isTyping, setIsTyping] = useState(false);
+      const [doScrollToBottom, setDoScrollToBottom] = useState<boolean>(true);
+      const [, setCopyText] = useCopyToClipboard();
+      const [isCopied, setIsCopied] = useState(false);
+      const updateIsCopied = useMemo(() => {
+        let timeoutId: any;
+        return () => {
+          clearTimeout(timeoutId);
+          timeoutId = setTimeout(() => {
+            setIsCopied(false);
+          }, 2000);
+          setIsCopied(true);
+        };
+      }, []);
+      const [isEffect, setIsEffect] = useState(false);
+      const [collectionId] = useCurrentCollection();
+      const [collections] = useCollections();
+      const collection = useMemo(() => {
+        return find(collections, v => v.key === collectionId);
+      }, [collectionId, collections]);
+      const scrollElementRef = useRef<HTMLDivElement>(null);
+      const hasDocs = useMemo(() => {
+        if (message.docId) return true;
+        return Array.isArray(message.docs) && message.docs.length > 0;
+      }, [message]);
+      const [isShowDocs, { open: showDocs, close: closeDocs }] = useDisclosure(false);
+
+      useImperativeHandle(ref, () => ({
+        editMessage(newMessage: string, isDone: boolean) {
+          messages[index].content = newMessage;
+          setMessage({
+            ...message,
+            content: newMessage,
+          });
+          setIsTyping(!isDone);
+          if (isDone || !isBottom()) {
+            setDoScrollToBottom(false);
+          } else if (isBottom() && !doScrollToBottom) {
+            setDoScrollToBottom(true);
+          }
+
+          if (isDone) {
+            doneMessages.current[message.id] = true;
+            if (!isBottom()) {
+              scrollElementRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "start" });
+            }
+          }
+        },
+      }));
+      useEffect(() => {
+        if (!isTyping) return;
+        if (doScrollToBottom) {
           scrollToBottom();
         }
-        autoScrollIds.current[message.id] = true;
-      }
-    });
-    useEffect(() => {
-      if (isTyping && !isEffect) {
-        setIsEffect(true);
-      } else if (!isTyping && isEffect) {
-        setTimeout(() => {
-          setIsEffect(false);
-        }, 500);
-      }
-    }, [isTyping, isEffect]);
-    useUnmount(() => {
-      doneMessages.current[message.id] = false;
-    });
-    useEffect(() => {
-      if (hasDocs) {
-        delete needRefreshMessageIds.current[message.id];
-        return;
-      }
-
-      const intervalId = setInterval(() => {
-        if (needRefreshMessageIds.current[message.id]) {
-          const nextMessage = cloneDeep(needRefreshMessageIds.current[message.id]);
-
-          setMessage(nextMessage);
-
-          if (nextMessage.docs) {
-            const saveMessagesFn = () => {
-              const dbMessages = JSON.parse(localStorage.getItem(`:messages${collection}`) || "[]");
-              const dbMsgIndex = findIndex(dbMessages, (v: any) => v.id === nextMessage.id);
-              if (dbMsgIndex >= 0) {
-                dbMessages[dbMsgIndex] = nextMessage;
-                localStorage.setItem(`:messages${collection}`, JSON.stringify(dbMessages));
-              }
-            };
-            saveMessagesFn();
+      }, [doScrollToBottom, message.content, isTyping]);
+      useMount(() => {
+        if (message.source === "user" && !autoScrollIds.current[message.id]) {
+          if (message.scrollToBottom) {
+            scrollToBottom();
           }
-
-          delete needRefreshMessageIds.current[message.id];
+          autoScrollIds.current[message.id] = true;
         }
-      }, 500);
+      });
+      useEffect(() => {
+        if (isTyping && !isEffect) {
+          setIsEffect(true);
+        } else if (!isTyping && isEffect) {
+          setTimeout(() => {
+            setIsEffect(false);
+          }, 500);
+        }
+      }, [isTyping, isEffect]);
+      useUnmount(() => {
+        doneMessages.current[message.id] = false;
+      });
+      useEffect(() => {
+        if (hasDocs) {
+          delete needRefreshMessageIds.current[message.id];
+          return;
+        }
 
-      return () => {
-        clearInterval(intervalId);
-      };
-    }, [message, hasDocs, isBottom]);
+        const intervalId = setInterval(() => {
+          if (needRefreshMessageIds.current[message.id]) {
+            const nextMessage = cloneDeep(needRefreshMessageIds.current[message.id]);
 
-    return (
-      <>
-        <Modal
-          opened={isShowDocs}
-          onClose={closeDocs}
-          title="Documents"
-          centered
-          scrollAreaComponent={ScrollArea.Autosize}
-          size={"auto"}
-        >
-          <Container p={0} size={"sm"}>
-            {isShowDocs &&
-              map(message.docs, (doc, index) => {
-                return (
-                  <div key={index} className={classNames("text-xs", classes.pBreakAll)}>
-                    <ReactMarkdown
-                      linkTarget="_blank"
-                      remarkPlugins={[remarkGfm]}
-                      rehypePlugins={[rehypeRaw]}
-                      components={{
-                        code({ node: rawNode, inline, className, children }) {
-                          const node = rawNode as Node;
+            setMessage(nextMessage);
 
-                          const rawContent = String(children);
-                          let codeContent = postprocessAnswer(rawContent.replace(/\n$/, ""), true);
+            if (nextMessage.docs) {
+              const saveMessagesFn = () => {
+                const dbMessages = JSON.parse(localStorage.getItem(`:messages${collection}`) || "[]");
+                const dbMsgIndex = findIndex(dbMessages, (v: any) => v.id === nextMessage.id);
+                if (dbMsgIndex >= 0) {
+                  dbMessages[dbMsgIndex] = nextMessage;
+                  localStorage.setItem(`:messages${collection}`, JSON.stringify(dbMessages));
+                }
+              };
+              saveMessagesFn();
+            }
 
-                          if (inline && !message.content.includes("```" + rawContent + "```")) {
-                            if (node.position.end.offset - rawContent.length - node.position.start.offset === 2) {
-                              return <code className={classes.inlineCode}>{codeContent}</code>;
-                            }
-                          }
+            delete needRefreshMessageIds.current[message.id];
+          }
+        }, 500);
 
-                          const match = /language-(\w+)/.exec(className || "");
-                          let lang: any = "javascript";
+        return () => {
+          clearInterval(intervalId);
+        };
+      }, [message, hasDocs, isBottom]);
 
-                          if (!match) {
-                            try {
-                              lang = detectProgramLang(codeContent);
-                            } catch (e) {}
-                          } else {
-                            lang = match[1] as any;
-                          }
-
-                          return (
-                            <Prism
-                              children={codeContent}
-                              language={convertToSupportLang(lang)}
-                              scrollAreaComponent={ScrollArea}
-                              className={classNames("mb-1", classes.codeWrap)}
-                            />
-                          );
-                        },
-                      }}
-                    >
-                      {preprocessMessageContent(doc)}
-                    </ReactMarkdown>
-                  </div>
-                );
-              })}
-          </Container>
-        </Modal>
-        {!isChild && <div className={"h-10"} />}
-        <div
-          className={classNames(
-            "flex gap-2 items-start p-3 relative",
-            {
-              [classes.messageBotBg]: !isChild,
-              [classes.rootBorders]: !isChild,
-              [classes.childBorders]: isChild,
-              "flex-col": !isChild,
-              "flex-row": isChild,
-              [classes.streamDone]: doneMessages.current[message.id],
-            },
-            classes.messageBotContainer
-          )}
-        >
+      return (
+        <>
+          <Modal
+            opened={isShowDocs}
+            onClose={closeDocs}
+            title="Documents"
+            centered
+            scrollAreaComponent={ScrollArea.Autosize}
+            size={"auto"}
+          >
+            <Container p={0} size={"sm"}>
+              {isShowDocs &&
+                map(message.docs, (doc, index) => {
+                  return (
+                    <div key={index} className={classNames("text-xs", classes.pBreakAll)}>
+                      <MemoizedReactMarkdown id={message.id} content={doc} smallText={true} />
+                    </div>
+                  );
+                })}
+            </Container>
+          </Modal>
+          {!isChild && <div className={"h-10"} />}
           <div
-            ref={scrollElementRef}
-            className={"absolute"}
-            style={{
-              left: 0,
-              bottom: 0,
-            }}
-          />
-          {isChild && <div className={classes.childLine} />}
-          <Tooltip label="Copied" opened={isCopied}>
+            className={classNames(
+              "flex gap-2 items-start p-3 relative",
+              {
+                [classes.messageBotBg]: !isChild,
+                [classes.rootBorders]: !isChild,
+                [classes.childBorders]: isChild,
+                "flex-col": !isChild,
+                "flex-row": isChild,
+                [classes.streamDone]: doneMessages.current[message.id],
+              },
+              classes.messageBotContainer
+            )}
+          >
             <div
-              className="absolute right-1 bottom-2 la-copy"
-              onMouseLeave={() => {
-                setTimeout(() => setIsCopied(false), 200);
+              ref={scrollElementRef}
+              className={"absolute"}
+              style={{
+                left: 0,
+                bottom: 0,
               }}
-            >
-              <ActionIcon
-                size="xs"
-                variant="subtle"
-                onClick={() => {
-                  setCopyText(message.content);
-                  updateIsCopied();
+            />
+            {isChild && <div className={classes.childLine} />}
+            <Tooltip label="Copied" opened={isCopied}>
+              <div
+                className="absolute right-1 bottom-2 la-copy"
+                onMouseLeave={() => {
+                  setTimeout(() => setIsCopied(false), 200);
                 }}
-                style={{ zIndex: 100 }}
               >
-                <IconCopy />
-              </ActionIcon>
-            </div>
-          </Tooltip>
-          <div style={{ position: isChild ? "sticky" : undefined }} className="top-3">
-            <div className={"flex flex-row items-center gap-3"}>
-              <div className={"relative"}>
-                <Avatar
-                  size="md"
-                  src={message.source === "assistant" ? "/assets/bot1.png" : "/assets/chill.png"}
-                  className={classNames({
-                    [classes.userAvatar]: message.source !== "assistant",
-                    [classes.assistantAvatar]: message.source === "assistant" && !isEffect,
-                    [classes.assistantAvatar2]: message.source === "assistant" && isEffect,
-                  })}
+                <ActionIcon
+                  size="xs"
+                  variant="subtle"
+                  onClick={() => {
+                    setCopyText(message.content);
+                    updateIsCopied();
+                  }}
+                  style={{ zIndex: 100 }}
                 >
-                  {collection?.emoji}
-                </Avatar>
+                  <IconCopy />
+                </ActionIcon>
               </div>
-              {!isChild && (
-                <div className={"flex flex-row gap-2 items-center"}>
+            </Tooltip>
+            <div style={{ position: isChild ? "sticky" : undefined }} className="top-3">
+              <div className={"flex flex-row items-center gap-3"}>
+                <div className={"relative"}>
+                  <Avatar
+                    size="md"
+                    src={message.source === "assistant" ? "/assets/bot1.png" : "/assets/chill.png"}
+                    className={classNames({
+                      [classes.userAvatar]: message.source !== "assistant",
+                      [classes.assistantAvatar]: message.source === "assistant" && !isEffect,
+                      [classes.assistantAvatar2]: message.source === "assistant" && isEffect,
+                    })}
+                  >
+                    {collection?.emoji}
+                  </Avatar>
+                </div>
+                {!isChild && (
+                  <div className={"flex flex-row gap-2 items-center"}>
+                    <Text className={"font-bold"}>
+                      {message.source === "assistant" ? (
+                        <>
+                          {collection?.emoji} {collection?.label}
+                        </>
+                      ) : (
+                        "You"
+                      )}
+                    </Text>
+                    <DateInfo message={message} />
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className={classNames("flex-grow w-full")}>
+              {isChild && (
+                <div
+                  className={"flex flex-row gap-2 items-center mb-2"}
+                  style={{
+                    height: 34,
+                  }}
+                >
                   <Text className={"font-bold"}>
                     {message.source === "assistant" ? (
                       <>
@@ -852,103 +847,40 @@ const MessageItem = forwardRef(
                   <DateInfo message={message} />
                 </div>
               )}
-            </div>
-          </div>
-          <div className={classNames("flex-grow w-full")}>
-            {isChild && (
-              <div
-                className={"flex flex-row gap-2 items-center mb-2"}
-                style={{
-                  height: 34,
-                }}
-              >
-                <Text className={"font-bold"}>
-                  {message.source === "assistant" ? (
-                    <>
-                      {collection?.emoji} {collection?.label}
-                    </>
-                  ) : (
-                    "You"
-                  )}
-                </Text>
-                <DateInfo message={message} />
+              <div className={classNames(classes.messageContent)}>
+                {message.content !== "..." && <MemoizedReactMarkdown content={message.content} id={message.id} />}
+                {(isTyping || message.content === "...") && <TypingBlinkCursor />}
               </div>
-            )}
-            <div className={classNames(classes.messageContent)}>
-              {message.content !== "..." && (
-                <ReactMarkdown
-                  linkTarget="_blank"
-                  remarkPlugins={[remarkGfm]}
-                  rehypePlugins={[rehypeRaw]}
-                  components={{
-                    code({ node: rawNode, inline, className, children }) {
-                      const node = rawNode as Node;
-
-                      const rawContent = String(children);
-                      let codeContent = postprocessAnswer(rawContent.replace(/\n$/, ""), true);
-
-                      if (inline && !message.content.includes("```" + rawContent + "```")) {
-                        if (node.position.end.offset - rawContent.length - node.position.start.offset === 2) {
-                          return <code className={classes.inlineCode}>{codeContent}</code>;
-                        }
-                      }
-
-                      const match = /language-(\w+)/.exec(className || "");
-                      let lang: any = "javascript";
-
-                      if (!match) {
-                        try {
-                          lang = detectProgramLang(codeContent);
-                        } catch (e) {}
-                      } else {
-                        lang = match[1] as any;
-                      }
-
-                      return (
-                        <Prism
-                          children={codeContent}
-                          language={convertToSupportLang(lang)}
-                          scrollAreaComponent={ScrollArea}
-                          className={classNames("mb-1", classes.codeWrap)}
-                        />
-                      );
-                    },
-                  }}
-                >
-                  {preprocessMessageContent(message.content)}
-                </ReactMarkdown>
-              )}
-              {(isTyping || message.content === "...") && <TypingBlinkCursor />}
-            </div>
-            {hasDocs && (
-              <div>
-                <Badge
-                  onClick={showDocs}
-                  className={classNames("cursor-pointer", classes.fadeIn)}
-                  size={"xs"}
-                  leftSection={
-                    <div className={"flex items-center relative w-3.5 justify-center"}>
-                      <div className={"absolute top-0 left-0 w-full"} style={{ height: 16 }}>
-                        {Array.isArray(message.docs) ? (
-                          <Text size={"sm"} className={"text-center w-full"} style={{ lineHeight: 0 }}>
-                            {message.docs?.length}
-                          </Text>
-                        ) : (
-                          <Loader size={"xs"} className={"relative -top-2 -left-1"} variant="dots" />
-                        )}
+              {hasDocs && (
+                <div>
+                  <Badge
+                    onClick={showDocs}
+                    className={classNames("cursor-pointer", classes.fadeIn)}
+                    size={"xs"}
+                    leftSection={
+                      <div className={"flex items-center relative w-3.5 justify-center"}>
+                        <div className={"absolute top-0 left-0 w-full"} style={{ height: 16 }}>
+                          {Array.isArray(message.docs) ? (
+                            <Text size={"sm"} className={"text-center w-full"} style={{ lineHeight: 0 }}>
+                              {message.docs?.length}
+                            </Text>
+                          ) : (
+                            <Loader size={"xs"} className={"relative -top-2 -left-1"} variant="dots" />
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  }
-                >
-                  Documents
-                </Badge>
-              </div>
-            )}
+                    }
+                  >
+                    Documents
+                  </Badge>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      </>
-    );
-  }
+        </>
+      );
+    }
+  )
 );
 
 export default Message;

@@ -147,6 +147,8 @@ export function filterDocs(docs: [Doc, number][], maxStep = 0.05) {
   const fileHashes = new Set<string>();
 
   return docs.filter(([doc, score]) => {
+    if (!doc.metadata.md5) return false;
+
     if (alwaysFalse) {
       return fileHashes.has(doc.metadata.md5);
     }
