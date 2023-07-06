@@ -452,6 +452,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
         onController(): void {},
         onError(error: Error): void {
           console.log("error", error);
+          setMessages(clone(messages));
         },
       }).finally();
     },
