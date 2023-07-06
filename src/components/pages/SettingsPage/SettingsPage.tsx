@@ -44,6 +44,7 @@ const SettingsPage = () => {
         color: "red",
         icon: <IconX />,
       });
+      setLoadings({ save: false });
     }
   };
 
