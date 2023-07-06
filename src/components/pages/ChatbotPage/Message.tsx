@@ -1,36 +1,19 @@
 import { useCopyToClipboard, useDebounce, useList, useMap, useMeasure, useMount, useUnmount } from "react-use";
 import { ActionIcon, Avatar, Badge, Container, Loader, Modal, ScrollArea, Text, Tooltip } from "@mantine/core";
-import React, {
-  forwardRef,
-  memo,
-  MutableRefObject,
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { forwardRef, MutableRefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { clone, cloneDeep, find, findIndex, findLastIndex, forEach, map, throttle, uniqBy, uniqueId } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import classNames from "classnames";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import rehypeRaw from "rehype-raw";
-import { Prism } from "@mantine/prism";
 import { requestChatStream } from "@/components/pages/ChatbotPage/Message.api";
 import { useCollections, useCurrentCollection, useModel, useOpenaiAPIKey } from "@/states/states";
 import {
-  convertToSupportLang,
-  detectProgramLang,
   doc2ChatContent,
   Docs,
   filterDocs,
   htmlEncode,
   KeyValue,
-  Node,
   notifyIndexerVersionError,
   postprocessAnswer,
-  preprocessMessageContent,
   processTaggedMessage,
   unWrapRawContent,
   wrapRawContent,
@@ -324,24 +307,12 @@ const Message = ({ collection, prompt }: MessageProps) => {
         if (prompt === "your") {
           const userMessages = [
             ...map(includes, v => {
-              const rs = [
+              return [
                 {
                   role: v.source,
                   content: v.content,
                 },
               ] as any[];
-              // if (Array.isArray(v.docs) && v.docs.length) {
-              //   rs.unshift(
-              //     ...map(v.docs, doc => {
-              //       return {
-              //         role: "system",
-              //         content: doc,
-              //       };
-              //     })
-              //   );
-              //   hasDoc = true;
-              // }
-              return rs;
             }).flat(),
             ...checkedMessages.map(v => ({
               role: v.source,
@@ -594,247 +565,224 @@ const Message = ({ collection, prompt }: MessageProps) => {
   );
 };
 
-const MessageItem = memo(
-  forwardRef(
-    (
-      {
-        classes,
-        message: inputMessage,
-        setMessages,
-        index,
-        messages,
-        isBottom,
-        scrollToBottom,
-        autoScrollIds,
-        focusTextBox,
-        isChild,
-      }: {
-        classes: any;
-        message: any;
-        setMessages: any;
-        index: any;
-        messages: any;
-        isBottom: () => boolean;
-        scrollToBottom: () => any;
-        focusTextBox: () => any;
-        autoScrollIds: MutableRefObject<KeyValue>;
-        isChild: boolean;
+const MessageItem = forwardRef(
+  (
+    {
+      classes,
+      message: inputMessage,
+      setMessages,
+      index,
+      messages,
+      isBottom,
+      scrollToBottom,
+      autoScrollIds,
+      focusTextBox,
+      isChild,
+    }: {
+      classes: any;
+      message: any;
+      setMessages: any;
+      index: any;
+      messages: any;
+      isBottom: () => boolean;
+      scrollToBottom: () => any;
+      focusTextBox: () => any;
+      autoScrollIds: MutableRefObject<KeyValue>;
+      isChild: boolean;
+    },
+    ref
+  ) => {
+    const [message, setMessage] = useState<MessageItemType>(inputMessage);
+    const [isTyping, setIsTyping] = useState(false);
+    const [doScrollToBottom, setDoScrollToBottom] = useState<boolean>(true);
+    const [, setCopyText] = useCopyToClipboard();
+    const [isCopied, setIsCopied] = useState(false);
+    const updateIsCopied = useMemo(() => {
+      let timeoutId: any;
+      return () => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          setIsCopied(false);
+        }, 2000);
+        setIsCopied(true);
+      };
+    }, []);
+    const [isEffect, setIsEffect] = useState(false);
+    const [collectionId] = useCurrentCollection();
+    const [collections] = useCollections();
+    const collection = useMemo(() => {
+      return find(collections, v => v.key === collectionId);
+    }, [collectionId, collections]);
+    const scrollElementRef = useRef<HTMLDivElement>(null);
+    const hasDocs = useMemo(() => {
+      if (message.docId) return true;
+      return Array.isArray(message.docs) && message.docs.length > 0;
+    }, [message]);
+    const [isShowDocs, { open: showDocs, close: closeDocs }] = useDisclosure(false);
+
+    useImperativeHandle(ref, () => ({
+      editMessage(newMessage: string, isDone: boolean) {
+        messages[index].content = newMessage;
+        setMessage({
+          ...message,
+          content: newMessage,
+        });
+        setIsTyping(!isDone);
+        if (isDone || !isBottom()) {
+          setDoScrollToBottom(false);
+        } else if (isBottom() && !doScrollToBottom) {
+          setDoScrollToBottom(true);
+        }
+
+        if (isDone) {
+          doneMessages.current[message.id] = true;
+          if (!isBottom()) {
+            scrollElementRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "start" });
+          }
+        }
       },
-      ref
-    ) => {
-      const [message, setMessage] = useState<MessageItemType>(inputMessage);
-      const [isTyping, setIsTyping] = useState(false);
-      const [doScrollToBottom, setDoScrollToBottom] = useState<boolean>(true);
-      const [, setCopyText] = useCopyToClipboard();
-      const [isCopied, setIsCopied] = useState(false);
-      const updateIsCopied = useMemo(() => {
-        let timeoutId: any;
-        return () => {
-          clearTimeout(timeoutId);
-          timeoutId = setTimeout(() => {
-            setIsCopied(false);
-          }, 2000);
-          setIsCopied(true);
-        };
-      }, []);
-      const [isEffect, setIsEffect] = useState(false);
-      const [collectionId] = useCurrentCollection();
-      const [collections] = useCollections();
-      const collection = useMemo(() => {
-        return find(collections, v => v.key === collectionId);
-      }, [collectionId, collections]);
-      const scrollElementRef = useRef<HTMLDivElement>(null);
-      const hasDocs = useMemo(() => {
-        if (message.docId) return true;
-        return Array.isArray(message.docs) && message.docs.length > 0;
-      }, [message]);
-      const [isShowDocs, { open: showDocs, close: closeDocs }] = useDisclosure(false);
-
-      useImperativeHandle(ref, () => ({
-        editMessage(newMessage: string, isDone: boolean) {
-          messages[index].content = newMessage;
-          setMessage({
-            ...message,
-            content: newMessage,
-          });
-          setIsTyping(!isDone);
-          if (isDone || !isBottom()) {
-            setDoScrollToBottom(false);
-          } else if (isBottom() && !doScrollToBottom) {
-            setDoScrollToBottom(true);
-          }
-
-          if (isDone) {
-            doneMessages.current[message.id] = true;
-            if (!isBottom()) {
-              scrollElementRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "start" });
-            }
-          }
-        },
-      }));
-      useEffect(() => {
-        if (!isTyping) return;
-        if (doScrollToBottom) {
+    }));
+    useEffect(() => {
+      if (!isTyping) return;
+      if (doScrollToBottom) {
+        scrollToBottom();
+      }
+    }, [doScrollToBottom, message.content, isTyping]);
+    useMount(() => {
+      if (message.source === "user" && !autoScrollIds.current[message.id]) {
+        if (message.scrollToBottom) {
           scrollToBottom();
         }
-      }, [doScrollToBottom, message.content, isTyping]);
-      useMount(() => {
-        if (message.source === "user" && !autoScrollIds.current[message.id]) {
-          if (message.scrollToBottom) {
-            scrollToBottom();
-          }
-          autoScrollIds.current[message.id] = true;
-        }
-      });
-      useEffect(() => {
-        if (isTyping && !isEffect) {
-          setIsEffect(true);
-        } else if (!isTyping && isEffect) {
-          setTimeout(() => {
-            setIsEffect(false);
-          }, 500);
-        }
-      }, [isTyping, isEffect]);
-      useUnmount(() => {
-        doneMessages.current[message.id] = false;
-      });
-      useEffect(() => {
-        if (hasDocs) {
-          delete needRefreshMessageIds.current[message.id];
-          return;
-        }
-
-        const intervalId = setInterval(() => {
-          if (needRefreshMessageIds.current[message.id]) {
-            const nextMessage = cloneDeep(needRefreshMessageIds.current[message.id]);
-
-            setMessage(nextMessage);
-
-            if (nextMessage.docs) {
-              const saveMessagesFn = () => {
-                const dbMessages = JSON.parse(localStorage.getItem(`:messages${collection}`) || "[]");
-                const dbMsgIndex = findIndex(dbMessages, (v: any) => v.id === nextMessage.id);
-                if (dbMsgIndex >= 0) {
-                  dbMessages[dbMsgIndex] = nextMessage;
-                  localStorage.setItem(`:messages${collection}`, JSON.stringify(dbMessages));
-                }
-              };
-              saveMessagesFn();
-            }
-
-            delete needRefreshMessageIds.current[message.id];
-          }
+        autoScrollIds.current[message.id] = true;
+      }
+    });
+    useEffect(() => {
+      if (isTyping && !isEffect) {
+        setIsEffect(true);
+      } else if (!isTyping && isEffect) {
+        setTimeout(() => {
+          setIsEffect(false);
         }, 500);
+      }
+    }, [isTyping, isEffect]);
+    useUnmount(() => {
+      doneMessages.current[message.id] = false;
+    });
+    useEffect(() => {
+      if (hasDocs) {
+        delete needRefreshMessageIds.current[message.id];
+        return;
+      }
 
-        return () => {
-          clearInterval(intervalId);
-        };
-      }, [message, hasDocs, isBottom]);
+      const intervalId = setInterval(() => {
+        if (needRefreshMessageIds.current[message.id]) {
+          const nextMessage = cloneDeep(needRefreshMessageIds.current[message.id]);
 
-      return (
-        <>
-          <Modal
-            opened={isShowDocs}
-            onClose={closeDocs}
-            title="Documents"
-            centered
-            scrollAreaComponent={ScrollArea.Autosize}
-            size={"auto"}
-          >
-            <Container p={0} size={"sm"}>
-              {isShowDocs &&
-                map(message.docs, (doc, index) => {
-                  return (
-                    <div key={index} className={classNames("text-xs", classes.pBreakAll)}>
-                      <MemoizedReactMarkdown id={message.id} content={doc} smallText={true} />
-                    </div>
-                  );
-                })}
-            </Container>
-          </Modal>
-          {!isChild && <div className={"h-10"} />}
-          <div
-            className={classNames(
-              "flex gap-2 items-start p-3 relative",
-              {
-                [classes.messageBotBg]: !isChild,
-                [classes.rootBorders]: !isChild,
-                [classes.childBorders]: isChild,
-                "flex-col": !isChild,
-                "flex-row": isChild,
-                [classes.streamDone]: doneMessages.current[message.id],
-              },
-              classes.messageBotContainer
-            )}
-          >
-            <div
-              ref={scrollElementRef}
-              className={"absolute"}
-              style={{
-                left: 0,
-                bottom: 0,
-              }}
-            />
-            {isChild && <div className={classes.childLine} />}
-            <Tooltip label="Copied" opened={isCopied}>
-              <div
-                className="absolute right-1 bottom-2 la-copy"
-                onMouseLeave={() => {
-                  setTimeout(() => setIsCopied(false), 200);
-                }}
-              >
-                <ActionIcon
-                  size="xs"
-                  variant="subtle"
-                  onClick={() => {
-                    setCopyText(message.content);
-                    updateIsCopied();
-                  }}
-                  style={{ zIndex: 100 }}
-                >
-                  <IconCopy />
-                </ActionIcon>
-              </div>
-            </Tooltip>
-            <div style={{ position: isChild ? "sticky" : undefined }} className="top-3">
-              <div className={"flex flex-row items-center gap-3"}>
-                <div className={"relative"}>
-                  <Avatar
-                    size="md"
-                    src={message.source === "assistant" ? "/assets/bot1.png" : "/assets/chill.png"}
-                    className={classNames({
-                      [classes.userAvatar]: message.source !== "assistant",
-                      [classes.assistantAvatar]: message.source === "assistant" && !isEffect,
-                      [classes.assistantAvatar2]: message.source === "assistant" && isEffect,
-                    })}
-                  >
-                    {collection?.emoji}
-                  </Avatar>
-                </div>
-                {!isChild && (
-                  <div className={"flex flex-row gap-2 items-center"}>
-                    <Text className={"font-bold"}>
-                      {message.source === "assistant" ? (
-                        <>
-                          {collection?.emoji} {collection?.label}
-                        </>
-                      ) : (
-                        "You"
-                      )}
-                    </Text>
-                    <DateInfo message={message} />
+          setMessage(nextMessage);
+
+          if (nextMessage.docs) {
+            const saveMessagesFn = () => {
+              const dbMessages = JSON.parse(localStorage.getItem(`:messages${collection}`) || "[]");
+              const dbMsgIndex = findIndex(dbMessages, (v: any) => v.id === nextMessage.id);
+              if (dbMsgIndex >= 0) {
+                dbMessages[dbMsgIndex] = nextMessage;
+                localStorage.setItem(`:messages${collection}`, JSON.stringify(dbMessages));
+              }
+            };
+            saveMessagesFn();
+          }
+
+          delete needRefreshMessageIds.current[message.id];
+        }
+      }, 500);
+
+      return () => {
+        clearInterval(intervalId);
+      };
+    }, [message, hasDocs, isBottom]);
+
+    return (
+      <>
+        <Modal
+          opened={isShowDocs}
+          onClose={closeDocs}
+          title="Documents"
+          centered
+          scrollAreaComponent={ScrollArea.Autosize}
+          size={"auto"}
+        >
+          <Container p={0} size={"sm"}>
+            {isShowDocs &&
+              map(message.docs, (doc, index) => {
+                return (
+                  <div key={index} className={classNames("text-xs", classes.pBreakAll)}>
+                    <MemoizedReactMarkdown id={message.id} content={doc} smallText={true} />
                   </div>
-                )}
-              </div>
+                );
+              })}
+          </Container>
+        </Modal>
+        {!isChild && <div className={"h-10"} />}
+        <div
+          className={classNames(
+            "flex gap-2 items-start p-3 relative",
+            {
+              [classes.messageBotBg]: !isChild,
+              [classes.rootBorders]: !isChild,
+              [classes.childBorders]: isChild,
+              "flex-col": !isChild,
+              "flex-row": isChild,
+              [classes.streamDone]: doneMessages.current[message.id],
+            },
+            classes.messageBotContainer
+          )}
+        >
+          <div
+            ref={scrollElementRef}
+            className={"absolute"}
+            style={{
+              left: 0,
+              bottom: 0,
+            }}
+          />
+          {isChild && <div className={classes.childLine} />}
+          <Tooltip label="Copied" opened={isCopied}>
+            <div
+              className="absolute right-1 bottom-2 la-copy"
+              onMouseLeave={() => {
+                setTimeout(() => setIsCopied(false), 200);
+              }}
+            >
+              <ActionIcon
+                size="xs"
+                variant="subtle"
+                onClick={() => {
+                  setCopyText(message.content);
+                  updateIsCopied();
+                }}
+                style={{ zIndex: 100 }}
+              >
+                <IconCopy />
+              </ActionIcon>
             </div>
-            <div className={classNames("flex-grow w-full")}>
-              {isChild && (
-                <div
-                  className={"flex flex-row gap-2 items-center mb-2"}
-                  style={{
-                    height: 34,
-                  }}
+          </Tooltip>
+          <div style={{ position: isChild ? "sticky" : undefined }} className="top-3">
+            <div className={"flex flex-row items-center gap-3"}>
+              <div className={"relative"}>
+                <Avatar
+                  size="md"
+                  src={message.source === "assistant" ? "/assets/bot1.png" : "/assets/chill.png"}
+                  className={classNames({
+                    [classes.userAvatar]: message.source !== "assistant",
+                    [classes.assistantAvatar]: message.source === "assistant" && !isEffect,
+                    [classes.assistantAvatar2]: message.source === "assistant" && isEffect,
+                  })}
                 >
+                  {collection?.emoji}
+                </Avatar>
+              </div>
+              {!isChild && (
+                <div className={"flex flex-row gap-2 items-center"}>
                   <Text className={"font-bold"}>
                     {message.source === "assistant" ? (
                       <>
@@ -847,40 +795,61 @@ const MessageItem = memo(
                   <DateInfo message={message} />
                 </div>
               )}
-              <div className={classNames(classes.messageContent)}>
-                {message.content !== "..." && <MemoizedReactMarkdown content={message.content} id={message.id} />}
-                {(isTyping || message.content === "...") && <TypingBlinkCursor />}
-              </div>
-              {hasDocs && (
-                <div>
-                  <Badge
-                    onClick={showDocs}
-                    className={classNames("cursor-pointer", classes.fadeIn)}
-                    size={"xs"}
-                    leftSection={
-                      <div className={"flex items-center relative w-3.5 justify-center"}>
-                        <div className={"absolute top-0 left-0 w-full"} style={{ height: 16 }}>
-                          {Array.isArray(message.docs) ? (
-                            <Text size={"sm"} className={"text-center w-full"} style={{ lineHeight: 0 }}>
-                              {message.docs?.length}
-                            </Text>
-                          ) : (
-                            <Loader size={"xs"} className={"relative -top-2 -left-1"} variant="dots" />
-                          )}
-                        </div>
-                      </div>
-                    }
-                  >
-                    Documents
-                  </Badge>
-                </div>
-              )}
             </div>
           </div>
-        </>
-      );
-    }
-  )
+          <div className={classNames("flex-grow w-full")}>
+            {isChild && (
+              <div
+                className={"flex flex-row gap-2 items-center mb-2"}
+                style={{
+                  height: 34,
+                }}
+              >
+                <Text className={"font-bold"}>
+                  {message.source === "assistant" ? (
+                    <>
+                      {collection?.emoji} {collection?.label}
+                    </>
+                  ) : (
+                    "You"
+                  )}
+                </Text>
+                <DateInfo message={message} />
+              </div>
+            )}
+            <div className={classNames(classes.messageContent)}>
+              {message.content !== "..." && <MemoizedReactMarkdown content={message.content} id={message.id} />}
+              {(isTyping || message.content === "...") && <TypingBlinkCursor />}
+            </div>
+            {hasDocs && (
+              <div>
+                <Badge
+                  onClick={showDocs}
+                  className={classNames("cursor-pointer", classes.fadeIn)}
+                  size={"xs"}
+                  leftSection={
+                    <div className={"flex items-center relative w-3.5 justify-center"}>
+                      <div className={"absolute top-0 left-0 w-full"} style={{ height: 16 }}>
+                        {Array.isArray(message.docs) ? (
+                          <Text size={"sm"} className={"text-center w-full"} style={{ lineHeight: 0 }}>
+                            {message.docs?.length}
+                          </Text>
+                        ) : (
+                          <Loader size={"xs"} className={"relative -top-2 -left-1"} variant="dots" />
+                        )}
+                      </div>
+                    </div>
+                  }
+                >
+                  Documents
+                </Badge>
+              </div>
+            )}
+          </div>
+        </div>
+      </>
+    );
+  }
 );
 
 export default Message;
