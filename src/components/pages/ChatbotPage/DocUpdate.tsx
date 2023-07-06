@@ -107,54 +107,56 @@ const DocUpdate = ({ docId }: DocUpdateProps) => {
                         </div>
                       }
                     >
-                      <ActionIcon
-                        size={"xs"}
-                        variant={"outline"}
-                        color={"blue"}
-                        loading={loadings[item.f]}
-                        onClick={() => {
-                          setLoadings({ [item.f]: true });
-                          axios
-                            .post(`${indexerHost}/api/git-pull`, {
-                              cwd: item.git,
-                            })
-                            .then(({ data }: { data: string | undefined }) => {
-                              if (typeof data !== "string") return;
+                      <div>
+                        <ActionIcon
+                          size={"xs"}
+                          variant={"outline"}
+                          color={"blue"}
+                          loading={loadings[item.f]}
+                          onClick={() => {
+                            setLoadings({ [item.f]: true });
+                            axios
+                              .post(`${indexerHost}/api/git-pull`, {
+                                cwd: item.git,
+                              })
+                              .then(({ data }: { data: string | undefined }) => {
+                                if (typeof data !== "string") return;
 
-                              data = data.trim() as string;
+                                data = data.trim() as string;
 
-                              if (data.includes("\n")) {
-                                data = (
-                                  <>
-                                    <ScrollArea h={60}>
-                                      <code>{data}</code>
-                                    </ScrollArea>
-                                  </>
-                                ) as ReactNode as any;
-                              } else {
-                                data = "Pull OK:\n\n" + data;
-                              }
+                                if (data.includes("\n")) {
+                                  data = (
+                                    <>
+                                      <ScrollArea h={60}>
+                                        <code>{data}</code>
+                                      </ScrollArea>
+                                    </>
+                                  ) as ReactNode as any;
+                                } else {
+                                  data = "Pull OK:\n\n" + data;
+                                }
 
-                              notifications.show({
-                                title: "Success",
-                                message: data,
-                                color: "green",
+                                notifications.show({
+                                  title: "Success",
+                                  message: data,
+                                  color: "green",
+                                });
+                              })
+                              .catch((e: AxiosError) => {
+                                notifications.show({
+                                  title: "Error",
+                                  message: "Failed to perform git pull: " + e.response?.data,
+                                  color: "red",
+                                });
+                              })
+                              .finally(() => {
+                                setLoadings({ [item.f]: false });
                               });
-                            })
-                            .catch((e: AxiosError) => {
-                              notifications.show({
-                                title: "Error",
-                                message: "Failed to perform git pull: " + e.response?.data,
-                                color: "red",
-                              });
-                            })
-                            .finally(() => {
-                              setLoadings({ [item.f]: false });
-                            });
-                        }}
-                      >
-                        <IconGitCompare />
-                      </ActionIcon>
+                          }}
+                        >
+                          <IconGitCompare />
+                        </ActionIcon>
+                      </div>
                     </Tooltip>
                   )}
                   <ActionIcon
