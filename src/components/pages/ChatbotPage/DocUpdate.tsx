@@ -79,6 +79,7 @@ const DocUpdate = ({ docId }: DocUpdateProps) => {
                 placeholder={
                   "Full path of a file or directory on your computer (e.g: C:\\Users\\admin\\Documents\\Private)"
                 }
+                title={item.f}
                 size={"xs"}
                 value={item.f}
                 disabled={!item.editable}
