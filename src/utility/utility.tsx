@@ -168,6 +168,13 @@ export function filterDocs(docs: [Doc, number][], maxStep = 0.05) {
 }
 
 export function doc2ChatContent(doc: Doc, score: number) {
+  if (doc.metadata.source.endsWith(".md")) {
+    if (doc.pageContent.startsWith("DOCUMENT NAME:")) {
+      doc.pageContent = "---\n\n### " + doc.pageContent;
+    }
+    return doc.pageContent;
+  }
+
   const startLine = doc.metadata.loc.lines.from;
   const offsetLine = { value: 0 };
 
