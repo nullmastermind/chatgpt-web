@@ -822,7 +822,7 @@ const MessageItem = forwardRef(
                 <DateInfo message={message} />
               </div>
             )}
-            <div className={classNames(classes.messageContent)}>
+            <div className={classNames(classes.messageContent, classes.imgBg)}>
               {message.content !== "..." && <MemoizedReactMarkdown content={message.content} id={message.id} />}
               {(isTyping || message.content === "...") && <TypingBlinkCursor />}
             </div>
