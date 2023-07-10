@@ -720,7 +720,7 @@ const MessageItem = forwardRef(
             {isShowDocs &&
               map(message.docs, (doc, index) => {
                 return (
-                  <div key={index} className={classNames("text-xs", classes.pBreakAll)}>
+                  <div key={index} className={classNames("text-xs", classes.pBreakAll, classes.imgBg)}>
                     <MemoizedReactMarkdown id={message.id} content={doc} smallText={true} />
                   </div>
                 );

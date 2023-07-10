@@ -173,6 +173,13 @@ const useStyles = createStyles(theme => ({
       wordBreak: "break-all",
     },
   },
+  imgBg: {
+    img: {
+      background: "#C1C2C5",
+      borderRadius: "0.25rem",
+      padding: "0.5rem",
+    },
+  },
 }));
 
 export default useStyles;
