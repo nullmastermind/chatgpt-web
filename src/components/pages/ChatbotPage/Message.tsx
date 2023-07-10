@@ -750,7 +750,7 @@ const MessageItem = forwardRef(
               bottom: 0,
             }}
           />
-          {isChild && <div className={classes.childLine} />}
+          {isChild && <div className={classes.childLine as string} />}
           <Tooltip label="Copied" opened={isCopied}>
             <div
               className="absolute right-1 bottom-2 la-copy"
