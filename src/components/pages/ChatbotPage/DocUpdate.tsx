@@ -15,7 +15,7 @@ type DataItem = {
   f: string;
   editable: boolean;
   git?: string;
-  exists: boolean;
+  exists: boolean | undefined;
 };
 
 type MyData = {
