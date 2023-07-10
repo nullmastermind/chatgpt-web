@@ -242,12 +242,16 @@ const Message = ({ collection, prompt }: MessageProps) => {
             }
           });
 
-          const lastAssistantMessage =
-            messages[
-              findIndex(messages, value => {
-                return value.id === userMessage.id;
-              }) - 1
-            ];
+          let lastAssistantMessage = undefined;
+
+          if (userMessage.isChild) {
+            lastAssistantMessage =
+              messages[
+                findIndex(messages, value => {
+                  return value.id === userMessage.id;
+                }) - 1
+              ];
+          }
 
           const {
             data: query,
