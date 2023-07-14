@@ -165,8 +165,10 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       color={collection.key === currentCollection ? "blue" : undefined}
     >
       <div className="flex flex-row gap-3 items-center relative">
-        <div className="flex-grow flex gap-1">
-          <span style={{ marginRight: rem(9), fontSize: rem(16) }}>{collection.emoji}</span>
+        <div className="flex-grow flex gap-1 items-center text-center">
+          <div className={"w-5 justify-center flex items-center"}>
+            <span style={{ marginRight: rem(9), fontSize: rem(16) }}>{collection.emoji}</span>
+          </div>
           <div className={"whitespace-nowrap"}>
             {collection.label}
             {index < 9 && (
