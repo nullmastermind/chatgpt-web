@@ -1,11 +1,14 @@
 import {
   ActionIcon,
+  AppShell,
   Avatar,
   Badge,
+  Burger,
   Button,
   Divider,
   Group,
   Kbd,
+  MediaQuery,
   Menu,
   Navbar,
   rem,
@@ -13,6 +16,8 @@ import {
   Text,
   Title,
   UnstyledButton,
+  useMantineTheme,
+  Header,
 } from "@mantine/core";
 import {
   IconAlertCircle,
@@ -45,6 +50,7 @@ import classNames from "classnames";
 import { ChatBotName } from "@/config";
 import { useHotkeys } from "@mantine/hooks";
 import { exportLocalStorageToJSON, importLocalStorageFromFile } from "@/utility/utility";
+import { isMobile } from "react-device-detect";
 
 export type CollectionItem = {
   emoji: string;
@@ -85,6 +91,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const [refScrollDiv, scrollDivInfo] = useMeasure();
   const [scrollAreaHeight, setScrollAreaHeight] = useState(0);
   const { height: wHeight } = useWindowSize();
+  const theme = useMantineTheme();
+  const [opened, setOpened] = useState(false);
 
   const hotkeySwitchCollection = (index: number) => {
     if (index <= collections.length - 1) {
@@ -143,7 +151,14 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   });
 
   const mainLinks = links.map(link => (
-    <UnstyledButton key={link.label} className={classes.mainLink} onClick={() => setCurrentTool(link.key)}>
+    <UnstyledButton
+      key={link.label}
+      className={classes.mainLink}
+      onClick={() => {
+        setCurrentTool(link.key);
+        setOpened(false);
+      }}
+    >
       <Text color={currentTool === link.key ? "blue" : "dimmed"} className={classes.mainLinkInner}>
         <link.icon size={20} className={classes.mainLinkIcon} stroke={1.5} />
         <span>{link.label}</span>
@@ -159,6 +174,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     <Text
       onClick={() => {
         setCurrentCollection(collection.key);
+        setOpened(false);
       }}
       key={collection.key}
       className={classes.collectionLink}
@@ -251,59 +267,82 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   return (
     <>
       <Notifications />
-      <div className="flex flex-row">
-        <Navbar width={{ sm: 300 }} p="md" className={classNames("flex flex-col h-screen", classes.navbar)}>
-          <Navbar.Section className={classes.section}>
-            <div className="px-5 py-3 flex flex-grow items-center gap-3">
-              <Avatar size="xl" src="/assets/bot1.png" />
-              <div>
-                <Title order={1}>{ChatBotName}</Title>
-                <Text size="xs">Experience hassle-free living with OpenAI-based chatbot</Text>
+      <AppShell
+        navbarOffsetBreakpoint="sm"
+        padding={0}
+        navbar={
+          <Navbar
+            hidden={!opened}
+            width={{ sm: 300 }}
+            p={"md"}
+            className={classNames("flex flex-col h-screen", classes.navbar, {})}
+          >
+            <Navbar.Section className={classes.section}>
+              <div className="px-5 py-3 flex flex-grow items-center gap-3">
+                <Avatar size="xl" src="/assets/bot1.png" />
+                <div>
+                  <Title order={1}>{ChatBotName}</Title>
+                  <Text size="xs">Experience hassle-free living with OpenAI-based chatbot</Text>
+                </div>
               </div>
+            </Navbar.Section>
+            <Navbar.Section className={classes.section}>
+              <div className={classes.mainLinks}>{mainLinks}</div>
+            </Navbar.Section>
+            <Navbar.Section className={classNames("flex-grow", classes.section)} ref={refScrollDiv as any}>
+              {renderedScrollContent}
+            </Navbar.Section>
+            <Navbar.Section>
+              <Menu shadow="md" width={210}>
+                <Menu.Target>
+                  <Button size={"xs"} variant={"default"} leftIcon={<IconDatabaseCog />}>
+                    Backup
+                  </Button>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  <Text size={"xs"} color={"yellow"} className={"p-2"}>
+                    <IconAlertCircle size={"1rem"} className={"mr-2"} />
+                    After importing new data, all existing data will be overwritten, so please consider using it
+                    carefully!
+                  </Text>
+                  <Divider />
+                  <Menu.Item
+                    onClick={() =>
+                      importLocalStorageFromFile(() => {
+                        sessionStorage.setItem(":importLocalStorageFromFile", "OK");
+                        location.reload();
+                      })
+                    }
+                  >
+                    Import
+                  </Menu.Item>
+                  <Menu.Item onClick={() => exportLocalStorageToJSON()}>Export</Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
+            </Navbar.Section>
+          </Navbar>
+        }
+        header={
+          <Header height={{ base: 33 }} p="md">
+            <div style={{ display: "flex", alignItems: "center", height: "100%" }}>
+              <MediaQuery largerThan="sm" styles={{ display: "none" }}>
+                <Burger
+                  opened={opened}
+                  onClick={() => setOpened(o => !o)}
+                  size="sm"
+                  color={theme.colors.gray[6]}
+                  mr="xl"
+                />
+              </MediaQuery>
+
+              <Text>the NullGPT</Text>
             </div>
-          </Navbar.Section>
-          <Navbar.Section className={classes.section}>
-            <div className={classes.mainLinks}>{mainLinks}</div>
-          </Navbar.Section>
-          <Navbar.Section className={classNames("flex-grow", classes.section)} ref={refScrollDiv as any}>
-            {scrollAreaHeight > 0 ? (
-              <ScrollArea h={scrollAreaHeight}>{renderedScrollContent}</ScrollArea>
-            ) : (
-              renderedScrollContent
-            )}
-          </Navbar.Section>
-          <Navbar.Section>
-            <Menu shadow="md" width={210}>
-              <Menu.Target>
-                <Button size={"xs"} variant={"default"} leftIcon={<IconDatabaseCog />}>
-                  Backup
-                </Button>
-              </Menu.Target>
-              <Menu.Dropdown>
-                <Text size={"xs"} color={"yellow"} className={"p-2"}>
-                  <IconAlertCircle size={"1rem"} className={"mr-2"} />
-                  After importing new data, all existing data will be overwritten, so please consider using it
-                  carefully!
-                </Text>
-                <Divider />
-                <Menu.Item
-                  onClick={() =>
-                    importLocalStorageFromFile(() => {
-                      sessionStorage.setItem(":importLocalStorageFromFile", "OK");
-                      location.reload();
-                    })
-                  }
-                >
-                  Import
-                </Menu.Item>
-                <Menu.Item onClick={() => exportLocalStorageToJSON()}>Export</Menu.Item>
-              </Menu.Dropdown>
-            </Menu>
-          </Navbar.Section>
-        </Navbar>
-        <div className="flex-grow">{children}</div>
-        <input id="import_config_input" type="file" accept="application/json" className={"hidden"} />
-      </div>
+          </Header>
+        }
+      >
+        {children}
+      </AppShell>
+      <input id="import_config_input" type="file" accept="application/json" className={"hidden"} />
     </>
   );
 };

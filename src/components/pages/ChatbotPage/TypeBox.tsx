@@ -44,7 +44,7 @@ import axios from "axios";
 import { indexerHost, indexerVersion } from "@/config";
 import { IconSettings } from "@tabler/icons-react";
 import DocsModal from "@/components/pages/ChatbotPage/DocsModal";
-import { notifications } from "@mantine/notifications";
+import { isMobile } from "react-device-detect";
 
 export const TypeBox = forwardRef(
   (
@@ -547,45 +547,49 @@ export const TypeBox = forwardRef(
           </div>
         </div>
         <div className="flex flex-row gap-2 items-center justify-end">
-          <div className={"flex-grow self-start"}>
-            <CountTokens ref={countTokenRef} content={messageContent} includeMessages={includeMessages} />
-          </div>
-          <div className="flex flex-row items-center border border-blue-500">
-            <Tooltip label={"Private Document Management"}>
-              <ActionIcon
-                onClick={() => {
-                  notifyIndexerVersionError();
-                  setDocModalOpenSettings({
-                    initDocId: docId,
-                    initSearchValue: docId,
-                  });
-                  openDocModal();
-                }}
-              >
-                <IconSettings size={"1.25rem"} />
-              </ActionIcon>
-            </Tooltip>
-            <NativeSelect
-              value={docId}
-              size={"xs"}
-              data={[
-                {
-                  label: "Choose document",
-                  value: "",
-                },
-                ...docs,
-              ]}
-              onChange={e => setDocId(e.target.value)}
-            />
-            <Divider orientation={"vertical"} className={"ml-2"} />
-          </div>
+          {!isMobile && (
+            <div className={"flex-grow self-start"}>
+              <CountTokens ref={countTokenRef} content={messageContent} includeMessages={includeMessages} />
+            </div>
+          )}
+          {!isMobile && (
+            <div className="flex flex-row items-center border border-blue-500">
+              <Tooltip label={"Private Document Management"}>
+                <ActionIcon
+                  onClick={() => {
+                    notifyIndexerVersionError();
+                    setDocModalOpenSettings({
+                      initDocId: docId,
+                      initSearchValue: docId,
+                    });
+                    openDocModal();
+                  }}
+                >
+                  <IconSettings size={"1.25rem"} />
+                </ActionIcon>
+              </Tooltip>
+              <NativeSelect
+                value={docId}
+                size={"xs"}
+                data={[
+                  {
+                    label: "Choose document",
+                    value: "",
+                  },
+                  ...docs,
+                ]}
+                onChange={e => setDocId(e.target.value)}
+              />
+              <Divider orientation={"vertical"} className={"ml-2"} />
+            </div>
+          )}
           <ModelSelect />
           {onCancel && (
             <Button size={"xs"} onClick={onCancel} variant="default">
               Cancel
             </Button>
           )}
-          {!isReplyBox && (
+          {!isMobile && !isReplyBox && (
             <Button
               size={"xs"}
               onClick={() => {

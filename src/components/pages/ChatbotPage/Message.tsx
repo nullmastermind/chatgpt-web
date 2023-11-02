@@ -28,6 +28,7 @@ import axios from "axios";
 import { indexerHost } from "@/config";
 import { PromptSaveData } from "@/components/pages/ChatbotPage/AddPrompt";
 import MemoizedReactMarkdown from "@/components/pages/ChatbotPage/MemoizedReactMarkdown";
+import { isMobile } from "react-device-detect";
 
 export type MessageProps = {
   collection: any;
@@ -728,66 +729,89 @@ const MessageItem = forwardRef(
           </Container>
         </Modal>
         {!isChild && <div className={"h-10"} />}
-        <div
-          className={classNames(
-            "flex gap-2 items-start p-3 relative",
-            {
-              [classes.messageBotBg]: !isChild,
-              [classes.rootBorders]: !isChild,
-              [classes.childBorders]: isChild,
-              "flex-col": !isChild,
-              "flex-row": isChild,
-              [classes.streamDone]: doneMessages.current[message.id],
-            },
-            classes.messageBotContainer
-          )}
-        >
+        <div>
           <div
-            ref={scrollElementRef}
-            className={"absolute"}
-            style={{
-              left: 0,
-              bottom: 0,
-            }}
-          />
-          {isChild && <div className={classes.childLine as string} />}
-          <Tooltip label="Copied" opened={isCopied}>
+            className={classNames(
+              "flex gap-2 items-start relative py-2",
+              {
+                [classes.messageBotBg]: !isChild,
+                [classes.rootBorders]: !isChild,
+                [classes.childBorders]: isChild,
+                "flex-col": !isChild,
+                "flex-row": isChild,
+                [classes.streamDone]: doneMessages.current[message.id],
+              },
+              classes.messageBotContainer
+            )}
+          >
             <div
-              className="absolute right-1 bottom-2 la-copy"
-              onMouseLeave={() => {
-                setTimeout(() => setIsCopied(false), 200);
+              ref={scrollElementRef}
+              className={"absolute"}
+              style={{
+                left: 0,
+                bottom: 0,
               }}
-            >
-              <ActionIcon
-                size="xs"
-                variant="subtle"
-                onClick={() => {
-                  setCopyText(message.content);
-                  updateIsCopied();
+            />
+            {isChild && <div className={classes.childLine as string} />}
+            <Tooltip label="Copied" opened={isCopied}>
+              <div
+                className="absolute right-1 bottom-2 la-copy"
+                onMouseLeave={() => {
+                  setTimeout(() => setIsCopied(false), 200);
                 }}
-                style={{ zIndex: 100 }}
               >
-                <IconCopy />
-              </ActionIcon>
-            </div>
-          </Tooltip>
-          <div style={{ position: isChild ? "sticky" : undefined }} className="top-3">
-            <div className={"flex flex-row items-center gap-3"}>
-              <div className={"relative"}>
-                <Avatar
-                  size="md"
-                  src={message.source === "assistant" ? "/assets/bot1.png" : "/assets/chill.png"}
-                  className={classNames({
-                    [classes.userAvatar]: message.source !== "assistant",
-                    [classes.assistantAvatar]: message.source === "assistant" && !isEffect,
-                    [classes.assistantAvatar2]: message.source === "assistant" && isEffect,
-                  })}
+                <ActionIcon
+                  size="xs"
+                  variant="subtle"
+                  onClick={() => {
+                    setCopyText(message.content);
+                    updateIsCopied();
+                  }}
+                  style={{ zIndex: 100 }}
                 >
-                  {collection?.emoji}
-                </Avatar>
+                  <IconCopy />
+                </ActionIcon>
               </div>
-              {!isChild && (
-                <div className={"flex flex-row gap-2 items-center"}>
+            </Tooltip>
+            <div style={{ position: isChild ? "sticky" : undefined }} className="top-3 mx-2">
+              <div className={"flex flex-row items-center gap-3"}>
+                <div className={"relative"}>
+                  <Avatar
+                    size="md"
+                    src={message.source === "assistant" ? "/assets/bot1.png" : "/assets/chill.png"}
+                    className={classNames({
+                      [classes.userAvatar]: message.source !== "assistant",
+                      [classes.assistantAvatar]: message.source === "assistant" && !isEffect,
+                      [classes.assistantAvatar2]: message.source === "assistant" && isEffect,
+                    })}
+                  >
+                    {collection?.emoji}
+                  </Avatar>
+                </div>
+                {!isChild && (
+                  <div className={"flex flex-row gap-2 items-center"}>
+                    <Text className={"font-bold"}>
+                      {message.source === "assistant" ? (
+                        <>
+                          {collection?.emoji} {collection?.label}
+                        </>
+                      ) : (
+                        "You"
+                      )}
+                    </Text>
+                    <DateInfo message={message} />
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className={classNames("flex-grow w-full")}>
+              {isChild && (
+                <div
+                  className={"flex flex-row gap-2 items-center mb-2"}
+                  style={{
+                    height: 34,
+                  }}
+                >
                   <Text className={"font-bold"}>
                     {message.source === "assistant" ? (
                       <>
@@ -800,56 +824,39 @@ const MessageItem = forwardRef(
                   <DateInfo message={message} />
                 </div>
               )}
-            </div>
-          </div>
-          <div className={classNames("flex-grow w-full")}>
-            {isChild && (
               <div
-                className={"flex flex-row gap-2 items-center mb-2"}
-                style={{
-                  height: 34,
-                }}
+                className={classNames(classes.messageContent, classes.imgBg, {
+                  "px-2": !isMobile,
+                })}
               >
-                <Text className={"font-bold"}>
-                  {message.source === "assistant" ? (
-                    <>
-                      {collection?.emoji} {collection?.label}
-                    </>
-                  ) : (
-                    "You"
-                  )}
-                </Text>
-                <DateInfo message={message} />
+                {message.content !== "..." && <MemoizedReactMarkdown content={message.content} id={message.id} />}
+                {(isTyping || message.content === "...") && <TypingBlinkCursor />}
               </div>
-            )}
-            <div className={classNames(classes.messageContent, classes.imgBg)}>
-              {message.content !== "..." && <MemoizedReactMarkdown content={message.content} id={message.id} />}
-              {(isTyping || message.content === "...") && <TypingBlinkCursor />}
-            </div>
-            {hasDocs && (
-              <div>
-                <Badge
-                  onClick={showDocs}
-                  className={classNames("cursor-pointer", classes.fadeIn)}
-                  size={"xs"}
-                  leftSection={
-                    <div className={"flex items-center relative w-3.5 justify-center"}>
-                      <div className={"absolute top-0 left-0 w-full"} style={{ height: 16 }}>
-                        {Array.isArray(message.docs) ? (
-                          <Text size={"sm"} className={"text-center w-full"} style={{ lineHeight: 0 }}>
-                            {message.docs?.length}
-                          </Text>
-                        ) : (
-                          <Loader size={"xs"} className={"relative -top-2 -left-1"} variant="dots" />
-                        )}
+              {hasDocs && (
+                <div className="mx-2">
+                  <Badge
+                    onClick={showDocs}
+                    className={classNames("cursor-pointer", classes.fadeIn)}
+                    size={"xs"}
+                    leftSection={
+                      <div className={"flex items-center relative w-3.5 justify-center"}>
+                        <div className={"absolute top-0 left-0 w-full"} style={{ height: 16 }}>
+                          {Array.isArray(message.docs) ? (
+                            <Text size={"sm"} className={"text-center w-full"} style={{ lineHeight: 0 }}>
+                              {message.docs?.length}
+                            </Text>
+                          ) : (
+                            <Loader size={"xs"} className={"relative -top-2 -left-1"} variant="dots" />
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  }
-                >
-                  Documents
-                </Badge>
-              </div>
-            )}
+                    }
+                  >
+                    Documents
+                  </Badge>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </>
