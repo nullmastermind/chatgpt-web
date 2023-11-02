@@ -12,7 +12,6 @@ import {
   Menu,
   Navbar,
   rem,
-  ScrollArea,
   Text,
   Title,
   UnstyledButton,
@@ -50,7 +49,6 @@ import classNames from "classnames";
 import { ChatBotName } from "@/config";
 import { useHotkeys } from "@mantine/hooks";
 import { exportLocalStorageToJSON, importLocalStorageFromFile } from "@/utility/utility";
-import { isMobile } from "react-device-detect";
 
 export type CollectionItem = {
   emoji: string;
