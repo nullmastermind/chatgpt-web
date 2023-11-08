@@ -9,12 +9,10 @@ const MainPage = () => {
 
   return (
     <>
-      <Container size={"xl"} className={"px-0"}>
-        <MainLayout>
-          {currentTool === "settings" && <SettingsPage />}
-          {currentTool === "nullgpt" && <ChatbotPage />}
-        </MainLayout>
-      </Container>
+      <MainLayout>
+        {currentTool === "settings" && <SettingsPage />}
+        {currentTool === "nullgpt" && <ChatbotPage />}
+      </MainLayout>
     </>
   );
 };

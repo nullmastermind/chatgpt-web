@@ -44,7 +44,6 @@ const ChatbotPage = () => {
     wrapCustomXmlTag,
     customXmlTag,
   }: PromptSaveData) => {
-    console.log("id || Date.now()", id || Date.now());
     const dbPrompts: any[] = JSON.parse(localStorage.getItem(":prompts") || "[]");
     if (id) {
       const index = findIndex(dbPrompts, v => v.id === id);

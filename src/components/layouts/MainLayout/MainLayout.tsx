@@ -17,6 +17,7 @@ import {
   UnstyledButton,
   useMantineTheme,
   Header,
+  ScrollArea,
 } from "@mantine/core";
 import {
   IconAlertCircle,
@@ -247,7 +248,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   ));
 
   const renderedScrollContent = (
-    <>
+    <ScrollArea h={scrollAreaHeight}>
       <Group className={classes.collectionsHeader} position="apart">
         <Text size="xs" weight={500} color="dimmed">
           {currentLink?.collectionsLabel}
@@ -259,21 +260,20 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         )}
       </Group>
       <div className={classes.collections}>{collectionLinks}</div>
-    </>
+    </ScrollArea>
   );
 
   return (
     <>
       <Notifications />
       <AppShell
-        navbarOffsetBreakpoint="sm"
         padding={0}
         navbar={
           <Navbar
             hidden={!opened}
             width={{ sm: 300 }}
             p={"md"}
-            className={classNames("flex flex-col h-screen", classes.navbar, {})}
+            className={classNames("flex flex-col", classes.navbar, {})}
           >
             <Navbar.Section className={classes.section}>
               <div className="px-5 py-3 flex flex-grow items-center gap-3">
@@ -287,11 +287,11 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             <Navbar.Section className={classes.section}>
               <div className={classes.mainLinks}>{mainLinks}</div>
             </Navbar.Section>
-            <Navbar.Section className={classNames("flex-grow", classes.section)} ref={refScrollDiv as any}>
+            <Navbar.Section className={classNames(classes.section)} grow ref={refScrollDiv as any}>
               {renderedScrollContent}
             </Navbar.Section>
             <Navbar.Section>
-              <Menu shadow="md" width={210}>
+              <Menu shadow="md" width={"100%"}>
                 <Menu.Target>
                   <Button size={"xs"} variant={"default"} leftIcon={<IconDatabaseCog />}>
                     Backup
