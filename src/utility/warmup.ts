@@ -31,6 +31,14 @@ const warmup = {
       role: "assistant",
       content: "Quick select implementation in TypeScript",
     },
+    {
+      role: "user",
+      content: buildContent(`rust windows close window title "%1 macro manager"`),
+    },
+    {
+      role: "assistant",
+      content: `Rust WinAPI close window title: "%1 macro manager"`,
+    },
     // {
     //   role: "user",
     //   content: buildContent(`Sử dụng vật lý trong Unity ECS`),
