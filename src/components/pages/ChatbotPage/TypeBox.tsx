@@ -191,7 +191,7 @@ export const TypeBox = forwardRef(
       requestChatStream("v1/completions", getImprovePrompt(selectedText), {
         token: openaiAPIKey,
         modelConfig: {
-          model: "text-davinci-003",
+          model: "gpt-3.5-turbo-instruct",
           temperature: 0.0,
           max_tokens: 2867,
         },
