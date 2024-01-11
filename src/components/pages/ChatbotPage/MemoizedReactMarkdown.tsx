@@ -9,19 +9,31 @@ import {
   preprocessMessageContent,
   Node,
 } from "@/utility/utility";
-import { memo, useEffect } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { Prism } from "@mantine/prism";
-import { ScrollArea } from "@mantine/core";
+import { Button, ScrollArea } from "@mantine/core";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
+import { IconArrowBarDown, IconMenuOrder } from "@tabler/icons-react";
 
 type MemoizedReactMarkdownProps = {
   content: string;
   id?: string;
   smallText?: boolean;
+  isFirst?: boolean;
 };
 
-const MemoizedReactMarkdown = memo(({ content, id, smallText }: MemoizedReactMarkdownProps) => {
+const MAX_TEXT = 512;
+
+const MemoizedReactMarkdown = memo(({ content: _content, id, smallText, isFirst }: MemoizedReactMarkdownProps) => {
   const { classes } = useStyles();
+  const [showAll, setShowAll] = useState(false);
+  const content = useMemo(() => {
+    if (isFirst && !showAll) {
+      return _content.substring(0, MAX_TEXT);
+    }
+
+    return _content;
+  }, [_content, isFirst, showAll]);
 
   const md = (
     <ReactMarkdown
@@ -71,7 +83,24 @@ const MemoizedReactMarkdown = memo(({ content, id, smallText }: MemoizedReactMar
     return <div className={classNames("text-xs", classes.pBreakAll)}>{md}</div>;
   }
 
-  return md;
+  return (
+    <div>
+      <div className={classNames(classes.messageContent, classes.imgBg)}>{md}</div>
+      {isFirst && _content.length > MAX_TEXT && (
+        <Button
+          rightIcon={<IconMenuOrder size={"1rem"} />}
+          size={"xs"}
+          fullWidth={true}
+          className={classes.expandBox}
+          onClick={() => {
+            setShowAll(!showAll);
+          }}
+        >
+          Expand/Collapse
+        </Button>
+      )}
+    </div>
+  );
 });
 
 export default MemoizedReactMarkdown;

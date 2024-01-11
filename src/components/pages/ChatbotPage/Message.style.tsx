@@ -180,6 +180,11 @@ const useStyles = createStyles(theme => ({
       padding: "0.5rem",
     },
   },
+  expandBox: {
+    background: "linear-gradient(to bottom, rgba(26, 27, 30, 1), rgba(26, 27, 30, 0));",
+    position: "relative",
+    border: 0,
+  },
 }));
 
 export default useStyles;

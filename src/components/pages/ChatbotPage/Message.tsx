@@ -829,7 +829,9 @@ const MessageItem = forwardRef(
                   "px-2": !isMobile,
                 })}
               >
-                {message.content !== "..." && <MemoizedReactMarkdown content={message.content} id={message.id} />}
+                {message.content !== "..." && (
+                  <MemoizedReactMarkdown isFirst={!isChild} content={message.content} id={message.id} />
+                )}
                 {(isTyping || message.content === "...") && <TypingBlinkCursor />}
               </div>
               {hasDocs && (
