@@ -129,6 +129,9 @@ const useStyles = createStyles(theme => ({
     borderTop: "1px solid #373A40",
     marginTop: -1,
   },
+  userQuestionBg: {
+    background: "#25262b",
+  },
   rootBorders: {
     borderLeft: "1px solid #373A40",
     borderRight: "1px solid #373A40",

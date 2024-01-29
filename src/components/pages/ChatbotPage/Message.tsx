@@ -737,6 +737,7 @@ const MessageItem = forwardRef(
                 [classes.messageBotBg]: !isChild,
                 [classes.rootBorders]: !isChild,
                 [classes.childBorders]: isChild,
+                [classes.userQuestionBg]: isChild && message.source !== "assistant",
                 "flex-col": !isChild,
                 "flex-row": isChild,
                 [classes.streamDone]: doneMessages.current[message.id],
