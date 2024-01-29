@@ -13,6 +13,7 @@ const useStyles = createStyles(theme => ({
     borderWidth: "2px",
     borderColor: "transparent",
     borderRadius: "0.3rem",
+    opacity: 0,
   },
   assistantAvatarInfo: {
     borderStyle: "solid",
@@ -120,7 +121,7 @@ const useStyles = createStyles(theme => ({
     position: "absolute",
     top: 0,
     left: 30,
-    width: "2px",
+    width: "1px",
   },
   childBorders: {
     borderLeft: "1px solid #373A40",

@@ -28,7 +28,7 @@ const DateInfo = ({ message }: DateInfoProps) => {
 
   return (
     <>
-      <Text className={"opacity-60 text-sm mt-0.5"}>{info}</Text>
+      <Text className={"opacity-60 text-xs mt-0.5"}>{info}</Text>
     </>
   );
 };

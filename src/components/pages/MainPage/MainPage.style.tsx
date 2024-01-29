@@ -33,8 +33,8 @@ export const useStyles = createStyles(theme => ({
     display: "flex",
     alignItems: "center",
     width: "100%",
-    fontSize: theme.fontSizes.xs,
-    padding: `${rem(8)} ${theme.spacing.xs}`,
+    fontSize: theme.fontSizes.sm,
+    padding: `${rem(1)} ${theme.spacing.xs}`,
     borderRadius: theme.radius.sm,
     fontWeight: 500,
     color: theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.colors.gray[7],
@@ -77,12 +77,12 @@ export const useStyles = createStyles(theme => ({
 
   collectionLink: {
     display: "block",
-    padding: `${rem(8)} ${theme.spacing.xs}`,
+    padding: `${rem(1)} ${theme.spacing.xs}`,
     textDecoration: "none",
     borderRadius: theme.radius.sm,
-    fontSize: theme.fontSizes.xs,
-    lineHeight: 1,
-    fontWeight: 500,
+    fontSize: theme.fontSizes.sm,
+    // lineHeight: 1,
+    // fontWeight: 500,
     cursor: "pointer",
     ".collection-action": {
       opacity: 0,
@@ -99,5 +99,8 @@ export const useStyles = createStyles(theme => ({
       opacity: "0!important" as any,
       pointerEvents: "none!important" as any,
     },
+  },
+  listActions: {
+    backgroundColor: theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.colors.gray[0],
   },
 }));

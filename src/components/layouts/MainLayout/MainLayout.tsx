@@ -50,6 +50,7 @@ import classNames from "classnames";
 import { ChatBotName } from "@/config";
 import { useHotkeys } from "@mantine/hooks";
 import { exportLocalStorageToJSON, importLocalStorageFromFile } from "@/utility/utility";
+import TypingBlinkCursor from "@/components/misc/TypingBlinkCursor";
 
 export type CollectionItem = {
   emoji: string;
@@ -65,7 +66,7 @@ const links: Array<{
   canAddCollections: boolean;
   collectionsLabel: string;
 }> = [
-  { icon: IconBulb, label: "Assistant", key: "nullgpt", canAddCollections: true, collectionsLabel: "Prompt templates" },
+  { icon: IconBulb, label: "Chatbot", key: "nullgpt", canAddCollections: true, collectionsLabel: "Prompt templates" },
   { icon: IconSettings, label: "Settings", key: "settings", canAddCollections: false, collectionsLabel: "Settings" },
 ];
 
@@ -158,8 +159,13 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         setOpened(false);
       }}
     >
-      <Text color={currentTool === link.key ? "blue" : "dimmed"} className={classes.mainLinkInner}>
-        <link.icon size={20} className={classes.mainLinkIcon} stroke={1.5} />
+      <Text
+        color={currentTool === link.key ? "blue" : "dimmed"}
+        className={classNames(classes.mainLinkInner, {
+          "opacity-50": currentTool !== link.key,
+        })}
+      >
+        <link.icon size={16} className={classes.mainLinkIcon} stroke={1.5} />
         <span>{link.label}</span>
       </Text>
       {link.notifications && (
@@ -176,27 +182,33 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         setOpened(false);
       }}
       key={collection.key}
-      className={classes.collectionLink}
       color={collection.key === currentCollection ? "blue" : undefined}
+      className={classNames(classes.collectionLink, {
+        "opacity-50": collection.key !== currentCollection,
+      })}
     >
       <div className="flex flex-row gap-3 items-center relative">
         <div className="flex-grow flex gap-1 items-center text-center">
           <div className={"w-5 justify-center flex items-center"}>
-            <span style={{ marginRight: rem(9), fontSize: rem(16) }}>{collection.emoji}</span>
+            <span style={{ marginRight: rem(8), fontSize: "0.8rem" }}>{collection.emoji}</span>
           </div>
-          <div className={"whitespace-nowrap"}>
-            {collection.label}
-            {index < 9 && (
-              <span className="inline-block whitespace-nowrap ml-2 opacity-50">
+          <div className={"whitespace-nowrap"}>{collection.label}</div>
+          {index < 9 && (
+            <div className={"flex-grow flex items-center justify-end"}>
+              <div className="inline-block whitespace-nowrap ml-2 opacity-50">
                 <Kbd size="xs">⌘+{index + 1}</Kbd>
-              </span>
-            )}
-          </div>
+              </div>
+            </div>
+          )}
         </div>
         <div
-          className={classNames("absolute right-0 flex flex-row gap-1 collection-action", {
-            "collection-action-disabled": !currentLink?.canAddCollections,
-          })}
+          className={classNames(
+            "absolute right-0 flex flex-row gap-1 collection-action px-2 py-1 rounded",
+            {
+              "collection-action-disabled": !currentLink?.canAddCollections,
+            },
+            classes.listActions
+          )}
         >
           <ActionIcon
             variant="light"
@@ -275,15 +287,15 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             p={"md"}
             className={classNames("flex flex-col", classes.navbar, {})}
           >
-            <Navbar.Section className={classes.section}>
-              <div className="px-5 py-3 flex flex-grow items-center gap-3">
-                <Avatar size="xl" src="/assets/bot1.png" />
-                <div>
-                  <Title order={1}>{ChatBotName}</Title>
-                  <Text size="xs">Experience hassle-free living with OpenAI-based chatbot</Text>
-                </div>
-              </div>
-            </Navbar.Section>
+            {/*<Navbar.Section className={classes.section}>*/}
+            {/*  <div className="px-5 py-3 flex flex-grow items-center gap-3">*/}
+            {/*    <Avatar size="xl" src="/assets/bot1.png" />*/}
+            {/*    <div>*/}
+            {/*      <Title order={1}>{ChatBotName}</Title>*/}
+            {/*      <Text size="xs">Experience hassle-free living with OpenAI-based chatbot</Text>*/}
+            {/*    </div>*/}
+            {/*  </div>*/}
+            {/*</Navbar.Section>*/}
             <Navbar.Section className={classes.section}>
               <div className={classes.mainLinks}>{mainLinks}</div>
             </Navbar.Section>
@@ -332,8 +344,12 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                   mr="xl"
                 />
               </MediaQuery>
-
-              <Text>the NullGPT</Text>
+              <div className={"flex items-center justify-center"}>
+                <Text>simplegpt_</Text>
+                <div className={"-ml-2 -mb-2"}>
+                  <TypingBlinkCursor />
+                </div>
+              </div>
             </div>
           </Header>
         }

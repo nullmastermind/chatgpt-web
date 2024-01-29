@@ -774,56 +774,60 @@ const MessageItem = forwardRef(
               </div>
             </Tooltip>
             <div style={{ position: isChild ? "sticky" : undefined }} className="top-3 mx-2">
-              <div className={"flex flex-row items-center gap-3"}>
+              <div className={"flex flex-row items-center gap-2"}>
                 <div className={"relative"}>
-                  <Avatar
-                    size="md"
-                    src={message.source === "assistant" ? "/assets/bot1.png" : "/assets/chill.png"}
-                    className={classNames({
-                      [classes.userAvatar]: message.source !== "assistant",
-                      [classes.assistantAvatar]: message.source === "assistant" && !isEffect,
-                      [classes.assistantAvatar2]: message.source === "assistant" && isEffect,
-                    })}
-                  >
-                    {collection?.emoji}
-                  </Avatar>
+                  {!isChild && (
+                    // <Avatar
+                    //   size="sm"
+                    //   // src={message.source === "assistant" ? "/assets/bot1.png" : "/assets/chill.png"}
+                    //   className={classNames({
+                    //     [classes.userAvatar]: message.source !== "assistant",
+                    //     [classes.assistantAvatar]: message.source === "assistant" && !isEffect,
+                    //     [classes.assistantAvatar2]: message.source === "assistant" && isEffect,
+                    //   })}
+                    // >
+                    //   {collection?.emoji}
+                    // </Avatar>
+                    <div>{collection?.emoji}</div>
+                  )}
+                  {isChild && <div className={"w-3"} />}
                 </div>
                 {!isChild && (
                   <div className={"flex flex-row gap-2 items-center"}>
-                    <Text className={"font-bold"}>
-                      {message.source === "assistant" ? (
-                        <>
-                          {collection?.emoji} {collection?.label}
-                        </>
-                      ) : (
-                        "You"
-                      )}
-                    </Text>
+                    {/*<Text className={"font-bold"}>*/}
+                    {/*  {message.source === "assistant" ? (*/}
+                    {/*    <>*/}
+                    {/*      {collection?.emoji} {collection?.label}*/}
+                    {/*    </>*/}
+                    {/*  ) : (*/}
+                    {/*    "You"*/}
+                    {/*  )}*/}
+                    {/*</Text>*/}
                     <DateInfo message={message} />
                   </div>
                 )}
               </div>
             </div>
             <div className={classNames("flex-grow w-full")}>
-              {isChild && (
-                <div
-                  className={"flex flex-row gap-2 items-center mb-2"}
-                  style={{
-                    height: 34,
-                  }}
-                >
-                  <Text className={"font-bold"}>
-                    {message.source === "assistant" ? (
-                      <>
-                        {collection?.emoji} {collection?.label}
-                      </>
-                    ) : (
-                      "You"
-                    )}
-                  </Text>
-                  <DateInfo message={message} />
-                </div>
-              )}
+              {/*{isChild && (*/}
+              {/*  <div*/}
+              {/*    className={"flex flex-row gap-2 items-center mb-2"}*/}
+              {/*    style={{*/}
+              {/*      height: 34,*/}
+              {/*    }}*/}
+              {/*  >*/}
+              {/*    <Text className={"font-bold"}>*/}
+              {/*      {message.source === "assistant" ? (*/}
+              {/*        <>*/}
+              {/*          {collection?.emoji} {collection?.label}*/}
+              {/*        </>*/}
+              {/*      ) : (*/}
+              {/*        "You"*/}
+              {/*      )}*/}
+              {/*    </Text>*/}
+              {/*    <DateInfo message={message} />*/}
+              {/*  </div>*/}
+              {/*)}*/}
               <div
                 className={classNames(classes.messageContent, classes.imgBg, {
                   "px-2": !isMobile,
