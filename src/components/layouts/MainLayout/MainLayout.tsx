@@ -1,23 +1,23 @@
 import {
   ActionIcon,
   AppShell,
-  Avatar,
   Badge,
   Burger,
   Button,
+  Checkbox,
   Divider,
   Group,
+  Header,
   Kbd,
   MediaQuery,
   Menu,
   Navbar,
   rem,
+  ScrollArea,
+  Switch,
   Text,
-  Title,
   UnstyledButton,
   useMantineTheme,
-  Header,
-  ScrollArea,
 } from "@mantine/core";
 import {
   IconAlertCircle,
@@ -47,10 +47,9 @@ import {
 import { notifications, Notifications } from "@mantine/notifications";
 import { find, range } from "lodash";
 import classNames from "classnames";
-import { ChatBotName } from "@/config";
 import { useHotkeys } from "@mantine/hooks";
 import { exportLocalStorageToJSON, importLocalStorageFromFile } from "@/utility/utility";
-import TypingBlinkCursor from "@/components/misc/TypingBlinkCursor";
+import { enable as enableDarkMode, exportGeneratedCSS as collectCSS, disable as disableDarkMode } from "darkreader";
 
 export type CollectionItem = {
   emoji: string;
@@ -93,6 +92,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const { height: wHeight } = useWindowSize();
   const theme = useMantineTheme();
   const [opened, setOpened] = useState(false);
+  const [highContrast, setHighContrast] = useLocalStorage("highContrast", "0");
 
   const hotkeySwitchCollection = (index: number) => {
     if (index <= collections.length - 1) {
@@ -137,6 +137,14 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     setScrollAreaHeight(0);
   }, [wHeight]);
   useMount(() => {
+    // enableDarkMode({
+    //   // brightness: 100,
+    //   // contrast: 100,
+    //   sepia: 10,
+    // });
+    //
+    // collectCSS().then(console.log);
+
     if (sessionStorage.getItem(":importLocalStorageFromFile")) {
       sessionStorage.removeItem(":importLocalStorageFromFile");
       notifications.show({
@@ -149,6 +157,18 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       });
     }
   });
+
+  useEffect(() => {
+    if (highContrast === "1") {
+      enableDarkMode({
+        // brightness: 100,
+        // contrast: 100,
+        sepia: 10,
+      });
+    } else {
+      disableDarkMode();
+    }
+  }, [highContrast]);
 
   const mainLinks = links.map(link => (
     <UnstyledButton
@@ -183,7 +203,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       }}
       key={collection.key}
       color={collection.key === currentCollection ? "blue" : undefined}
-      className={classNames(classes.collectionLink, 'pr-1', {
+      className={classNames(classes.collectionLink, "pr-1", {
         "opacity-50": collection.key !== currentCollection,
       })}
     >
@@ -284,7 +304,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           <Navbar
             hidden={!opened}
             width={{ sm: 256 }}
-            p={'md'}
+            p={"md"}
             className={classNames("flex flex-col", classes.navbar, {})}
           >
             {/*<Navbar.Section className={classes.section}>*/}
@@ -303,32 +323,44 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               {renderedScrollContent}
             </Navbar.Section>
             <Navbar.Section>
-              <Menu shadow="md" width={"100%"}>
-                <Menu.Target>
-                  <Button size={"xs"} variant={"default"} leftIcon={<IconDatabaseCog />}>
-                    Backup
-                  </Button>
-                </Menu.Target>
-                <Menu.Dropdown>
-                  <Text size={"xs"} color={"yellow"} className={"p-2"}>
-                    <IconAlertCircle size={"1rem"} className={"mr-2"} />
-                    After importing new data, all existing data will be overwritten, so please consider using it
-                    carefully!
-                  </Text>
-                  <Divider />
-                  <Menu.Item
-                    onClick={() =>
-                      importLocalStorageFromFile(() => {
-                        sessionStorage.setItem(":importLocalStorageFromFile", "OK");
-                        location.reload();
-                      })
-                    }
-                  >
-                    Import
-                  </Menu.Item>
-                  <Menu.Item onClick={() => exportLocalStorageToJSON()}>Export</Menu.Item>
-                </Menu.Dropdown>
-              </Menu>
+              <div className={"flex items-center"}>
+                <div className={"flex-grow"}>
+                  <Menu shadow="md" width={"100%"}>
+                    <Menu.Target>
+                      <Button size={"xs"} variant={"default"} leftIcon={<IconDatabaseCog />}>
+                        Backup
+                      </Button>
+                    </Menu.Target>
+                    <Menu.Dropdown>
+                      <Text size={"xs"} color={"yellow"} className={"p-2"}>
+                        <IconAlertCircle size={"1rem"} className={"mr-2"} />
+                        After importing new data, all existing data will be overwritten, so please consider using it
+                        carefully!
+                      </Text>
+                      <Divider />
+                      <Menu.Item
+                        onClick={() =>
+                          importLocalStorageFromFile(() => {
+                            sessionStorage.setItem(":importLocalStorageFromFile", "OK");
+                            location.reload();
+                          })
+                        }
+                      >
+                        Import
+                      </Menu.Item>
+                      <Menu.Item onClick={() => exportLocalStorageToJSON()}>Export</Menu.Item>
+                    </Menu.Dropdown>
+                  </Menu>
+                </div>
+                <Checkbox
+                  size={"xs"}
+                  label="high contrast"
+                  onChange={e => {
+                    setHighContrast(e.target.checked ? "1" : "0");
+                  }}
+                  checked={highContrast === "1"}
+                />
+              </div>
             </Navbar.Section>
           </Navbar>
         }
@@ -346,9 +378,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               </MediaQuery>
               <div className={"flex items-center justify-center"}>
                 <Text>_simplegpt</Text>
-                <div className={"-ml-2 -mb-2"}>
-                  {/*<TypingBlinkCursor />*/}
-                </div>
+                <div className={"-ml-2 -mb-2"}>{/*<TypingBlinkCursor />*/}</div>
               </div>
             </div>
           </Header>

@@ -1057,6 +1057,11 @@ csstype@^3.0.2, csstype@^3.0.6:
   resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.1.2.tgz#1d4bf9d572f11c14031f0436e1c10bc1f571f50b"
   integrity sha512-I7K1Uu0MBPzaFKg4nI5Q7Vs2t+3gWWW648spaF+Rg7pI9ds18Ugn+lvg4SHczUdKlHI5LWBXyqfS8+DufyBsgQ==
 
+darkreader@^4.9.75:
+  version "4.9.75"
+  resolved "https://registry.yarnpkg.com/darkreader/-/darkreader-4.9.75.tgz#ee654e7de45a5ba3ec4da89c7404eec26dbeea72"
+  integrity sha512-MVXyQNfRuVFbKzBC+Qk6AsjRcfFd4zoL+r1CWaRhsuy5zsCnwVZC9sjwM24SkzwPTTir8MKZ+zgUiu+1PwEluw==
+
 dayjs@^1.11.7:
   version "1.11.7"
   resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.7.tgz#4b296922642f70999544d1144a2c25730fce63e2"
