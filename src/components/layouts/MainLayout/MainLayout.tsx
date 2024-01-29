@@ -183,7 +183,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       }}
       key={collection.key}
       color={collection.key === currentCollection ? "blue" : undefined}
-      className={classNames(classes.collectionLink, {
+      className={classNames(classes.collectionLink, 'pr-1', {
         "opacity-50": collection.key !== currentCollection,
       })}
     >
@@ -283,8 +283,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         navbar={
           <Navbar
             hidden={!opened}
-            width={{ sm: 300 }}
-            p={"md"}
+            width={{ sm: 256 }}
+            p={'md'}
             className={classNames("flex flex-col", classes.navbar, {})}
           >
             {/*<Navbar.Section className={classes.section}>*/}

@@ -5,5 +5,11 @@
 body {
   padding: 0;
   margin: 0;
-  font-size: 14px !important;
+  font-size: 15px !important;
+  line-height: 1.5 !important;
+}
+
+p, li, a {
+  /*font-size: 14px;*/
+  /*line-height: 1.5;*/
 }
