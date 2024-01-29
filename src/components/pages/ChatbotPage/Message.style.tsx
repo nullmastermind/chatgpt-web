@@ -126,6 +126,8 @@ const useStyles = createStyles(theme => ({
   childBorders: {
     borderLeft: "1px solid #373A40",
     borderRight: "1px solid #373A40",
+    borderTop: "1px solid #373A40",
+    marginTop: -1,
   },
   rootBorders: {
     borderLeft: "1px solid #373A40",
