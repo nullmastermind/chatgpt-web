@@ -158,17 +158,21 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     }
   });
 
-  useEffect(() => {
-    if (highContrast === "1") {
-      enableDarkMode({
-        // brightness: 100,
-        // contrast: 100,
-        sepia: 10,
-      });
-    } else {
-      disableDarkMode();
-    }
-  }, [highContrast]);
+  useDebounce(
+    () => {
+      if (highContrast === "1") {
+        enableDarkMode({
+          // brightness: 100,
+          // contrast: 100,
+          sepia: 10,
+        });
+      } else {
+        disableDarkMode();
+      }
+    },
+    500,
+    [highContrast]
+  );
 
   const mainLinks = links.map(link => (
     <UnstyledButton
