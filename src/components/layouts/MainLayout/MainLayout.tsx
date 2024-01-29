@@ -345,9 +345,9 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 />
               </MediaQuery>
               <div className={"flex items-center justify-center"}>
-                <Text>simplegpt_</Text>
+                <Text>_simplegpt</Text>
                 <div className={"-ml-2 -mb-2"}>
-                  <TypingBlinkCursor />
+                  {/*<TypingBlinkCursor />*/}
                 </div>
               </div>
             </div>
