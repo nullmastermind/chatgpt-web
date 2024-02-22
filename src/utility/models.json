@@ -1,15 +1,4 @@
 [
-  { "label": "[AUTO] gpt-3.5-turbo-1106", "value": "auto|gpt-3.5-turbo-1106|gpt-3.5-turbo-16k|3072" },
-  { "label": "[AUTO] gpt-3.5-turbo", "value": "auto|gpt-3.5-turbo|gpt-3.5-turbo-16k|2867" },
-  { "label": "[AUTO] gpt-4", "value": "auto|gpt-4|gpt-4-32k|5734" },
-
-  { "label": "gpt-3.5-turbo", "value": "gpt-3.5-turbo", "maxTokens": 4096 },
-  { "label": "gpt-3.5-turbo-16k", "value": "gpt-3.5-turbo-16k", "maxTokens": 16384 },
-  { "label": "gpt-3.5-turbo-1106", "value": "gpt-3.5-turbo-1106", "maxTokens": 4096 },
-  { "label": "gpt-4", "value": "gpt-4", "maxTokens": 8192 },
-  { "label": "gpt-4-1106-preview", "value": "gpt-4-1106-preview", "maxTokens": 128000 },
-  { "label": "gpt-4-vision-preview", "value": "gpt-4-vision-preview", "maxTokens": 128000 },
-  { "label": "gpt-4-32k", "value": "gpt-4-32k", "maxTokens": 32768 },
-  { "label": "gpt-4-0613", "value": "gpt-4-0613", "maxTokens": 8192 },
-  { "label": "gpt-4-32k-0613", "value": "gpt-4-32k-0613", "maxTokens": 32768 }
+  { "label": "gpt-3.5", "value": "gpt-3.5-turbo-0125", "maxTokens": 16385 },
+  { "label": "gpt-4", "value": "gpt-4-turbo-preview", "maxTokens": 128000 }
 ]
