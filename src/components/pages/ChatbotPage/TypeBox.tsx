@@ -45,6 +45,7 @@ import { indexerHost, indexerVersion } from "@/config";
 import { IconSettings } from "@tabler/icons-react";
 import DocsModal from "@/components/pages/ChatbotPage/DocsModal";
 import { isMobile } from "react-device-detect";
+import Link from "next/link";
 
 export const TypeBox = forwardRef(
   (
@@ -331,6 +332,14 @@ export const TypeBox = forwardRef(
 
     return (
       <>
+        <div
+          style={{
+            color: "#de04d8",
+          }}
+          className={"text-sm"}
+        >
+          Try a better version: <Link href={"https://lobehub.dongnv.dev"}>https://lobehub.dongnv.dev</Link>
+        </div>
         <Modal
           opened={openedCommand}
           onClose={() => {
