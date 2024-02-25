@@ -45,7 +45,6 @@ import { indexerHost, indexerVersion } from "@/config";
 import { IconSettings } from "@tabler/icons-react";
 import DocsModal from "@/components/pages/ChatbotPage/DocsModal";
 import { isMobile } from "react-device-detect";
-import Link from "next/link";
 
 export const TypeBox = forwardRef(
   (
