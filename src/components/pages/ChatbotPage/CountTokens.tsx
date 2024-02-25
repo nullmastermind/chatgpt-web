@@ -32,6 +32,7 @@ const CountTokens = forwardRef(({ content, includeMessages }: CountTokensProps, 
     contents.push(
       currentPrompts.prompts
         .map((v: any) => {
+          if (typeof v === "string") return "";
           return v.prompt;
         })
         .join("")
