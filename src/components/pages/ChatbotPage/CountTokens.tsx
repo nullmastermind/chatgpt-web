@@ -3,8 +3,9 @@ import { useDebounce, useMount, useSetState } from "react-use";
 import axios from "axios";
 import { forwardRef, useImperativeHandle, useState } from "react";
 import { MessageItemType } from "@/components/pages/ChatbotPage/Message";
-import { forEach } from "lodash";
+import { forEach, map } from "lodash";
 import NumberChangeEffect from "@/components/misc/NumberChangeEffect";
+import { countTokens } from "@/utility/utility";
 
 type CountTokensProps = {
   content: string;
@@ -17,21 +18,15 @@ const CountTokens = forwardRef(({ content, includeMessages }: CountTokensProps, 
     count: false,
   });
 
-  const countTokens = () => {
+  const countMyTokens = () => {
     setLoadings({ count: true });
 
-    let preContent = "";
+    const contents = map(includeMessages, v => v.content);
+    contents.push(content);
 
-    forEach(includeMessages, m => {
-      preContent += m.content;
-    });
-
-    axios
-      .post("/api/tokens", {
-        content: preContent + content,
-      })
-      .then(({ data }) => {
-        setTokens(+data.data);
+    countTokens(contents.join(""))
+      .then(tokens => {
+        setTokens(tokens);
       })
       .finally(() => {
         setLoadings({ count: false });
@@ -44,13 +39,13 @@ const CountTokens = forwardRef(({ content, includeMessages }: CountTokensProps, 
     },
   }));
   useMount(() => {
-    countTokens();
+    countMyTokens();
   });
   useDebounce(
     () => {
-      countTokens();
+      countMyTokens();
     },
-    300,
+    100,
     [content, includeMessages]
   );
 

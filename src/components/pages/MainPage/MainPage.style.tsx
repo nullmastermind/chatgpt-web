@@ -53,7 +53,7 @@ export const useStyles = createStyles(theme => ({
 
   mainLinkIcon: {
     marginRight: theme.spacing.sm,
-    color: theme.colorScheme === "dark" ? theme.colors.dark[2] : theme.colors.gray[6],
+    // color: theme.colorScheme === "dark" ? theme.colors.dark[2] : theme.colors.gray[6],
   },
 
   mainLinkBadge: {

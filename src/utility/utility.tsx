@@ -525,3 +525,9 @@ if (localStorage.getItem(":prompts-ver") !== promptVer) {
 
   localStorage.setItem(":prompts", JSON.stringify(oldPrompts));
 }
+
+export const countTokens = async (content: string) => {
+  const { encode } = await import("gpt-tokenizer");
+
+  return encode(content).length;
+};

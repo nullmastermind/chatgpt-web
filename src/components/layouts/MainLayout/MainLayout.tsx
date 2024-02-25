@@ -185,9 +185,9 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       }}
     >
       <Text
-        color={currentTool === link.key ? "blue" : "dimmed"}
+        color={currentTool === link.key ? "white" : "dimmed"}
         className={classNames(classes.mainLinkInner, {
-          "opacity-50": currentTool !== link.key,
+          "opacity-80": currentTool !== link.key,
         })}
       >
         <link.icon size={16} className={classes.mainLinkIcon} stroke={1.5} />
@@ -207,15 +207,16 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         setOpened(false);
       }}
       key={collection.key}
-      color={collection.key === currentCollection ? "blue" : undefined}
-      className={classNames(classes.collectionLink, "pr-1", {
-        "opacity-50": collection.key !== currentCollection,
+      color={collection.key === currentCollection ? "white" : undefined}
+      className={classNames(classes.collectionLink, "pr-1 h-[25px] flex items-center", {
+        "opacity-80": collection.key !== currentCollection,
+        "font-bold": collection.key === currentCollection,
       })}
     >
-      <div className="flex flex-row gap-3 items-center relative">
+      <div className="flex flex-row gap-3 items-center relative flex-grow">
         <div className="flex-grow flex gap-1 items-center text-center">
           <div className={"w-5 justify-center flex items-center"}>
-            <span style={{ marginRight: rem(8), fontSize: "0.8rem" }}>{collection.emoji}</span>
+            <span style={{ marginRight: rem(8), fontSize: "1rem" }}>{collection.emoji}</span>
           </div>
           <div className={"whitespace-nowrap"}>{collection.label}</div>
           {index < 9 && (
@@ -324,7 +325,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 <Link className={"text-xs"} href={"https://lobehub.dongnv.dev"}>
                   lobehub.dongnv.dev
                 </Link>
-                <div className={"text-xs"}>
+                <div className={"text-xs opacity-60"}>
                   Don't worry, this project will continue to be developed. This project is aimed at speed and
                   compactness
                 </div>

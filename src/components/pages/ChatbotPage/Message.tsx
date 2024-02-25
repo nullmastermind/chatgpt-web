@@ -7,6 +7,7 @@ import classNames from "classnames";
 import { requestChatStream } from "@/components/pages/ChatbotPage/Message.api";
 import { useCollections, useCurrentCollection, useModel, useOpenaiAPIKey } from "@/states/states";
 import {
+  countTokens,
   doc2ChatContent,
   Docs,
   filterDocs,
@@ -412,13 +413,10 @@ const Message = ({ collection, prompt }: MessageProps) => {
       // choose model
       let autoModel = model;
       if (autoModel.startsWith("auto")) {
-        const { data: reqTokens } = await axios.post("/api/tokens", {
-          content: finalMessages.map(v => v.content).join(""),
-        });
-        const countTokens = +reqTokens.data;
+        const countedTokens = await countTokens(finalMessages.map(v => v.content).join(""));
         const [, model1, model2, switchValue] = autoModel.split("|");
 
-        if (countTokens > +switchValue) {
+        if (countedTokens > +switchValue) {
           autoModel = model2;
         } else {
           autoModel = model1;
