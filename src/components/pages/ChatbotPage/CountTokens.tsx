@@ -29,14 +29,17 @@ const CountTokens = forwardRef(({ content, includeMessages }: CountTokensProps, 
 
     const contents = map(includeMessages, v => v.content);
     contents.push(content);
-    contents.push(
-      currentPrompts.prompts
-        .map((v: any) => {
-          if (typeof v === "string") return "";
-          return v.prompt;
-        })
-        .join("")
-    );
+
+    if (Array.isArray(currentPrompts?.prompts)) {
+      contents.push(
+        currentPrompts.prompts
+          .map((v: any) => {
+            if (typeof v === "string") return "";
+            return v.prompt;
+          })
+          .join("")
+      );
+    }
 
     countTokens(contents.join(""))
       .then(tokens => {
