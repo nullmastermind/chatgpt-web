@@ -50,6 +50,7 @@ import classNames from "classnames";
 import { useHotkeys } from "@mantine/hooks";
 import { exportLocalStorageToJSON, importLocalStorageFromFile } from "@/utility/utility";
 import { enable as enableDarkMode, exportGeneratedCSS as collectCSS, disable as disableDarkMode } from "darkreader";
+import Link from "next/link";
 
 export type CollectionItem = {
   emoji: string;
@@ -311,15 +312,6 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             p={"md"}
             className={classNames("flex flex-col", classes.navbar, {})}
           >
-            {/*<Navbar.Section className={classes.section}>*/}
-            {/*  <div className="px-5 py-3 flex flex-grow items-center gap-3">*/}
-            {/*    <Avatar size="xl" src="/assets/bot1.png" />*/}
-            {/*    <div>*/}
-            {/*      <Title order={1}>{ChatBotName}</Title>*/}
-            {/*      <Text size="xs">Experience hassle-free living with OpenAI-based chatbot</Text>*/}
-            {/*    </div>*/}
-            {/*  </div>*/}
-            {/*</Navbar.Section>*/}
             <Navbar.Section className={classes.section}>
               <div className={classes.mainLinks}>{mainLinks}</div>
             </Navbar.Section>
@@ -327,6 +319,16 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               {renderedScrollContent}
             </Navbar.Section>
             <Navbar.Section>
+              <div className={"flex flex-wrap gap-1 pb-5"}>
+                <div className={"text-xs"}>Try a better UI version:</div>
+                <Link className={"text-xs"} href={"https://lobehub.dongnv.dev"}>
+                  lobehub.dongnv.dev
+                </Link>
+                <div className={"text-xs"}>
+                  Don't worry, this project will continue to be developed. This project is aimed at speed and
+                  compactness
+                </div>
+              </div>
               <div className={"flex items-center"}>
                 <div className={"flex-grow"}>
                   <Menu shadow="md" width={"100%"}>

@@ -332,14 +332,6 @@ export const TypeBox = forwardRef(
 
     return (
       <>
-        <div
-          style={{
-            color: "#de04d8",
-          }}
-          className={"text-sm"}
-        >
-          Try a better version: <Link href={"https://lobehub.dongnv.dev"}>https://lobehub.dongnv.dev</Link>
-        </div>
         <Modal
           opened={openedCommand}
           onClose={() => {
