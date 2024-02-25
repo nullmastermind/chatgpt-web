@@ -271,7 +271,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
             apiKey: openaiAPIKey.split(",")[0],
             // maxScore: includes.length > 0 ? 0.4 : 0.45,
             maxScore: 0.55,
-            k: includes.length > 0 ? 2 : 5,
+            k: includes.length > 0 ? 2 : 10,
             includeAllIfKLessThanScore: 0.3,
             ignoreHashes,
           });
@@ -400,10 +400,10 @@ const Message = ({ collection, prompt }: MessageProps) => {
           role: "user",
           content: doc,
         }));
-        docMessages.push({
-          role: "user",
-          content: "PRIORITIZE PROVIDING ANSWERS BASED ON THE PROVIDED REFERENCE SOURCES.",
-        });
+        // docMessages.push({
+        //   role: "user",
+        //   content: "PRIORITIZE PROVIDING ANSWERS BASED ON THE PROVIDED REFERENCE SOURCES.",
+        // });
 
         if (insertToIndex !== -1) {
           finalMessages.splice(insertToIndex + 1, 0, ...docMessages);
