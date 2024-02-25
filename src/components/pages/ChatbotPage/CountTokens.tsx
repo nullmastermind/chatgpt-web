@@ -1,11 +1,12 @@
 import { Text } from "@mantine/core";
 import { useDebounce, useMount, useSetState } from "react-use";
 import axios from "axios";
-import { forwardRef, useImperativeHandle, useState } from "react";
+import { forwardRef, useImperativeHandle, useMemo, useState } from "react";
 import { MessageItemType } from "@/components/pages/ChatbotPage/Message";
 import { forEach, map } from "lodash";
 import NumberChangeEffect from "@/components/misc/NumberChangeEffect";
 import { countTokens } from "@/utility/utility";
+import { useCurrentCollection, usePrompts } from "@/states/states";
 
 type CountTokensProps = {
   content: string;
@@ -17,12 +18,24 @@ const CountTokens = forwardRef(({ content, includeMessages }: CountTokensProps, 
   const [loadings, setLoadings] = useSetState({
     count: false,
   });
+  const [prompts] = usePrompts();
+  const [collectionKey] = useCurrentCollection();
+  const currentPrompts = useMemo(() => {
+    return prompts.find(p => p.id === collectionKey);
+  }, [prompts, collectionKey]);
 
   const countMyTokens = () => {
     setLoadings({ count: true });
 
     const contents = map(includeMessages, v => v.content);
     contents.push(content);
+    contents.push(
+      currentPrompts.prompts
+        .map((v: any) => {
+          return v.prompt;
+        })
+        .join("")
+    );
 
     countTokens(contents.join(""))
       .then(tokens => {

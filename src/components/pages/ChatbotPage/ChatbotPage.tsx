@@ -7,6 +7,7 @@ import {
   useCurrentCollectionEditId,
   useCurrentCollectionRemoveId,
   useCurrentCollectionUpId,
+  usePrompts,
 } from "@/states/states";
 import { useDisclosure } from "@mantine/hooks";
 import React, { useEffect, useState } from "react";
@@ -30,7 +31,7 @@ const ChatbotPage = () => {
   const [currentCollectionUpId, setCurrentCollectionUpId] = useCurrentCollectionUpId();
   const [currentCollectionDownId, setCurrentCollectionDownId] = useCurrentCollectionDownId();
   const [editCollection, setEditCollection] = useState<any | undefined>();
-  const [prompts, setPrompts] = useState<any[]>([]);
+  const [prompts, setPrompts] = usePrompts();
 
   const onAddCollection = () => {
     open();
