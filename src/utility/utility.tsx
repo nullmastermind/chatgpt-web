@@ -40,6 +40,7 @@ export type Doc = {
     source: string;
     hash: string;
     md5: string;
+    summary?: boolean;
     loc: {
       lines: {
         from: number;
@@ -168,7 +169,7 @@ export function filterDocs(docs: [Doc, number][], maxStep = 0.05) {
 }
 
 export function doc2ChatContent(doc: Doc, score: number) {
-  if (doc.metadata.source.endsWith(".md")) {
+  if (doc.metadata.source.endsWith(".md") || doc.metadata.summary) {
     if (doc.pageContent.startsWith("DOCUMENT NAME:")) {
       doc.pageContent = "---\n\n### " + doc.pageContent;
     }
