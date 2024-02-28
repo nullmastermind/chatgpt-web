@@ -404,6 +404,10 @@ const Message = ({ collection, prompt }: MessageProps) => {
         //   role: "user",
         //   content: "PRIORITIZE PROVIDING ANSWERS BASED ON THE PROVIDED REFERENCE SOURCES.",
         // });
+        docMessages.push({
+          role: "assistant",
+          content: "I have received the documents you provided. Please state your request, and I will answer your questions based on your documents.",
+        });
 
         if (insertToIndex !== -1) {
           finalMessages.splice(insertToIndex + 1, 0, ...docMessages);
