@@ -190,14 +190,16 @@ export function doc2ChatContent(doc: Doc, score: number) {
     })
     .map((line, index) => {
       if (index < offsetLine.value) {
-        return line;
+        // return line;
+        return "";
       }
 
-      return `${startLine + index - offsetLine.value}\t${line}`;
+      return line;
+      // return `${startLine + index - offsetLine.value}\t${line}`;
     });
   const source = doc.metadata.source.replace(/\.\.\//g, "").replace(/\.\//g, "");
   const { from, to } = doc.metadata.loc.lines;
-  const c = lines.join("\n");
+  const c = lines.join("\n").trim();
 
   return `Reference source: ${source}:${from}:${to}\n\n` + "```\n" + c + "\n```";
 }
