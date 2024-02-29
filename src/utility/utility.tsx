@@ -179,7 +179,7 @@ export function doc2ChatContent(doc: Doc, score: number) {
   const startLine = doc.metadata.loc.lines.from;
   const offsetLine = { value: 0 };
 
-  if (doc.pageContent.startsWith("DOCUMENT NAME:")) {
+  if (doc.pageContent.startsWith("DOCUMENT NAME:") || doc.pageContent.startsWith("REFERENCE CODE:")) {
     offsetLine.value = 2;
   }
 
