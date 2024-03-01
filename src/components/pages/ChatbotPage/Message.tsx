@@ -270,8 +270,8 @@ const Message = ({ collection, prompt }: MessageProps) => {
               .join("\n"),
             apiKey: openaiAPIKey.split(",")[0],
             // maxScore: includes.length > 0 ? 0.4 : 0.45,
-            maxScore: 0.55,
-            k: includes.length > 0 ? 2 : 10,
+            maxScore: 0.6,
+            k: includes.length > 0 ? 1 : 5,
             includeAllIfKLessThanScore: 0.3,
             ignoreHashes,
           });
@@ -406,7 +406,8 @@ const Message = ({ collection, prompt }: MessageProps) => {
         // });
         docMessages.push({
           role: "assistant",
-          content: "I have received the documents you provided. Please state your request, and I will answer your questions based on your documents.",
+          content:
+            "I have received the documents you provided. Please state your request, and I will answer your questions based on your documents.",
         });
 
         if (insertToIndex !== -1) {
