@@ -407,7 +407,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
         docMessages.push({
           role: "assistant",
           content:
-            "I have received the documents you provided. Please state your request, and I will answer your questions based on your documents.",
+            "I have received the documents you provided. I understand that I will be penalized if my answers deviate from your documents. Please state your request, and I will provide the best answer based on my knowledge and the documents you provide.",
         });
 
         if (insertToIndex !== -1) {
