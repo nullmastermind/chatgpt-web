@@ -663,13 +663,13 @@ const MessageItem = forwardRef(
 
         smoothIntervalId.current = setInterval(() => {
           if (smoothContent.current.length > smoothCurrentIndex.current + 1) {
-            const bufferSize = 60;
+            const bufferSize = 32;
             let nextChars = "";
             const poolSize = smoothContent.current.length - smoothCurrentIndex.current;
             let smoothSize = 1;
 
             if (poolSize >= bufferSize || isDone) {
-              smoothSize = Math.min(Math.max(poolSize, 1), 10);
+              smoothSize = Math.min(Math.max(Math.round(poolSize / (isDone ? 1 : 1.25)), 1), 8);
             }
 
             for (let i = 0; i < smoothSize; i++) {
