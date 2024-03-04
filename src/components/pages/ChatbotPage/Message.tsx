@@ -667,7 +667,7 @@ const MessageItem = forwardRef(
             const poolSize = smoothContent.current.length - smoothCurrentIndex.current;
             let smoothSize = 1;
 
-            if (poolSize > 16) {
+            if (poolSize >= 16 || isDone) {
               smoothSize = Math.min(Math.max(poolSize / (isDone ? 1 : 2), 1), isDone ? 10 : 3);
             }
 
