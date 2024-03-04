@@ -301,7 +301,9 @@ export const TypeBox = forwardRef(
           .then(({ data: { data: docs } }) => {
             setDocs((docs as IndexedDocument[]).filter(v => v.isIndexed).map(v => v.doc_id));
           })
-          .catch(e => {});
+          .catch(e => {
+            setDocId("");
+          });
         // }
       },
       300,
