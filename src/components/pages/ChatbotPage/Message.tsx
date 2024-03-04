@@ -671,8 +671,10 @@ const MessageItem = forwardRef(
 
             for (let i = 0; i < smoothSize; i++) {
               smoothCurrentIndex.current += 1;
-              const nextChar = smoothContent.current[smoothCurrentIndex.current];
-              nextChars += nextChar;
+              if (smoothCurrentIndex.current < smoothContent.current.length) {
+                const nextChar = smoothContent.current[smoothCurrentIndex.current];
+                nextChars += nextChar;
+              }
             }
 
             smoothCurrentContent.current += nextChars;
