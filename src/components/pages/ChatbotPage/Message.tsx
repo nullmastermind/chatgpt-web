@@ -669,7 +669,7 @@ const MessageItem = forwardRef(
             let smoothSize = 1;
 
             if (poolSize >= bufferSize || isDone) {
-              smoothSize = Math.min(Math.max(Math.round(poolSize / 1.25), 1), 10);
+              smoothSize = Math.min(Math.max(Math.round(poolSize / (isDone ? 1 : 1.25)), 1), 10);
             }
 
             for (let i = 0; i < smoothSize; i++) {
