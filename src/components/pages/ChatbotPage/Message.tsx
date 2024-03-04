@@ -628,27 +628,77 @@ const MessageItem = forwardRef(
       return Array.isArray(message.docs) && message.docs.length > 0;
     }, [message]);
     const [isShowDocs, { open: showDocs, close: closeDocs }] = useDisclosure(false);
+    const smoothContent = useRef<string[]>([]);
+    const smoothIntervalId = useRef<any>(-1);
+    const smoothCurrentContent = useRef<string>("");
+    const smoothCurrentIndex = useRef<number>(-1);
 
     useImperativeHandle(ref, () => ({
       editMessage(newMessage: string, isDone: boolean) {
         messages[index].content = newMessage;
-        setMessage({
-          ...message,
-          content: newMessage,
-        });
-        setIsTyping(!isDone);
-        if (isDone || !isBottom()) {
-          setDoScrollToBottom(false);
-        } else if (isBottom() && !doScrollToBottom) {
-          setDoScrollToBottom(true);
-        }
 
-        if (isDone) {
-          doneMessages.current[message.id] = true;
-          if (!isBottom()) {
-            scrollElementRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "start" });
+        // const typeMessage = (newMessage: string, isDone: boolean) => {
+        //   setMessage({
+        //     ...message,
+        //     content: newMessage,
+        //   });
+        //   setIsTyping(!isDone);
+        //   if (isDone || !isBottom()) {
+        //     setDoScrollToBottom(false);
+        //   } else if (isBottom() && !doScrollToBottom) {
+        //     setDoScrollToBottom(true);
+        //   }
+        //
+        //   if (isDone) {
+        //     doneMessages.current[message.id] = true;
+        //     if (!isBottom()) {
+        //       scrollElementRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "start" });
+        //     }
+        //   }
+        // };
+
+        clearInterval(smoothIntervalId.current);
+
+        smoothContent.current = newMessage.split("");
+
+        smoothIntervalId.current = setInterval(() => {
+          if (smoothContent.current.length > smoothCurrentIndex.current + 1) {
+            let nextChars = "";
+            const smoothSize = Math.min(
+              Math.max((smoothContent.current.length - smoothCurrentIndex.current) / (isDone ? 1 : 2), 1),
+              isDone ? 10 : 3
+            );
+
+            for (let i = 0; i < smoothSize; i++) {
+              smoothCurrentIndex.current += 1;
+              const nextChar = smoothContent.current[smoothCurrentIndex.current];
+              nextChars += nextChar;
+            }
+
+            smoothCurrentContent.current += nextChars;
+
+            setMessage(prevState => ({
+              ...prevState,
+              content: smoothCurrentContent.current,
+            }));
+
+            setIsTyping(true);
+
+            if (!isBottom()) {
+              setDoScrollToBottom(false);
+            } else if (isBottom() && !doScrollToBottom) {
+              setDoScrollToBottom(true);
+            }
+          } else if (isDone) {
+            setIsTyping(false);
+            doneMessages.current[message.id] = true;
+            clearInterval(smoothIntervalId.current);
+            setDoScrollToBottom(true);
+            if (!isBottom()) {
+              scrollElementRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "start" });
+            }
           }
-        }
+        }, 16);
       },
     }));
     useEffect(() => {
