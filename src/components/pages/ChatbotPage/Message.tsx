@@ -664,10 +664,12 @@ const MessageItem = forwardRef(
         smoothIntervalId.current = setInterval(() => {
           if (smoothContent.current.length > smoothCurrentIndex.current + 1) {
             let nextChars = "";
-            const smoothSize = Math.min(
-              Math.max((smoothContent.current.length - smoothCurrentIndex.current) / (isDone ? 1 : 2), 1),
-              isDone ? 10 : 3
-            );
+            const poolSize = smoothContent.current.length - smoothCurrentIndex.current;
+            let smoothSize = 1;
+
+            if (poolSize > 16) {
+              smoothSize = Math.min(Math.max(poolSize / (isDone ? 1 : 2), 1), isDone ? 10 : 3);
+            }
 
             for (let i = 0; i < smoothSize; i++) {
               smoothCurrentIndex.current += 1;
