@@ -24,12 +24,12 @@ import {
 import {
   ActionIcon,
   Button,
-  Checkbox,
   Divider,
   Highlight,
   Modal,
   NativeSelect,
   ScrollArea,
+  Switch,
   Textarea,
   TextInput,
   Tooltip,
@@ -591,9 +591,12 @@ export const TypeBox = forwardRef(
                 disabled={!enableDocument}
               />
               <div className="ml-2">
-                <Tooltip label={"Enable/disable document"}>
-                  <Checkbox checked={enableDocument} onChange={e => setEnableDocument(e.target.checked)} />
-                </Tooltip>
+                <Switch
+                  onLabel="ON"
+                  offLabel="OFF"
+                  checked={enableDocument}
+                  onChange={e => setEnableDocument(e.target.checked)}
+                />
               </div>
               <Divider orientation={"vertical"} className={"ml-2"} />
             </div>
