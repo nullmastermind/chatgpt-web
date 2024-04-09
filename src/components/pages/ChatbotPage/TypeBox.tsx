@@ -5,6 +5,7 @@ import {
   useCurrentCollection,
   useCurrentTypeBoxId,
   useDocId,
+  useEnableDocument,
   useIndexedDocs,
   useOpenaiAPIKey,
   useQuickActions,
@@ -23,6 +24,7 @@ import {
 import {
   ActionIcon,
   Button,
+  Checkbox,
   Divider,
   Highlight,
   Modal,
@@ -168,6 +170,7 @@ export const TypeBox = forwardRef(
       initSearchValue: "",
       initDocId: "",
     });
+    const [enableDocument, setEnableDocument] = useEnableDocument();
 
     const handleImprove = () => {
       if (!inputRef.current) return;
@@ -242,7 +245,7 @@ export const TypeBox = forwardRef(
     }, [quickCommandList, currentTypeBoxId, id]);
 
     const onSend = (c?: string) => {
-      onSubmit(c || messageContent, countTokenRef.current?.getTokens(), docId);
+      onSubmit(c || messageContent, countTokenRef.current?.getTokens(), enableDocument ? docId : "");
       setMessageContent("");
       if (inputRef.current) {
         inputRef.current.value = "";
@@ -303,6 +306,7 @@ export const TypeBox = forwardRef(
           })
           .catch(e => {
             setDocId("");
+            setEnableDocument(false);
           });
         // }
       },
@@ -580,8 +584,17 @@ export const TypeBox = forwardRef(
                   },
                   ...docs,
                 ]}
-                onChange={e => setDocId(e.target.value)}
+                onChange={e => {
+                  setDocId(e.target.value);
+                  setEnableDocument(!!e.target.value);
+                }}
+                disabled={!enableDocument}
               />
+              <div className="ml-2">
+                <Tooltip label={"Enable/disable document"}>
+                  <Checkbox checked={enableDocument} onChange={e => setEnableDocument(e.target.checked)} />
+                </Tooltip>
+              </div>
               <Divider orientation={"vertical"} className={"ml-2"} />
             </div>
           )}
