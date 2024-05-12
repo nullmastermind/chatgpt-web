@@ -464,15 +464,36 @@ export const TypeBox = forwardRef(
                 const isMod = e.ctrlKey || e.metaKey;
                 const isCursorEnd = e.target.selectionStart === e.target.value.length;
 
-                if (e.key === "`" && !e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey) {
+                if (e.key === "`" && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
                   e.preventDefault();
 
                   const start = e.target.selectionStart;
                   const end = e.target.selectionEnd;
                   const text = e.target.value;
+                  let startText = text.substring(0, start);
+                  let addText = "``";
+                  let endText = text.substring(end);
 
-                  e.target.value = text.substring(0, start) + "``" + text.substring(end);
-                  e.target.selectionStart = e.target.selectionEnd = start + 1;
+                  if (e.altKey) {
+                    addText = "`@`";
+                  }
+
+                  if (startText.length) {
+                    const firstCharStartText = startText.split("").pop();
+                    if (/^[a-zA-Z0-9.,!;)\]?>}]+$/.test(firstCharStartText)) {
+                      addText = " " + addText;
+                    }
+                  }
+
+                  if (endText.length) {
+                    const firstCharEndText = endText.split("").shift();
+                    if (/^[a-zA-Z0-9]+$/.test(firstCharEndText)) {
+                      endText = " " + endText;
+                    }
+                  }
+
+                  e.target.value = startText + addText + endText;
+                  e.target.selectionStart = e.target.selectionEnd = start + addText.length - 1;
 
                   return;
                 }
