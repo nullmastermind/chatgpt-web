@@ -1,5 +1,5 @@
 import { useCopyToClipboard, useDebounce, useList, useMap, useMeasure, useMount, useUnmount } from "react-use";
-import { ActionIcon, Avatar, Badge, Container, Loader, Modal, ScrollArea, Text, Tooltip } from "@mantine/core";
+import { ActionIcon, Badge, Container, Loader, Modal, ScrollArea, Text, Tooltip } from "@mantine/core";
 import React, { forwardRef, MutableRefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { clone, cloneDeep, find, findIndex, findLastIndex, forEach, map, throttle, uniqBy, uniqueId } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";

@@ -464,6 +464,19 @@ export const TypeBox = forwardRef(
                 const isMod = e.ctrlKey || e.metaKey;
                 const isCursorEnd = e.target.selectionStart === e.target.value.length;
 
+                if (e.key === "`" && !e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey) {
+                  e.preventDefault();
+
+                  const start = e.target.selectionStart;
+                  const end = e.target.selectionEnd;
+                  const text = e.target.value;
+
+                  e.target.value = text.substring(0, start) + "``" + text.substring(end);
+                  e.target.selectionStart = e.target.selectionEnd = start + 1;
+
+                  return;
+                }
+
                 if (e.key === "Escape" && onCancel) {
                   if (onCancel) onCancel();
                   return;
