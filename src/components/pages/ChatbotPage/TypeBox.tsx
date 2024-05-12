@@ -467,35 +467,33 @@ export const TypeBox = forwardRef(
                 if (e.key === "`" && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
                   e.preventDefault();
 
-                  const start = e.target.selectionStart;
-                  const end = e.target.selectionEnd;
-                  const text = e.target.value;
-                  let startText = text.substring(0, start);
-                  let addText = "``";
-                  let endText = text.substring(end);
+                  const { selectionStart: start, selectionEnd: end, value: text } = e.target;
+                  const startText = text.slice(0, start);
+                  const endText = text.slice(end);
+                  let addText = e.altKey ? "`@`" : "``";
+                  let cursorOffset = 1;
 
-                  if (e.altKey) {
-                    addText = "`@`";
+                  // Add a leading space if the last character of the start text is alphanumeric or specific punctuation
+                  if (/\w|[,!;)\]?>}]$/.test(startText.slice(-1))) {
+                    addText = " " + addText;
                   }
 
-                  if (startText.length) {
-                    const firstCharStartText = startText.split("").pop();
-                    if (/^[a-zA-Z0-9.,!;)\]?>}]+$/.test(firstCharStartText)) {
-                      addText = " " + addText;
-                    }
+                  // Prepare full text to insert
+                  let fullInsertText = addText;
+                  if (/^\w/.test(endText)) {
+                    fullInsertText += " ";
+                    cursorOffset += 1;
                   }
 
-                  if (endText.length) {
-                    const firstCharEndText = endText.split("").shift();
-                    if (/^[a-zA-Z0-9]+$/.test(firstCharEndText)) {
-                      endText = " " + endText;
-                    }
-                  }
+                  // Set selection to the start point where text will be inserted
+                  e.target.setSelectionRange(start, end);
 
-                  e.target.value = startText + addText + endText;
-                  e.target.selectionStart = e.target.selectionEnd = start + addText.length - 1;
+                  // Use execCommand to insert text which should maintain undo stack
+                  document.execCommand("insertText", false, fullInsertText);
 
-                  return;
+                  // Adjust cursor position after insertion
+                  const newCursorPos = start + fullInsertText.length - cursorOffset;
+                  e.target.setSelectionRange(newCursorPos, newCursorPos);
                 }
 
                 if (e.key === "Escape" && onCancel) {
