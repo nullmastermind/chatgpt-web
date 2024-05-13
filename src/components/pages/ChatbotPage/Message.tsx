@@ -13,7 +13,6 @@ import {
   filterDocs,
   htmlEncode,
   KeyValue,
-  notifyIndexerVersionError,
   postprocessAnswer,
   processTaggedMessage,
   unWrapRawContent,
@@ -137,11 +136,27 @@ const Message = ({ collection, prompt }: MessageProps) => {
     docId?: string
   ) => {
     if (content.length === 0) return;
-
     if (docId === "Choose document" || docId === "") docId = undefined;
 
+    if (!docId) {
+      const disabledDocId = localStorage.getItem(":docId");
+      const docQueries: string[] = [];
+
+      if (disabledDocId) {
+        content.replace(/`@(.*?)`/g, (_substring: any, args: string) => {
+          if (args.trim()) {
+            docQueries.push(args);
+          }
+          return args;
+        });
+        if (docQueries.length) {
+          docId = disabledDocId;
+        }
+      }
+    }
+
     if (docId) {
-      notifyIndexerVersionError();
+      // notifyIndexerVersionError();
     }
 
     const userMessage: MessageItemType = {
