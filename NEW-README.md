@@ -59,3 +59,37 @@ sequenceDiagram
     OpenAI->>System: Responds with an answer
     System->>User: Render answer
 ```
+
+## Private document index flow
+
+- User config document name, path to document folder, document file extensions
+- Indexer read all files with config document extensions in document folder
+- Indexer ignore all file in .gitignore
+- Indexer's preprocessing file content (analysis, summarization of code, etc.), and then Splitter splits the document into multiple paths depending on the document type (e.g., code uses CodeSplitter, markdown, txt uses TextSplitter).
+- The Indexer sends split paths to the embedding system to vectorize text
+- Store vectorized text in the Vector database
+- Create a Query Engine per document
+- When a user queries a private document
+  - Query Engine vectorize user input
+  - Query Engine find  vectorized user input from vector database
+  - Query Engine scoring result
+  - Query Engine responds with the best result by score
+
+```mermaid
+flowchart TD
+    A[User Config Document] -->|Document Name, Path, Extensions| B[Indexer]
+    B -->|Read Files| C[Check .gitignore]
+    C -->|Ignore Files| D[Preprocess File Content]
+    D -->|Split Document| E{Document Type}
+    E -->|Code| F[CodeSplitter]
+    E -->|Markdown, txt| G[TextSplitter]
+    F --> H[Embedding System]
+    G --> H[Embedding System]
+    H --> I[Vector Database]
+    I --> J[Create Query Engine]
+    J --> K[User Query]
+    K --> L[Vectorize User Input]
+    L --> M[Find Vectorized Input in DB]
+    M --> N[Score Results]
+    N --> O[Respond with Best Result]
+```
