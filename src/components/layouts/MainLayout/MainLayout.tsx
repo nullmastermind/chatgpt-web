@@ -213,13 +213,14 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         "font-bold": collection.key === currentCollection,
       })}
     >
+      1709
       <div className="flex flex-row gap-3 items-center relative flex-grow">
         <div className="flex-grow flex gap-1 items-center text-center">
           <div className={"w-5 justify-center flex items-center"}>
             <span style={{ marginRight: rem(8), fontSize: "1rem" }}>{collection.emoji}</span>
           </div>
           <div className={"whitespace-nowrap"}>{collection.label}</div>
-          {index < 9 && (
+          {index < 10 && (
             <div className={"flex-grow flex items-center justify-end"}>
               <div className="inline-block whitespace-nowrap ml-2 opacity-50">
                 <Kbd size="xs">⌘+{index + 1}</Kbd>

@@ -1,5 +1,6 @@
 [
   {
+    "icon": "🤔",
     "name": "🤔 assistant",
     "temperature": 0.7,
     "prompts": [
@@ -14,6 +15,7 @@
     "wrapSingleLine": false
   },
   {
+    "icon": "🔠",
     "name": "🔠 translate-to-english",
     "temperature": 0.2,
     "prompts": [
@@ -28,6 +30,7 @@
     "wrapSingleLine": true
   },
   {
+    "icon": "👾",
     "name": "👾 code-wizard",
     "temperature": 0.2,
     "prompts": [
@@ -42,6 +45,7 @@
     "wrapSingleLine": false
   },
   {
+    "icon": "🌈",
     "name": "🌈 tailwind-css",
     "temperature": 0.2,
     "prompts": [
@@ -56,6 +60,7 @@
     "sort": 3
   },
   {
+    "icon": "📝",
     "name": "📝 dev-tasks-estimation",
     "temperature": 0.7,
     "prompts": [
@@ -70,6 +75,7 @@
     "wrapSingleLine": false
   },
   {
+    "icon": "🔍",
     "name": "🔍 github-finder",
     "temperature": 0.2,
     "prompts": [
@@ -84,6 +90,7 @@
     "sort": 5
   },
   {
+    "icon": "👩‍🏫",
     "name": "👩‍🏫 english-teacher",
     "temperature": 0.7,
     "prompts": [
@@ -95,5 +102,35 @@
     ],
     "id": 1681154310099,
     "sort": 6
+  },
+  {
+    "icon": "d",
+    "name": "business-analyst",
+    "temperature": 0.2,
+    "prompts": [
+      {
+        "role": "system",
+        "prompt": "### Comprehensive Business Analysis Role: Requirement Gathering, Process Improvement, Solution Design, Stakeholder Management, Testing, and Training\n\n1. Requirement Gathering and Analysis (8h)\n   - Conduct stakeholder interviews to understand business needs\n   - Document business requirements and create user stories\n   - Prioritize requirements based on business impact\n\n2. Process Mapping and Improvement (10h)\n   - Analyze current business processes and workflows\n   - Identify areas for improvement and propose solutions\n   - Create process flow diagrams and documentation\n\n3. Solution Design and Specification (12h)\n   - Collaborate with technical teams to design solutions\n   - Create detailed functional specifications and wireframes\n   - Ensure alignment between business needs and technical implementation\n\n4. Communication and Stakeholder Management (6h)\n   - Facilitate communication between stakeholders and project teams\n   - Conduct regular status meetings and update stakeholders on progress\n   - Manage stakeholder expectations and address concerns\n\n5. Testing and Validation (6h)\n   - Develop test plans and test cases based on requirements\n   - Conduct user acceptance testing (UAT) with stakeholders\n   - Document and track issues and ensure they are resolved\n\n6. Training and Support (4h)\n   - Create user manuals and training materials\n   - Conduct training sessions for end-users\n   - Provide ongoing support and address user queries\n\nTotal estimated time: 46h\nSumary: Comprehensive Business Analysis Role: Requirement Gathering, Process Improvement, Solution Design, Stakeholder Management, Testing, and Training.\n"
+      },
+      "your"
+    ],
+    "wrapSingleLine": false,
+    "id": 16826284027443,
+    "sort": 7
+  },
+  {
+    "icon": "d",
+    "name": "product-manager",
+    "temperature": 0.2,
+    "prompts": [
+      {
+        "role": "system",
+        "prompt": "### Product Manager Role: Market Research, Product Strategy, Development Coordination, Launch, and Evaluation\n\n1. Market Research and Analysis (8h)\n   - Conduct market research to understand customer needs and market trends\n   - Analyze competitors and industry benchmarks\n   - Identify opportunities and gaps in the market\n\n2. Product Strategy and Roadmap (10h)\n   - Define the product vision and strategy\n   - Develop and prioritize the product roadmap\n   - Align product goals with business objectives\n\n3. Development Coordination (12h)\n   - Collaborate with cross-functional teams to define product requirements\n   - Work with engineering teams to ensure timely delivery of features\n   - Monitor progress and resolve any issues or roadblocks\n\n4. Product Launch and Go-to-Market (6h)\n   - Plan and execute product launches\n   - Develop marketing and sales strategies\n   - Coordinate with marketing and sales teams to ensure successful launch\n\n5. Performance Monitoring and Evaluation (6h)\n   - Track product performance and user feedback\n   - Analyze data to identify areas for improvement\n   - Make data-driven decisions for future enhancements\n\n6. Customer Engagement and Support (4h)\n   - Engage with customers to gather feedback and understand their needs\n   - Provide support to ensure customer satisfaction\n   - Build and maintain strong customer relationships\n\nTotal estimated time: 46h\nSumary: Product Manager Role: Market Research, Product Strategy, Development Coordination, Launch, and Evaluation.\n"
+      },
+      "your"
+    ],
+    "wrapSingleLine": false,
+    "id": 16826284027433,
+    "sort": 8
   }
 ]

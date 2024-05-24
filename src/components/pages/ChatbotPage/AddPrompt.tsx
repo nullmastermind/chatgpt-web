@@ -24,6 +24,7 @@ import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import { nameWithEmoji } from "@/utility/utility";
 
 export type PromptSaveData = {
+  // icon: string;
   name: string;
   temperature: number;
   wrapSingleLine: boolean;
@@ -67,6 +68,7 @@ const AddPrompt = ({
   }, [prompts]);
   const addForm = useForm({
     initialValues: {
+      // icon: editData?.icon || "",
       name: editData?.name || "",
       temperature: editData && editData.temperature >= 0 ? editData?.temperature : 0.7,
       wrapSingleLine: Boolean(editData?.wrapSingleLine),
@@ -106,6 +108,7 @@ const AddPrompt = ({
     >
       <div>
         <div>
+          {/* <TextInput label={"Icon"} required placeholder={"your icon..."} {...addForm.getInputProps("icon")} /> */}
           <TextInput label={"Name"} required placeholder={"your template name..."} {...addForm.getInputProps("name")} />
           <NumberInput
             label={"Temperature"}
