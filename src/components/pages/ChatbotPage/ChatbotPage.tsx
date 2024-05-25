@@ -37,6 +37,7 @@ const ChatbotPage = () => {
     open();
   };
   const onAddPrompt = ({
+    emoji,
     name,
     temperature,
     prompts,
@@ -52,6 +53,7 @@ const ChatbotPage = () => {
         dbPrompts[index] = {
           ...dbPrompts[index],
           ...{
+            emoji,
             name,
             temperature,
             prompts,
@@ -65,6 +67,7 @@ const ChatbotPage = () => {
     } else {
       const sort = dbPrompts.length;
       dbPrompts.push({
+        emoji,
         name,
         temperature,
         prompts,
@@ -90,19 +93,16 @@ const ChatbotPage = () => {
     });
   };
   const getCollections = () => {
-    const prompts: any[] = JSON.parse(localStorage.getItem(":prompts") || "[]");
+    const prompts = JSON.parse(localStorage.getItem(":prompts") || "[]");
 
     setCollections(
       prompts.map(prompt => {
-        const data: string[] = prompt.name.split(" ");
-        let emoji = data.shift() as string;
-        if (data.length === 0) {
-          data.unshift(emoji);
-          emoji = prompt.name.split("")[0];
-        }
+        const label = prompt.name.trim();
+        const emoji = prompt.emoji.trim();
+
         return {
           emoji,
-          label: data.join(" ").trim(),
+          label,
           parent: "nullgpt",
           key: prompt.id,
         };

@@ -1,6 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { clone, findIndex, map } from "lodash";
-import { useForm } from "@mantine/form";
+import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import {
   ActionIcon,
   Button,
@@ -14,17 +12,19 @@ import {
   NumberInput,
   ScrollArea,
   Text,
-  Textarea,
   TextInput,
+  Textarea,
   Tooltip,
 } from "@mantine/core";
+import { useForm } from "@mantine/form";
 import { IconCopy, IconPlus, IconTrash } from "@tabler/icons-react";
 import classNames from "classnames";
-import useStyles from "@/components/pages/ChatbotPage/Message.style";
-import { nameWithEmoji } from "@/utility/utility";
+import EmojiPicker, { Theme } from "emoji-picker-react";
+import { clone, findIndex, map } from "lodash";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export type PromptSaveData = {
-  // icon: string;
+  emoji: string;
   name: string;
   temperature: number;
   wrapSingleLine: boolean;
@@ -68,7 +68,7 @@ const AddPrompt = ({
   }, [prompts]);
   const addForm = useForm({
     initialValues: {
-      // icon: editData?.icon || "",
+      emoji: editData?.emoji || "",
       name: editData?.name || "",
       temperature: editData && editData.temperature >= 0 ? editData?.temperature : 0.7,
       wrapSingleLine: Boolean(editData?.wrapSingleLine),
@@ -81,6 +81,9 @@ const AddPrompt = ({
     },
   });
   const customXmlTagRef = useRef<HTMLInputElement>(null);
+
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
 
   const addPromptSetup = (posIndex: number) => {
     prompts.splice(posIndex, 0, { ...defaultValue, role: posIndex === 0 ? "system" : "user" });
@@ -97,6 +100,22 @@ const AddPrompt = ({
     }
   }, [addForm.values.wrapCustomXmlTag, customXmlTagRef]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        emojiPickerRef.current &&
+        !emojiPickerRef.current.contains(event.target as Node) &&
+        !event.composedPath().includes(emojiPickerRef.current)
+      ) {
+        setEmojiPickerOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [emojiPickerRef]);
+
   return (
     <Modal
       size="lg"
@@ -108,7 +127,26 @@ const AddPrompt = ({
     >
       <div>
         <div>
-          {/* <TextInput label={"Icon"} required placeholder={"your icon..."} {...addForm.getInputProps("icon")} /> */}
+          <div style={{ position: "relative" }}>
+            <TextInput
+              label="Selected Emoji"
+              value={addForm.values.emoji}
+              readOnly
+              onClick={() => setEmojiPickerOpen(!emojiPickerOpen)}
+            />
+            {emojiPickerOpen && (
+              <div ref={emojiPickerRef} style={{ position: "absolute", right: 0, zIndex: 1000 }}>
+                <EmojiPicker
+                  theme={Theme.DARK}
+                  height={380}
+                  onEmojiClick={emojiData => {
+                    addForm.setValues({ ...addForm.values, emoji: emojiData.emoji });
+                    setEmojiPickerOpen(false);
+                  }}
+                />
+              </div>
+            )}
+          </div>
           <TextInput label={"Name"} required placeholder={"your template name..."} {...addForm.getInputProps("name")} />
           <NumberInput
             label={"Temperature"}
@@ -288,7 +326,8 @@ const AddPrompt = ({
                     if (!addForm.validate().hasErrors) {
                       onSave({
                         ...addForm.values,
-                        name: nameWithEmoji(addForm.values.name),
+                        emoji: addForm.values.emoji,
+                        name: addForm.values.name,
                         temperature: +addForm.values.temperature,
                         wrapSingleLine: Boolean(addForm.values.wrapSingleLine),
                         prompts: prompts.filter(v => {
@@ -313,7 +352,8 @@ const AddPrompt = ({
                 if (!addForm.validate().hasErrors) {
                   onSave({
                     ...addForm.values,
-                    name: nameWithEmoji(addForm.values.name),
+                    emoji: addForm.values.emoji,
+                    name: addForm.values.name,
                     temperature: +addForm.values.temperature,
                     wrapSingleLine: Boolean(addForm.values.wrapSingleLine),
                     prompts: prompts.filter(v => {
