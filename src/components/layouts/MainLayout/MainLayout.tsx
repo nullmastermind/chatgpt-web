@@ -219,7 +219,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             <span style={{ marginRight: rem(8), fontSize: "1rem" }}>{collection.emoji}</span>
           </div>
           <div className={"whitespace-nowrap"}>{collection.label}</div>
-          {index < 12 && (
+          {index < 9 && (
             <div className={"flex-grow flex items-center justify-end"}>
               <div className="inline-block whitespace-nowrap ml-2 opacity-50">
                 <Kbd size="xs">⌘+{index + 1}</Kbd>
@@ -305,7 +305,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     <>
       <Notifications />
       <AppShell
-        padding={0}
+        padding={  0}
         navbar={
           <Navbar
             hidden={!opened}

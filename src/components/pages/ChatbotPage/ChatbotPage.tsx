@@ -98,7 +98,7 @@ const ChatbotPage = () => {
     setCollections(
       prompts.map(prompt => {
         const label = prompt.name.trim();
-        const emoji = prompt.emoji.trim();
+        const emoji = prompt.emoji;
 
         return {
           emoji,
