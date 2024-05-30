@@ -1,5 +1,5 @@
 [
-  { "label": "gpt-3.5-turbo", "value": "gpt-3.5-turbo", "maxTokens": 16385 },
-  { "label": "gpt-4-turbo", "value": "gpt-4-turbo", "maxTokens": 128000 },
-  { "label": "gpt-4o", "value": "gpt-4o", "maxTokens": 128000 }
+  { "label": "gpt-3.5-turbo", "value": "gpt-3.5-turbo", "maxTokens": 16385, "price": 0.5 },
+  { "label": "gpt-4-turbo", "value": "gpt-4-turbo", "maxTokens": 128000, "price": 10 },
+  { "label": "gpt-4o", "value": "gpt-4o", "maxTokens": 128000, "price": 5 }
 ]
