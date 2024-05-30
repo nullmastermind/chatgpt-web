@@ -1,5 +1,5 @@
 import { useCopyToClipboard, useDebounce, useList, useMap, useMeasure, useMount, useUnmount } from "react-use";
-import { ActionIcon, Badge, Container, Loader, Modal, ScrollArea, Text, Tooltip } from "@mantine/core";
+import { ActionIcon, Badge, Container, Loader, Modal, ScrollArea, Text, Tooltip, Transition } from "@mantine/core";
 import React, { forwardRef, MutableRefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { clone, cloneDeep, find, findIndex, findLastIndex, forEach, map, throttle, uniqBy, uniqueId } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
@@ -538,24 +538,31 @@ const Message = ({ collection, prompt }: MessageProps) => {
                       const isChild = message.isChild;
 
                       return (
-                        <>
-                          <MessageItem
-                            ref={instance => {
-                              if (instance) messageRefs.current[message.id] = instance;
-                            }}
-                            key={[message.id, message.checked].join(":")}
-                            messages={messages}
-                            setMessages={setMessages}
-                            message={message}
-                            classes={classes}
-                            index={index}
-                            isBottom={isBottom}
-                            scrollToBottom={scrollToBottom}
-                            autoScrollIds={autoScrollIds}
-                            focusTextBox={focusTextBox}
-                            isChild={isChild}
-                          />
-                        </>
+                        <Transition
+                          key={[message.id, message.checked].join(":")}
+                          transition={"fade"}
+                          mounted={true}
+                          timingFunction="ease"
+                        >
+                          {styles => (
+                            <MessageItem
+                              ref={instance => {
+                                if (instance) messageRefs.current[message.id] = instance;
+                              }}
+                              messages={messages}
+                              setMessages={setMessages}
+                              message={message}
+                              classes={classes}
+                              index={index}
+                              isBottom={isBottom}
+                              scrollToBottom={scrollToBottom}
+                              autoScrollIds={autoScrollIds}
+                              focusTextBox={focusTextBox}
+                              isChild={isChild}
+                              style={styles}
+                            />
+                          )}
+                        </Transition>
                       );
                     })}
                     <ReplyItem
@@ -594,14 +601,13 @@ const MessageItem = forwardRef(
     {
       classes,
       message: inputMessage,
-      setMessages,
       index,
       messages,
       isBottom,
       scrollToBottom,
       autoScrollIds,
-      focusTextBox,
       isChild,
+      style,
     }: {
       classes: any;
       message: any;
@@ -613,6 +619,7 @@ const MessageItem = forwardRef(
       focusTextBox: () => any;
       autoScrollIds: MutableRefObject<KeyValue>;
       isChild: boolean;
+      style?: any;
     },
     ref
   ) => {
@@ -802,7 +809,7 @@ const MessageItem = forwardRef(
           </Container>
         </Modal>
         {!isChild && <div className={"h-10"} />}
-        <div>
+        <div style={style}>
           <div
             className={classNames(
               "flex gap-2 items-start relative py-2",

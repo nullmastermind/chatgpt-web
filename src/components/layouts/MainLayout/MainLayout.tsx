@@ -320,16 +320,16 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               {renderedScrollContent}
             </Navbar.Section>
             <Navbar.Section>
-              <div className={"flex flex-wrap gap-1 pb-5"}>
-                <div className={"text-xs"}>Try a better UI version:</div>
-                <Link className={"text-xs"} href={"https://lobehub.dongnv.dev"}>
-                  lobehub.dongnv.dev
-                </Link>
-                <div className={"text-xs opacity-60"}>
-                  Don't worry, this project will continue to be developed. This project is aimed at speed and
-                  compactness
-                </div>
-              </div>
+              {/*<div className={"flex flex-wrap gap-1 pb-5"}>*/}
+              {/*  <div className={"text-xs"}>Try a better UI version:</div>*/}
+              {/*  <Link className={"text-xs"} href={"https://lobehub.dongnv.dev"}>*/}
+              {/*    lobehub.dongnv.dev*/}
+              {/*  </Link>*/}
+              {/*  <div className={"text-xs opacity-60"}>*/}
+              {/*    Don't worry, this project will continue to be developed. This project is aimed at speed and*/}
+              {/*    compactness*/}
+              {/*  </div>*/}
+              {/*</div>*/}
               <div className={"flex items-center"}>
                 <div className={"flex-grow"}>
                   <Menu shadow="md" width={"100%"}>
