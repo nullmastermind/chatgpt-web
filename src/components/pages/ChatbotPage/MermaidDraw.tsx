@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { convertToSupportLang } from "@/utility/utility";
 import { ScrollArea, Tabs } from "@mantine/core";
 import classNames from "classnames";
