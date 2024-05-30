@@ -64,6 +64,10 @@ const MemoizedReactMarkdown = memo(({ content: _content, id, smallText, isFirst 
             lang = match[1];
           }
 
+          if (!inline && lang === "mermaid") {
+            return <div>{codeContent}</div>;
+          }
+
           return (
             <Prism
               children={codeContent}

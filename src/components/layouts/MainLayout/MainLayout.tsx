@@ -14,7 +14,6 @@ import {
   Navbar,
   rem,
   ScrollArea,
-  Switch,
   Text,
   UnstyledButton,
   useMantineTheme,
@@ -23,10 +22,10 @@ import {
   IconAlertCircle,
   IconArrowDown,
   IconArrowUp,
-  IconBulb,
   IconCircleCheckFilled,
   IconDatabaseCog,
   IconEdit,
+  IconMessage,
   IconPlus,
   IconSettings,
   IconTrash,
@@ -49,8 +48,7 @@ import { find, range } from "lodash";
 import classNames from "classnames";
 import { useHotkeys } from "@mantine/hooks";
 import { exportLocalStorageToJSON, importLocalStorageFromFile } from "@/utility/utility";
-import { enable as enableDarkMode, exportGeneratedCSS as collectCSS, disable as disableDarkMode } from "darkreader";
-import Link from "next/link";
+import { disable as disableDarkMode, enable as enableDarkMode } from "darkreader";
 
 export type CollectionItem = {
   emoji: string;
@@ -66,7 +64,13 @@ const links: Array<{
   canAddCollections: boolean;
   collectionsLabel: string;
 }> = [
-  { icon: IconBulb, label: "Chatbot", key: "nullgpt", canAddCollections: true, collectionsLabel: "Prompt templates" },
+  {
+    icon: IconMessage,
+    label: "Chatbots",
+    key: "nullgpt",
+    canAddCollections: true,
+    collectionsLabel: "Agents",
+  },
   { icon: IconSettings, label: "Settings", key: "settings", canAddCollections: false, collectionsLabel: "Settings" },
 ];
 
@@ -190,7 +194,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           "opacity-80": currentTool !== link.key,
         })}
       >
-        <link.icon size={16} className={classes.mainLinkIcon} stroke={1.5} />
+        <link.icon size={"1.3rem"} className={classes.mainLinkIcon} stroke={1.5} />
         <span>{link.label}</span>
       </Text>
       {link.notifications && (
@@ -298,6 +302,13 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         )}
       </Group>
       <div className={classes.collections}>{collectionLinks}</div>
+      {currentLink?.canAddCollections && (
+        <div className="px-2">
+          <Button fullWidth={true} variant="default" size="xs" leftIcon={<IconPlus />} onClick={addAction}>
+            New agent
+          </Button>
+        </div>
+      )}
     </ScrollArea>
   );
 
@@ -320,16 +331,16 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               {renderedScrollContent}
             </Navbar.Section>
             <Navbar.Section>
-              <div className={"flex flex-wrap gap-1 pb-5"}>
-                <div className={"text-xs"}>Try a better UI version:</div>
-                <Link className={"text-xs"} href={"https://lobehub.dongnv.dev"}>
-                  lobehub.dongnv.dev
-                </Link>
-                <div className={"text-xs opacity-60"}>
-                  Don't worry, this project will continue to be developed. This project is aimed at speed and
-                  compactness
-                </div>
-              </div>
+              {/*<div className={"flex flex-wrap gap-1 pb-5"}>*/}
+              {/*  <div className={"text-xs"}>Try a better UI version:</div>*/}
+              {/*  <Link className={"text-xs"} href={"https://lobehub.dongnv.dev"}>*/}
+              {/*    lobehub.dongnv.dev*/}
+              {/*  </Link>*/}
+              {/*  <div className={"text-xs opacity-60"}>*/}
+              {/*    Don't worry, this project will continue to be developed. This project is aimed at speed and*/}
+              {/*    compactness*/}
+              {/*  </div>*/}
+              {/*</div>*/}
               <div className={"flex items-center"}>
                 <div className={"flex-grow"}>
                   <Menu shadow="md" width={"100%"}>
@@ -384,7 +395,17 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 />
               </MediaQuery>
               <div className={"flex items-center justify-center"}>
-                <Text>_simplegpt</Text>
+                <Text
+                  style={{
+                    fontWeight: 800,
+                    lineHeight: 0,
+                    fontSize: 20,
+                    color: "white",
+                    letterSpacing: 0.1,
+                  }}
+                >
+                  Oggy GPT
+                </Text>
                 <div className={"-ml-2 -mb-2"}>{/*<TypingBlinkCursor />*/}</div>
               </div>
             </div>

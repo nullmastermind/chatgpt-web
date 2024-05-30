@@ -1,7 +1,7 @@
 [
   {
-    "name": "🤔 assistant",
-    "temperature": 0.7,
+    "name": "\uD83E\uDD2F Just Chat",
+    "temperature": 0.6,
     "prompts": [
       {
         "role": "system",

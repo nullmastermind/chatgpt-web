@@ -68,7 +68,7 @@ const AddPrompt = ({
   const addForm = useForm({
     initialValues: {
       name: editData?.name || "",
-      temperature: editData && editData.temperature >= 0 ? editData?.temperature : 0.7,
+      temperature: editData && editData.temperature >= 0 ? editData?.temperature : 0.5,
       wrapSingleLine: Boolean(editData?.wrapSingleLine),
       wrapCustomXmlTag: Boolean(editData?.wrapCustomXmlTag),
       customXmlTag: editData?.customXmlTag || "document",
@@ -101,20 +101,21 @@ const AddPrompt = ({
       centered={true}
       opened={opened}
       onClose={close}
-      title="Add prompt template"
+      title="Add agent"
       scrollAreaComponent={ScrollArea.Autosize}
     >
       <div>
         <div>
           <TextInput label={"Name"} required placeholder={"your template name..."} {...addForm.getInputProps("name")} />
           <NumberInput
-            label={"Temperature"}
+            label="Temperature"
+            description="Temperature controls the creativity of your agent. (0.0-1.0) Higher is more creativity."
             required
             placeholder={"0.0-2.0 (0.0-Precise, 0.5-Balanced, 1.0-Creative)"}
             precision={1}
             min={0.0}
             step={0.1}
-            max={2.0}
+            max={1.0}
             {...addForm.getInputProps("temperature")}
             className="mt-1"
           />
@@ -211,8 +212,8 @@ const AddPrompt = ({
                       w={120}
                     />
                     <Textarea
-                      label="Prompt"
-                      placeholder="Prompt content..."
+                      label={prompt.role === "system" ? "Context" : "Message"}
+                      placeholder={prompt.role === "system" ? "Context..." : "Message content..."}
                       onChange={e => {
                         (prompts[i] as any).prompt = e.target.value;
                         setPrompts(clone(prompts));
