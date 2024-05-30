@@ -106,7 +106,7 @@ const AddPrompt = ({
     >
       <div>
         <div>
-          <TextInput label={"Name"} required placeholder={"your template name..."} {...addForm.getInputProps("name")} />
+          <TextInput label={"Name"} required placeholder={"Your agent name..."} {...addForm.getInputProps("name")} />
           <NumberInput
             label="Temperature"
             description="Temperature controls the creativity of your agent. (0.0-1.0) Higher is more creativity."
