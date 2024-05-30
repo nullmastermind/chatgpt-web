@@ -652,25 +652,28 @@ const MessageItem = forwardRef(
       editMessage(newMessage: string, isDone: boolean) {
         messages[index].content = newMessage;
 
-        // const typeMessage = (newMessage: string, isDone: boolean) => {
-        //   setMessage({
-        //     ...message,
-        //     content: newMessage,
-        //   });
-        //   setIsTyping(!isDone);
-        //   if (isDone || !isBottom()) {
-        //     setDoScrollToBottom(false);
-        //   } else if (isBottom() && !doScrollToBottom) {
-        //     setDoScrollToBottom(true);
-        //   }
-        //
-        //   if (isDone) {
-        //     doneMessages.current[message.id] = true;
-        //     if (!isBottom()) {
-        //       scrollElementRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "start" });
-        //     }
-        //   }
-        // };
+        if (document.hidden) {
+          const typeMessage = (newMessage: string, isDone: boolean) => {
+            setMessage({
+              ...message,
+              content: newMessage,
+            });
+            setIsTyping(!isDone);
+            if (isDone || !isBottom()) {
+              setDoScrollToBottom(false);
+            } else if (isBottom() && !doScrollToBottom) {
+              setDoScrollToBottom(true);
+            }
+
+            if (isDone) {
+              doneMessages.current[message.id] = true;
+              if (!isBottom()) {
+                scrollElementRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "start" });
+              }
+            }
+          };
+          return;
+        }
 
         clearInterval(smoothIntervalId.current);
 
@@ -685,6 +688,10 @@ const MessageItem = forwardRef(
 
             if (poolSize >= bufferSize || isDone) {
               smoothSize = Math.min(Math.max(Math.round(poolSize / (isDone ? 1 : 1.25)), 1), 8);
+            }
+
+            if (isDone) {
+              smoothSize = newMessage.length;
             }
 
             for (let i = 0; i < smoothSize; i++) {
