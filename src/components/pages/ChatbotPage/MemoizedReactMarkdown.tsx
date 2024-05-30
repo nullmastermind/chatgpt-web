@@ -5,15 +5,15 @@ import rehypeRaw from "rehype-raw";
 import {
   convertToSupportLang,
   detectProgramLang,
+  Node,
   postprocessAnswer,
   preprocessMessageContent,
-  Node,
 } from "@/utility/utility";
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { Prism } from "@mantine/prism";
 import { Button, ScrollArea } from "@mantine/core";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
-import { IconArrowBarDown, IconMenuOrder } from "@tabler/icons-react";
+import { IconMenuOrder } from "@tabler/icons-react";
 import MermaidDraw from "@/components/pages/ChatbotPage/MermaidDraw";
 
 type MemoizedReactMarkdownProps = {
