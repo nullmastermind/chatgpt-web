@@ -212,9 +212,11 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       }}
       key={collection.key}
       color={collection.key === currentCollection ? "white" : undefined}
-      className={classNames(classes.collectionLink, "pr-1 h-[25px] flex items-center", {
+      className={classNames(classes.collectionLink, "pr-1 h-[1.5rem] flex items-center", {
         "opacity-80": collection.key !== currentCollection,
         "font-bold": collection.key === currentCollection,
+        [classes.selectedCollectionLink]: collection.key === currentCollection,
+        shadow: collection.key === currentCollection,
       })}
     >
       <div className="flex flex-row gap-3 items-center relative flex-grow">
@@ -224,7 +226,12 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           </div>
           <div className={"whitespace-nowrap"}>{collection.label}</div>
           {index < 9 && (
-            <div className={"flex-grow flex items-center justify-end"}>
+            <div
+              className={classNames("flex-grow flex items-center justify-end", {})}
+              style={{
+                marginTop: -6,
+              }}
+            >
               <div className="inline-block whitespace-nowrap ml-2 opacity-50">
                 <Kbd size="xs">⌘+{index + 1}</Kbd>
               </div>
@@ -233,7 +240,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         </div>
         <div
           className={classNames(
-            "absolute right-0 flex flex-row gap-1 collection-action px-2 py-1 rounded",
+            "absolute right-[-5px] flex flex-row gap-1 collection-action px-2 py-1 rounded shadow-xl",
             {
               "collection-action-disabled": !currentLink?.canAddCollections,
             },

@@ -75,6 +75,10 @@ export const useStyles = createStyles(theme => ({
     marginBottom: rem(5),
   },
 
+  selectedCollectionLink: {
+    background: theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[0],
+  },
+
   collectionLink: {
     display: "block",
     padding: `${rem(1)} ${theme.spacing.xs}`,
@@ -101,6 +105,7 @@ export const useStyles = createStyles(theme => ({
     },
   },
   listActions: {
-    backgroundColor: theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.colors.gray[0],
+    background: theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[0],
+    border: "1px solid #373A40",
   },
 }));
