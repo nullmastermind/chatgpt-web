@@ -178,6 +178,12 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     500,
     [highContrast]
   );
+  useEffect(() => {
+    const collection = collections.find(v => v.key === currentCollection);
+    if (collection) {
+      document.title = `${collection.emoji} ${collection.label}`;
+    }
+  }, [currentCollection, collections]);
 
   const mainLinks = links.map(link => (
     <UnstyledButton
