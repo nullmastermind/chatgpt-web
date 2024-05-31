@@ -27,3 +27,17 @@ export const getMermaidLiveUrl = (code: string, type: "view" | "edit" = "view"):
     })
   )}`;
 };
+
+export const getMermaidImageUrl = (code: string): string => {
+  return `https://mermaid.ink/img/pako:${serialize(
+    JSON.stringify({
+      code,
+      mermaid: formatJSON({
+        theme: "dark",
+      }),
+      autoSync: true,
+      updateDiagram: true,
+      panZoom: true,
+    })
+  )}?bgColor=1a1b1e`;
+};
