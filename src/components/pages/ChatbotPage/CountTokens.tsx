@@ -1,12 +1,11 @@
 import { Text } from "@mantine/core";
 import { useDebounce, useMount, useSetState } from "react-use";
-import axios from "axios";
 import { forwardRef, useImperativeHandle, useMemo, useState } from "react";
 import { MessageItemType } from "@/components/pages/ChatbotPage/Message";
-import { forEach, map } from "lodash";
-import NumberChangeEffect from "@/components/misc/NumberChangeEffect";
+import { map } from "lodash";
 import { countTokens } from "@/utility/utility";
-import { useCurrentCollection, usePrompts } from "@/states/states";
+import { useCurrentCollection, useModel, usePrompts } from "@/states/states";
+import models from "../../../utility/models.json";
 
 type CountTokensProps = {
   content: string;
@@ -23,6 +22,10 @@ const CountTokens = forwardRef(({ content, includeMessages }: CountTokensProps, 
   const currentPrompts = useMemo(() => {
     return prompts.find(p => p.id === collectionKey);
   }, [prompts, collectionKey]);
+  const [model] = useModel();
+  const price = useMemo(() => {
+    return models.find(v => v.value === model)?.price || 0;
+  }, [model]);
 
   const countMyTokens = () => {
     setLoadings({ count: true });
@@ -66,17 +69,16 @@ const CountTokens = forwardRef(({ content, includeMessages }: CountTokensProps, 
     [content, includeMessages]
   );
 
-  const canShowLoading = (() => {
-    if (includeMessages.length) {
-      return true;
-    }
-    return content.length > 0;
-  })();
-
   return (
     <>
-      <Text size={"xs"} className={"opacity-60"}>
-        Tokens: {loadings.count && canShowLoading ? <NumberChangeEffect fromNumber={tokens} /> : tokens}
+      <Text
+        size={"xs"}
+        className={"opacity-60 whitespace-nowrap line-clamp-1"}
+        title={
+          "This value is just an estimate, actual cost will be different due to different input tokens vs output tokens"
+        }
+      >
+        Est: ${((tokens / 1000000) * price).toFixed(3)} ({tokens})
       </Text>
     </>
   );

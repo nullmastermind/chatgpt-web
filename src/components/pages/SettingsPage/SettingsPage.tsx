@@ -1,6 +1,6 @@
 import { useMount, useSetState, useUnmount } from "react-use";
 import { useCollections, useOpenaiAPIKey } from "@/states/states";
-import { Button, Card, Container, Input, NumberInput, PasswordInput, TextInput } from "@mantine/core";
+import { Button, NumberInput, PasswordInput, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import React from "react";
 import { notifications } from "@mantine/notifications";
@@ -34,6 +34,9 @@ const SettingsPage = () => {
       localStorage.setItem(":indexerHost", settingsForm.values.indexerHost);
       setOpenaiAPIKey(settingsForm.values.openaiKey as string);
       sessionStorage.setItem(":settingSaved", "1");
+      if (settingsForm.values.openaiKey) {
+        localStorage.setItem(":currentTool", '"nullgpt"');
+      }
       window.location.reload();
     } else {
       notifications.show({

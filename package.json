@@ -45,9 +45,11 @@
     "fuse.js": "^6.6.2",
     "gpt-3-encoder": "^1.1.4",
     "gpt-tokenizer": "^2.1.2",
+    "js-base64": "^3.7.7",
     "lodash": "^4.17.21",
     "next": "13.3.0",
     "openai": "^3.2.1",
+    "pako": "^2.1.0",
     "postcss": "8.4.21",
     "react": "18.2.0",
     "react-device-detect": "^2.2.3",
@@ -63,8 +65,10 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.192",
+    "@types/pako": "^2.0.3",
     "@types/slug": "^5.0.3",
     "prettier": "^2.8.7",
     "ts-node": "^10.9.1"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

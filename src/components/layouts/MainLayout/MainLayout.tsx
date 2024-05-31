@@ -14,7 +14,6 @@ import {
   Navbar,
   rem,
   ScrollArea,
-  Switch,
   Text,
   UnstyledButton,
   useMantineTheme,
@@ -23,10 +22,10 @@ import {
   IconAlertCircle,
   IconArrowDown,
   IconArrowUp,
-  IconBulb,
   IconCircleCheckFilled,
   IconDatabaseCog,
   IconEdit,
+  IconMessage,
   IconPlus,
   IconSettings,
   IconTrash,
@@ -49,8 +48,7 @@ import { find, range } from "lodash";
 import classNames from "classnames";
 import { useHotkeys } from "@mantine/hooks";
 import { exportLocalStorageToJSON, importLocalStorageFromFile } from "@/utility/utility";
-import { enable as enableDarkMode, exportGeneratedCSS as collectCSS, disable as disableDarkMode } from "darkreader";
-import Link from "next/link";
+import { disable as disableDarkMode, enable as enableDarkMode } from "darkreader";
 
 export type CollectionItem = {
   emoji: string;
@@ -66,7 +64,13 @@ const links: Array<{
   canAddCollections: boolean;
   collectionsLabel: string;
 }> = [
-  { icon: IconBulb, label: "Chatbot", key: "nullgpt", canAddCollections: true, collectionsLabel: "Prompt templates" },
+  {
+    icon: IconMessage,
+    label: "Chatbots",
+    key: "nullgpt",
+    canAddCollections: true,
+    collectionsLabel: "Agents",
+  },
   { icon: IconSettings, label: "Settings", key: "settings", canAddCollections: false, collectionsLabel: "Settings" },
 ];
 
@@ -174,6 +178,12 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     500,
     [highContrast]
   );
+  useEffect(() => {
+    const collection = collections.find(v => v.key === currentCollection);
+    if (collection) {
+      document.title = `${collection.emoji} ${collection.label}`;
+    }
+  }, [currentCollection, collections]);
 
   const mainLinks = links.map(link => (
     <UnstyledButton
@@ -190,7 +200,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           "opacity-80": currentTool !== link.key,
         })}
       >
-        <link.icon size={16} className={classes.mainLinkIcon} stroke={1.5} />
+        <link.icon size={"1.3rem"} className={classes.mainLinkIcon} stroke={1.5} />
         <span>{link.label}</span>
       </Text>
       {link.notifications && (
@@ -208,9 +218,11 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       }}
       key={collection.key}
       color={collection.key === currentCollection ? "white" : undefined}
-      className={classNames(classes.collectionLink, "pr-1 h-[25px] flex items-center", {
+      className={classNames(classes.collectionLink, "pr-1 h-[1.5rem] flex items-center", {
         "opacity-80": collection.key !== currentCollection,
         "font-bold": collection.key === currentCollection,
+        [classes.selectedCollectionLink]: collection.key === currentCollection,
+        shadow: collection.key === currentCollection,
       })}
     >
       <div className="flex flex-row gap-3 items-center relative flex-grow">
@@ -220,7 +232,12 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           </div>
           <div className={"whitespace-nowrap"}>{collection.label}</div>
           {index < 9 && (
-            <div className={"flex-grow flex items-center justify-end"}>
+            <div
+              className={classNames("flex-grow flex items-center justify-end", {})}
+              style={{
+                marginTop: -6,
+              }}
+            >
               <div className="inline-block whitespace-nowrap ml-2 opacity-50">
                 <Kbd size="xs">⌘+{index + 1}</Kbd>
               </div>
@@ -229,7 +246,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         </div>
         <div
           className={classNames(
-            "absolute right-0 flex flex-row gap-1 collection-action px-2 py-1 rounded",
+            "absolute right-[-5px] flex flex-row gap-1 collection-action px-2 py-1 rounded shadow-xl",
             {
               "collection-action-disabled": !currentLink?.canAddCollections,
             },
@@ -298,6 +315,13 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         )}
       </Group>
       <div className={classes.collections}>{collectionLinks}</div>
+      {currentLink?.canAddCollections && (
+        <div className="px-2">
+          <Button fullWidth={true} variant="default" size="xs" leftIcon={<IconPlus />} onClick={addAction}>
+            New agent
+          </Button>
+        </div>
+      )}
     </ScrollArea>
   );
 
@@ -384,7 +408,17 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 />
               </MediaQuery>
               <div className={"flex items-center justify-center"}>
-                <Text>_simplegpt</Text>
+                <Text
+                  style={{
+                    fontWeight: 800,
+                    lineHeight: 0,
+                    fontSize: 20,
+                    color: "white",
+                    letterSpacing: 0.1,
+                  }}
+                >
+                  Oggy GPT
+                </Text>
                 <div className={"-ml-2 -mb-2"}>{/*<TypingBlinkCursor />*/}</div>
               </div>
             </div>

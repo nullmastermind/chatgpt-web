@@ -14,6 +14,7 @@ import { Prism } from "@mantine/prism";
 import { Button, ScrollArea } from "@mantine/core";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import { IconMenuOrder } from "@tabler/icons-react";
+import MermaidDraw from "@/components/pages/ChatbotPage/MermaidDraw";
 
 type MemoizedReactMarkdownProps = {
   content: string;
@@ -62,6 +63,10 @@ const MemoizedReactMarkdown = memo(({ content: _content, id, smallText, isFirst 
             } catch (e) {}
           } else {
             lang = match[1];
+          }
+
+          if (!inline && lang === "mermaid") {
+            return <MermaidDraw content={codeContent} />;
           }
 
           return (
