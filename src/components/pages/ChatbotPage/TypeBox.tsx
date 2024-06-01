@@ -1,6 +1,8 @@
 import React, { createRef, forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { useDebounce, useLocalStorage, useMeasure, useMount, useSessionStorage, useSetState } from "react-use";
 import {
+  useCollections,
+  useCurrentCollection,
   useCurrentTypeBoxId,
   useDocId,
   useEnableDocument,
@@ -93,6 +95,8 @@ export const TypeBox = forwardRef(
     }, [messageContent]);
     const [nextFocus, setNextFocus] = useState(false);
     const [wRef] = useMeasure();
+    const [, setCurrentCollection] = useCurrentCollection();
+    const [collections] = useCollections();
     const [quickCommands, setQuickCommands] = useLocalStorage<
       {
         name: string;
@@ -507,13 +511,13 @@ export const TypeBox = forwardRef(
                   e.preventDefault();
                   editorRef.current?.insertContentAtCurrentCursor("\t");
                 }
-                // if (isMod && +e.key >= 1 && +e.key <= 9) {
-                //   e.preventDefault();
-                //   const index = +e.key - 1;
-                //   if (index <= collections.length - 1) {
-                //     setCurrentCollection(collections[index].key);
-                //   }
-                // }
+                if (isMod && +e.key >= 1 && +e.key <= 9) {
+                  e.preventDefault();
+                  const index = +e.key - 1;
+                  if (index <= collections.length - 1) {
+                    setCurrentCollection(collections[index].key);
+                  }
+                }
 
                 // if (!isReplyBox) {
                 //   if (e.key === "ArrowUp" && !isMod && !e.shiftKey && isCursorEnd) {
