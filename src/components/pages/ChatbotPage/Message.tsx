@@ -855,11 +855,11 @@ const MessageItem = forwardRef(
                   onClick={async () => {
                     try {
                       const textBlob = new Blob([message.content], { type: "text/plain" });
-                      const htmlBlob = new Blob([message.content], { type: "text/html" });
+                      // const htmlBlob = new Blob([message.content], { type: "text/html" });
 
                       const clipboardItem = new ClipboardItem({
                         "text/plain": textBlob,
-                        "text/html": htmlBlob,
+                        // "text/html": htmlBlob,
                       });
 
                       await navigator.clipboard.write([clipboardItem]);

@@ -5,10 +5,10 @@ import dayjs from "dayjs";
 import slug from "slug";
 import { NotificationProps, notifications } from "@mantine/notifications";
 import { IconX } from "@tabler/icons-react";
-import TurndownService from "turndown";
+import showdown from "showdown";
 
-const turndownService = new TurndownService({
-  codeBlockStyle: "fenced",
+const converter = new showdown.Converter({
+  ghCodeBlocks: true,
 });
 
 export type KeyValue = {
@@ -546,5 +546,9 @@ export const countTokens = async (content: string) => {
 };
 
 export const htmlToMarkdown = (content?: string) => {
-  return turndownService.turndown(content || "");
+  return converter.makeMarkdown(content || "");
+};
+
+export const markdownToHtml = (content?: string) => {
+  return converter.makeHtml(content || "");
 };
