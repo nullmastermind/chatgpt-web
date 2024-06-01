@@ -182,11 +182,9 @@ export const TypeBox = forwardRef(
       //   .substring(editorRef.current.getSelectionStart(), editorRef.current.getSelectionEnd());
 
       let selectedText = editorRef.current.getSelectionText();
-      let replace = true;
 
       if (!selectedText) {
         selectedText = editorRef.current.getValue();
-        replace = false;
       }
 
       if (!selectedText) return;
