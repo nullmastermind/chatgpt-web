@@ -558,3 +558,10 @@ export const htmlToMarkdown = (content?: string) => {
 export const markdownToHtml = (content?: string) => {
   return converter.makeHtml(content || "").trim();
 };
+
+export const addTypingSymbol = (content: string, canAdd?: boolean) => {
+  if (canAdd && !content.endsWith("█")) {
+    return content + "█";
+  }
+  return content;
+};

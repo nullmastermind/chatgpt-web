@@ -3,18 +3,20 @@ import classNames from "classnames";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import {
+  addTypingSymbol,
   convertToSupportLang,
   detectProgramLang,
   Node,
   postprocessAnswer,
   preprocessMessageContent,
 } from "@/utility/utility";
-import { memo, useMemo, useState } from "react";
+import { memo, useMemo, useRef, useState } from "react";
 import { Prism } from "@mantine/prism";
 import { Button, ScrollArea } from "@mantine/core";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import { IconMenuOrder } from "@tabler/icons-react";
 import MermaidDraw from "@/components/pages/ChatbotPage/MermaidDraw";
+import TypingBlinkCursor from "@/components/misc/TypingBlinkCursor";
 
 type MemoizedReactMarkdownProps = {
   content: string;
@@ -37,6 +39,7 @@ const MemoizedReactMarkdown = memo(
 
       return _content;
     }, [_content, isFirst, showAll]);
+    const currentNodeLine = useRef(0);
 
     const md = (
       <ReactMarkdown
@@ -44,8 +47,58 @@ const MemoizedReactMarkdown = memo(
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw]}
         components={{
+          p({ node: rawNode, className, children }) {
+            const node = rawNode as Node;
+            const nodeLine = node.position?.end.offset || 0;
+
+            if (nodeLine > currentNodeLine.current) {
+              currentNodeLine.current = nodeLine;
+            }
+
+            return (
+              <p>
+                {children}
+                {isTyping && nodeLine >= currentNodeLine.current && !children?.toString().includes("█") ? "█" : ""}
+              </p>
+            );
+          },
+          strong({ node: rawNode, className, children }) {
+            const node = rawNode as Node;
+            const nodeLine = node.position?.end.offset || 0;
+
+            if (nodeLine > currentNodeLine.current) {
+              currentNodeLine.current = nodeLine;
+            }
+
+            return (
+              <strong>
+                {children}
+                {isTyping && nodeLine >= currentNodeLine.current && !children?.toString().includes("█") ? "█" : ""}
+              </strong>
+            );
+          },
+          li({ node: rawNode, className, children }) {
+            const node = rawNode as Node;
+            const nodeLine = node.position?.end.offset || 0;
+
+            if (nodeLine > currentNodeLine.current) {
+              currentNodeLine.current = nodeLine;
+            }
+
+            return (
+              <li>
+                {children}
+                {isTyping && nodeLine >= currentNodeLine.current && !children?.toString().includes("█") ? "█" : ""}
+              </li>
+            );
+          },
           code({ node: rawNode, inline, className, children }) {
             const node = rawNode as Node;
+            const nodeLine = node.position?.end.offset || 0;
+
+            if (nodeLine > currentNodeLine.current) {
+              currentNodeLine.current = nodeLine;
+            }
 
             const rawContent = String(children);
             let codeContent = postprocessAnswer(rawContent.replace(/\n$/, ""), true);
@@ -73,7 +126,7 @@ const MemoizedReactMarkdown = memo(
 
             return (
               <Prism
-                children={codeContent}
+                children={addTypingSymbol(codeContent, isTyping && nodeLine >= currentNodeLine.current && !inline)}
                 language={convertToSupportLang(lang)}
                 scrollAreaComponent={ScrollArea}
                 className={classNames("mb-1", classes.codeWrap)}

@@ -908,9 +908,14 @@ const MessageItem = forwardRef(
                 })}
               >
                 {message.content !== "..." && (
-                  <MemoizedReactMarkdown isFirst={!isChild} content={message.content} id={message.id} />
+                  <MemoizedReactMarkdown
+                    isTyping={isTyping}
+                    isFirst={!isChild}
+                    content={message.content}
+                    id={message.id}
+                  />
                 )}
-                {(isTyping || message.content === "...") && <TypingBlinkCursor />}
+                {message.content === "..." && <TypingBlinkCursor />}
               </div>
               {hasDocs && (
                 <div className="mx-2">
