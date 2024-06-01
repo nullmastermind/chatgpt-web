@@ -1,10 +1,8 @@
-import { ComponentPropsWithRef, forwardRef, memo, RefObject, useImperativeHandle } from "react";
+import { ComponentPropsWithRef, forwardRef, memo, useImperativeHandle } from "react";
 import { Link, RichTextEditor } from "@mantine/tiptap";
 import { Editor, Extension, useEditor } from "@tiptap/react";
 import { StarterKit } from "@tiptap/starter-kit";
-import { Underline } from "@tiptap/extension-underline";
 import { TextAlign } from "@tiptap/extension-text-align";
-import Highlight from "@tiptap/extension-highlight";
 import { Placeholder } from "@tiptap/extension-placeholder";
 import classNames from "classnames";
 import { createStyles, Transition } from "@mantine/core";
@@ -45,9 +43,7 @@ const UserInput = memo<
     const editor = useEditor({
       extensions: [
         StarterKit,
-        Underline,
         Link,
-        Highlight,
         TextAlign.configure({ types: ["heading", "paragraph"] }),
         Placeholder.configure({
           placeholder: "Enter a prompt here",
@@ -134,8 +130,7 @@ const UserInput = memo<
               <RichTextEditor.Toolbar sticky stickyOffset={0} className={"hidden sm:flex"}>
                 <RichTextEditor.ControlsGroup>
                   <RichTextEditor.Bold />
-                  <RichTextEditor.Underline />
-                  <RichTextEditor.Highlight />
+                  <RichTextEditor.Italic />
                   <RichTextEditor.CodeBlock />
                 </RichTextEditor.ControlsGroup>
                 <RichTextEditor.ControlsGroup>
@@ -145,7 +140,6 @@ const UserInput = memo<
                   <RichTextEditor.H4 />
                 </RichTextEditor.ControlsGroup>
                 <RichTextEditor.ControlsGroup>
-                  <RichTextEditor.Blockquote />
                   <RichTextEditor.Hr />
                   <RichTextEditor.BulletList />
                   <RichTextEditor.OrderedList />

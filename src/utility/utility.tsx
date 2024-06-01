@@ -5,7 +5,11 @@ import dayjs from "dayjs";
 import slug from "slug";
 import { NotificationProps, notifications } from "@mantine/notifications";
 import { IconX } from "@tabler/icons-react";
-import React from "react";
+import TurndownService from "turndown";
+
+const turndownService = new TurndownService({
+  codeBlockStyle: "fenced",
+});
 
 export type KeyValue = {
   [key: string]: any;
@@ -539,4 +543,8 @@ export const countTokens = async (content: string) => {
   const { encode } = await import("gpt-tokenizer");
 
   return encode(content).length;
+};
+
+export const htmlToMarkdown = (content?: string) => {
+  return turndownService.turndown(content || "");
 };

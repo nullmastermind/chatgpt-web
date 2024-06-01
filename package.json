@@ -61,12 +61,14 @@
     "remark-gfm": "^3.0.1",
     "slug": "^8.2.2",
     "tailwindcss": "3.3.1",
+    "turndown": "^7.2.0",
     "typescript": "5.0.4"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.192",
     "@types/pako": "^2.0.3",
     "@types/slug": "^5.0.3",
+    "@types/turndown": "^5.0.4",
     "prettier": "^2.8.7",
     "ts-node": "^10.9.1"
   },

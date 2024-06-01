@@ -15,12 +15,11 @@ import { useDisclosure, useHotkeys } from "@mantine/hooks";
 import {
   findHighlight,
   formatString,
+  htmlToMarkdown,
   IndexedDocument,
   notifyIndexerVersionError,
   processTaggedMessage,
   removeHTMLTags,
-  searchArray,
-  validateField,
 } from "@/utility/utility";
 import {
   ActionIcon,
@@ -148,8 +147,11 @@ export const TypeBox = forwardRef(
       },
     });
     const isEditCommand = useMemo(() => {
-      return findIndex(quickCommands, v => v.content === editorRef.current?.getValue()) !== -1;
-    }, [quickCommands]);
+      return (
+        findIndex(quickCommands, v => htmlToMarkdown(v.content) === htmlToMarkdown(editorRef.current?.getValue())) !==
+        -1
+      );
+    }, [quickCommands, editorRef.current?.getValue()]);
     const [, setQuickActions] = useQuickActions();
     const [currentTypeBoxId, setCurrentTypeBoxId] = useCurrentTypeBoxId();
     const countTokenRef = createRef<any>();
@@ -225,7 +227,7 @@ export const TypeBox = forwardRef(
 
     const onSend = (c?: string) => {
       onSubmit(
-        c || editorRef.current?.getValue() || "",
+        htmlToMarkdown(c || editorRef.current?.getValue() || ""),
         countTokenRef.current?.getTokens(),
         enableDocument ? docId : ""
       );
@@ -307,7 +309,7 @@ export const TypeBox = forwardRef(
             closeCommand();
           }}
           centered={true}
-          title="Command tool"
+          title="Message template"
           scrollAreaComponent={ScrollArea.Autosize}
         >
           <TextInput label="Name" placeholder="Name..." required {...commandForm.getInputProps("name")} />
@@ -329,7 +331,7 @@ export const TypeBox = forwardRef(
                 variant="outline"
                 color="red"
                 onClick={() => {
-                  const index = findIndex(quickCommands, v => v.name === commandForm.values.name);
+                  const index = findIndex(quickCommands, v => v.id === commandForm.values.id);
                   if (index >= 0) {
                     quickCommands?.splice(index, 1);
                     setQuickCommands(cloneDeep(quickCommands));
@@ -576,7 +578,10 @@ export const TypeBox = forwardRef(
               onClick={() => {
                 commandForm.setFieldValue("content", editorRef.current?.getValue() || "");
                 if (isEditCommand) {
-                  const index = findIndex(quickCommands, v => v.content === editorRef.current?.getValue());
+                  const index = findIndex(
+                    quickCommands,
+                    v => htmlToMarkdown(v.content) === htmlToMarkdown(editorRef.current?.getValue())
+                  );
                   if (index !== -1) {
                     commandForm.setFieldValue("name", quickCommands![index].name);
                     commandForm.setFieldValue("category", quickCommands![index].category);
