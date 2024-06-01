@@ -61,7 +61,6 @@ const UserInput = memo<
         if (state.isPasted) {
           // Reset the flag
           editor.view.dispatch(editor.state.tr.setMeta(pastePluginKey, { isPasted: false }));
-          console.log("editor.getHTML()", editor.getHTML());
           if (editor.getHTML()?.startsWith("<p></p>")) {
             editor.commands.setContent(editor.getHTML().replace("<p></p>", ""));
           }
@@ -141,7 +140,7 @@ const UserInput = memo<
             })}
           >
             <RichTextEditor editor={editor} {...(props as any)}>
-              <RichTextEditor.Toolbar sticky stickyOffset={0}>
+              <RichTextEditor.Toolbar sticky stickyOffset={0} className={"flex-nowrap overflow-auto"}>
                 <RichTextEditor.ControlsGroup>
                   <RichTextEditor.Bold />
                   <RichTextEditor.Italic />
