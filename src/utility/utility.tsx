@@ -310,15 +310,15 @@ export const detectProgramLang = (code: string) => {
 };
 
 export const searchArray = (query: string, stringArray: string[]): string[] => {
-  query = slug(query, "_");
-  stringArray = stringArray.map(v => slug(v, "_"));
+  // query = slug(query, "_");
+  // stringArray = stringArray.map(v => slug(v, "_"));
 
   if (query.length === 0) return stringArray;
 
   const options = {
     includeScore: true,
-    threshold: 0.2,
-    shouldSort: true,
+    // threshold: 0.2,
+    // shouldSort: true,
   } as IFuseOptions<any>;
 
   const fuse = new Fuse(stringArray, options);
