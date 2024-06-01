@@ -220,6 +220,12 @@ const EventHandler = Extension.create({
           handlePaste(view, event, slice) {
             const clipboardData = event.clipboardData;
             const text = clipboardData?.getData("text/plain");
+            let textHtml = clipboardData?.getData("text/html");
+
+            if (textHtml && textHtml.includes("<!--StartFragment-->")) {
+              return false;
+            }
+
             if (text) {
               const nodeType = view.state.selection.$from.parent.type;
               if (nodeType.name === "codeBlock") return false;
