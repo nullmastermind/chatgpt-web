@@ -81,6 +81,14 @@ const UserInput = memo<
           getSelectionEnd() {
             return editor?.state.selection.to;
           },
+          getSelectionText() {
+            const { from, to } = editor!.state.selection;
+            return editor?.state.doc.textBetween(from, to, " ");
+          },
+          replaceSelectionText(content: string) {
+            const { from, to } = editor!.state.selection;
+            editor?.commands.insertContentAt({ from, to }, content);
+          },
           getEditor() {
             return editor;
           },
@@ -148,6 +156,8 @@ export type EditorCommands = {
   setValue: (value: string) => void;
   setSelectionRange: (from: number, to: number) => void;
   getValue: () => string;
+  getSelectionText: () => string;
+  replaceSelectionText: (content: string) => void;
   isEmpty: () => boolean;
   getSelectionStart: () => number;
   getSelectionEnd: () => number;

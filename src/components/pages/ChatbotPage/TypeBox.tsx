@@ -177,11 +177,16 @@ export const TypeBox = forwardRef(
     const handleImprove = () => {
       if (!editorRef.current) return;
 
-      let selectedText = editorRef.current
-        .getValue()
-        .substring(editorRef.current.getSelectionStart(), editorRef.current.getSelectionEnd());
+      // let selectedText = editorRef.current
+      //   .getValue()
+      //   .substring(editorRef.current.getSelectionStart(), editorRef.current.getSelectionEnd());
+
+      let selectedText = editorRef.current.getSelectionText();
+      let replace = true;
+
       if (!selectedText) {
         selectedText = editorRef.current.getValue();
+        replace = false;
       }
 
       if (!selectedText) return;
@@ -257,12 +262,8 @@ export const TypeBox = forwardRef(
         setMessageContent(improvedPrompt);
         onSend(improvedPrompt);
       } else {
-        const part0 = editorRef.current.getValue().substring(0, selectionStart);
-        const part1 = part0 + improvedPrompt;
-        const newContent = part1 + editorRef.current.getValue().substring(selectionEnd);
-        editorRef.current.setValue(newContent);
-        editorRef.current.setSelectionRange(part0.length, part1.length);
-        setMessageContent(newContent);
+        editorRef.current.replaceSelectionText(improvedPrompt.trim());
+        setMessageContent(editorRef.current.getValue());
       }
       editorRef.current.focus();
       close();
@@ -498,11 +499,11 @@ export const TypeBox = forwardRef(
                   return;
                 }
                 //
-                // if (e.key === "F1") {
-                //   e.preventDefault();
-                //   e.stopPropagation();
-                //   handleImprove();
-                // }
+                if (e.key === "F1") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleImprove();
+                }
                 //
                 // if (e.key === "Tab") {
                 //   e.preventDefault();
