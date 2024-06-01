@@ -80,9 +80,15 @@ const useStyles = createStyles(theme => ({
     "& li>p": {
       margin: 0,
     },
-    pre: {
-      wordBreak: "break-all",
-    },
+    // "& li": {
+    //   animation: "fade-in 1s",
+    // },
+    // "& pre": {
+    //   animation: "fade-in 1s",
+    // },
+    // "& p": {
+    //   animation: "fade-in 1s",
+    // },
   },
   inlineCode: {
     display: "inline-block",

@@ -62,6 +62,66 @@ const MemoizedReactMarkdown = memo(
               </p>
             );
           },
+          h1({ node: rawNode, className, children }) {
+            const node = rawNode as Node;
+            const nodeLine = node.position?.end.offset || 0;
+
+            if (nodeLine > currentNodeLine.current) {
+              currentNodeLine.current = nodeLine;
+            }
+
+            return (
+              <h1>
+                {children}
+                {isTyping && nodeLine >= currentNodeLine.current && !children?.toString().includes("█") ? "█" : ""}
+              </h1>
+            );
+          },
+          h2({ node: rawNode, className, children }) {
+            const node = rawNode as Node;
+            const nodeLine = node.position?.end.offset || 0;
+
+            if (nodeLine > currentNodeLine.current) {
+              currentNodeLine.current = nodeLine;
+            }
+
+            return (
+              <h2>
+                {children}
+                {isTyping && nodeLine >= currentNodeLine.current && !children?.toString().includes("█") ? "█" : ""}
+              </h2>
+            );
+          },
+          h3({ node: rawNode, className, children }) {
+            const node = rawNode as Node;
+            const nodeLine = node.position?.end.offset || 0;
+
+            if (nodeLine > currentNodeLine.current) {
+              currentNodeLine.current = nodeLine;
+            }
+
+            return (
+              <h3>
+                {children}
+                {isTyping && nodeLine >= currentNodeLine.current && !children?.toString().includes("█") ? "█" : ""}
+              </h3>
+            );
+          },
+          h4({ node: rawNode, className, children }) {
+            const node = rawNode as Node;
+            const nodeLine = node.position?.end.offset || 0;
+
+            if (nodeLine > currentNodeLine.current) {
+              currentNodeLine.current = nodeLine;
+            }
+
+            return (
+              <h4>
+                {children}
+                {isTyping && nodeLine >= currentNodeLine.current && !children?.toString().includes("█") ? "█" : ""}
+              </h4>
+            );
+          },
           strong({ node: rawNode, className, children }) {
             const node = rawNode as Node;
             const nodeLine = node.position?.end.offset || 0;
