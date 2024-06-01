@@ -222,7 +222,7 @@ export const TypeBox = forwardRef(
       if (!isReplyBox) {
         timer = setInterval(() => {
           if (editorRef.current) {
-            editorRef.current?.setValue(messageContentStore);
+            if (messageContentStore) editorRef.current?.setValue(messageContentStore);
             clearInterval(timer);
           }
         }, 30);
@@ -242,6 +242,7 @@ export const TypeBox = forwardRef(
         enableDocument ? docId : ""
       );
       editorRef.current?.setValue("");
+      setMessageContentStore("");
     };
 
     const confirmImprove = () => {
