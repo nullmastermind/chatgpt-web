@@ -729,24 +729,22 @@ const MessageItem = forwardRef(
             });
             doneMessages.current[message.id] = true;
             clearInterval(smoothIntervalId.current);
-            setDoScrollToBottom(true);
+            let st = Date.now();
+            const itv = setInterval(() => {
+              scrollToBottom();
+              if (Date.now() - st > 100) {
+                clearInterval(itv);
+              }
+            });
           }
         }, 1);
       },
     }));
     useEffect(() => {
       if (!isTyping) return;
-      let itv: any = -1;
       if (doScrollToBottom) {
-        let st = Date.now();
-        itv = setInterval(() => {
-          scrollToBottom();
-          if (Date.now() - st > 100) {
-            clearInterval(itv);
-          }
-        });
+        scrollToBottom();
       }
-      return () => clearInterval(itv);
     }, [doScrollToBottom, message.content, isTyping]);
     useMount(() => {
       if (message.source === "user" && !autoScrollIds.current[message.id]) {
