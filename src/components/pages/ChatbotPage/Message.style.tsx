@@ -77,6 +77,9 @@ const useStyles = createStyles(theme => ({
       margin: 0,
       wordBreak: "break-all",
     },
+    "& li>p": {
+      margin: 0,
+    },
     pre: {
       wordBreak: "break-all",
     },
