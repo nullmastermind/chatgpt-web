@@ -393,6 +393,10 @@ export function formatString(str: string, maxLength: number = 80): string {
   return str;
 }
 
+export const removeHTMLTags = (htmlString: string) => {
+  return htmlString.replace(/<\/?[^>]+(>|$)/g, "");
+};
+
 export function nameWithEmoji(name: string) {
   name = name.trim();
   const emojiRegex = /^\p{Emoji}/u;

@@ -18,6 +18,7 @@ import {
   IndexedDocument,
   notifyIndexerVersionError,
   processTaggedMessage,
+  removeHTMLTags,
   searchArray,
   validateField,
 } from "@/utility/utility";
@@ -108,7 +109,7 @@ export const TypeBox = forwardRef(
           type: "command",
           title: (<Highlight highlight={match}>{v.name}</Highlight>) as any,
           id: v.name,
-          description: formatString(v.content),
+          description: formatString(removeHTMLTags(v.content)),
           onTrigger(action: SpotlightAction) {
             const content = (action.content as string).replace(/\r\n/g, "\n");
 
@@ -496,7 +497,7 @@ export const TypeBox = forwardRef(
                 //   }
                 // }
 
-                if (e.key === "Enter" && !e.shiftKey && isMod) {
+                if (e.key === "Enter" && !e.shiftKey) {
                   onSend();
                   e.preventDefault();
                   e.stopPropagation();

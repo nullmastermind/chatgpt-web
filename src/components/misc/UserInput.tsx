@@ -1,6 +1,6 @@
 import { ComponentPropsWithRef, forwardRef, memo, RefObject, useImperativeHandle } from "react";
 import { Link, RichTextEditor } from "@mantine/tiptap";
-import { Editor, useEditor } from "@tiptap/react";
+import { Editor, Extension, useEditor } from "@tiptap/react";
 import { StarterKit } from "@tiptap/starter-kit";
 import { Underline } from "@tiptap/extension-underline";
 import { TextAlign } from "@tiptap/extension-text-align";
@@ -52,6 +52,7 @@ const UserInput = memo<
         Placeholder.configure({
           placeholder: "Enter a prompt here",
         }),
+        ShiftEnterCreateExtension,
       ],
       content: defaultValue || "",
       onUpdate({ editor }) {
@@ -175,3 +176,14 @@ export type EditorCommands = {
   insertContentAtCurrentCursor: (content: string) => void;
   getText: () => string;
 };
+
+const ShiftEnterCreateExtension = Extension.create({
+  addKeyboardShortcuts() {
+    return {
+      "Shift-Enter": ({ editor }) => {
+        editor.commands.enter();
+        return true;
+      },
+    };
+  },
+});
