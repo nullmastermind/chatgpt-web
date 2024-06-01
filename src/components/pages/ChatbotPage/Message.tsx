@@ -743,7 +743,6 @@ const MessageItem = forwardRef(
     useEffect(() => {
       if (!isTyping) return;
       if (doScrollToBottom) {
-        setDoScrollToBottom(false);
         scrollToBottom();
       }
     }, [doScrollToBottom, message.content, isTyping]);
