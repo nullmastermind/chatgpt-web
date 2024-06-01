@@ -2,7 +2,6 @@ import { Language } from "prism-react-renderer";
 import Fuse, { IFuseOptions } from "fuse.js";
 import { findIndex, forEach } from "lodash";
 import dayjs from "dayjs";
-import slug from "slug";
 import { NotificationProps, notifications } from "@mantine/notifications";
 import { IconX } from "@tabler/icons-react";
 import showdown from "showdown";
@@ -309,19 +308,16 @@ export const detectProgramLang = (code: string) => {
   return hl.highlightAuto(code).language;
 };
 
-export const searchArray = (query: string, stringArray: string[]): string[] => {
-  // query = slug(query, "_");
-  // stringArray = stringArray.map(v => slug(v, "_"));
-
-  if (query.length === 0) return stringArray;
+export const searchArray = (query: string, items: any[], keys: string[] = ["name"]) => {
+  if (query.length === 0) return items;
 
   const options = {
     includeScore: true,
-    // threshold: 0.2,
-    // shouldSort: true,
+    shouldSort: true, // threshold: 0.2,
+    keys,
   } as IFuseOptions<any>;
 
-  const fuse = new Fuse(stringArray, options);
+  const fuse = new Fuse(items, options);
   const result = fuse.search(query);
 
   return result.map(item => item.item);

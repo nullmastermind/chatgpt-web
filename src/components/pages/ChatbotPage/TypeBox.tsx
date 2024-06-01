@@ -102,43 +102,39 @@ export const TypeBox = forwardRef(
     const quickCommandList = useMemo(() => {
       const commands = quickCommands as any[];
       const search = query.replace("/", "");
-      const validCommands = searchArray(
-        search,
-        commands.map(v => v.name)
-      );
-      return commands
-        .filter(v => validCommands.includes(v.name))
-        .map(v => {
-          const match = ["/", ...findHighlight(v.name, search)];
-          return {
-            match,
-            type: "command",
-            title: (<Highlight highlight={match}>{v.name}</Highlight>) as any,
-            id: v.name,
-            description: formatString(removeHTMLTags(v.content)),
-            onTrigger(action: SpotlightAction) {
-              const content = (action.content as string).replace(/\r\n/g, "\n");
 
-              editorRef.current?.setValue(content);
+      return searchArray(search, commands).map(v => {
+        const match = ["/", ...findHighlight(v.name, search)];
 
-              // auto pos
-              if (content.includes("```\n\n```")) {
-                const cursor = content.lastIndexOf("```\n\n```") + 4;
-                editorRef.current?.setSelectionRange(cursor, cursor);
-              } else if (content.includes('""')) {
-                const cursor = content.lastIndexOf('""') + 1;
-                editorRef.current?.setSelectionRange(cursor, cursor);
-              } else if (content.includes("''")) {
-                const cursor = content.lastIndexOf("''") + 1;
-                editorRef.current?.setSelectionRange(cursor, cursor);
-              }
-              //
+        return {
+          match,
+          type: "command",
+          title: (<Highlight highlight={match}>{v.name}</Highlight>) as any,
+          id: v.name,
+          description: formatString(removeHTMLTags(v.content)),
+          onTrigger(action: SpotlightAction) {
+            const content = (action.content as string).replace(/\r\n/g, "\n");
 
-              editorRef.current?.focus();
-            },
-            ...v,
-          } as SpotlightAction;
-        });
+            editorRef.current?.setValue(content);
+
+            // auto pos
+            if (content.includes("```\n\n```")) {
+              const cursor = content.lastIndexOf("```\n\n```") + 4;
+              editorRef.current?.setSelectionRange(cursor, cursor);
+            } else if (content.includes('""')) {
+              const cursor = content.lastIndexOf('""') + 1;
+              editorRef.current?.setSelectionRange(cursor, cursor);
+            } else if (content.includes("''")) {
+              const cursor = content.lastIndexOf("''") + 1;
+              editorRef.current?.setSelectionRange(cursor, cursor);
+            }
+            //
+
+            editorRef.current?.focus();
+          },
+          ...v,
+        } as SpotlightAction;
+      });
     }, [quickCommands, query]);
     const [openedCommand, { open: openCommand, close: closeCommand }] = useDisclosure(false);
     const commandForm = useForm({
