@@ -154,7 +154,7 @@ export const TypeBox = forwardRef(
         findIndex(quickCommands, v => htmlToMarkdown(v.content) === htmlToMarkdown(editorRef.current?.getValue())) !==
         -1
       );
-    }, [quickCommands, messageContentStore]);
+    }, [quickCommands, messageContentStore, editorRef.current?.getValue()]);
     const [, setQuickActions] = useQuickActions();
     const [currentTypeBoxId, setCurrentTypeBoxId] = useCurrentTypeBoxId();
     const countTokenRef = createRef<any>();

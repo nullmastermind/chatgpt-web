@@ -338,27 +338,29 @@ function getAllCombinations(str: string): Set<string> {
 }
 
 export const findHighlight = (str: string, search: string): string[] => {
-  const combinations = getAllCombinations(str);
+  const combinations = getAllCombinations(str.toLowerCase());
   const separatorRegex = /[\s_-]/g;
-  const highlights = new Map<string, boolean>();
-  const searchWithoutSeparators = search.replace(separatorRegex, "");
+  const searchWithoutSeparators = search.replace(separatorRegex, "").toLowerCase();
   let currentWord = "";
+  const result: string[] = [];
 
   for (const char of searchWithoutSeparators) {
     currentWord += char;
 
-    if (currentWord.length > 0 && !combinations.has(currentWord)) {
+    if (!combinations.has(currentWord)) {
       const temp = currentWord.slice(0, -1);
-      highlights.set(temp, true);
+      if (temp) {
+        result.push(temp);
+      }
       currentWord = char;
     }
   }
 
-  if (currentWord.length > 0) {
-    highlights.set(currentWord, true);
+  if (currentWord.length > 0 && combinations.has(currentWord)) {
+    result.push(currentWord);
   }
 
-  return Array.from(highlights.keys());
+  return result;
 };
 
 export function validateField(field: string): boolean {
