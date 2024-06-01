@@ -94,49 +94,44 @@ export const TypeBox = forwardRef(
         name: string;
         content: string;
         category: any;
+        id: number;
       }[]
-    >(":quickCommands", []);
+    >(":quickCommands.v1", []);
     const [query] = useQuickActionsQuery();
     const quickCommandList = useMemo(() => {
       const commands = quickCommands as any[];
       const search = query.replace("/", "");
-      const validCommands = searchArray(
-        search,
-        commands.map(v => v.name)
-      );
-      return commands
-        .filter(v => validCommands.includes(v.name))
-        .map(v => {
-          const match = ["/", ...findHighlight(v.name, search)];
-          return {
-            match,
-            type: "command",
-            title: (<Highlight highlight={match}>{v.name}</Highlight>) as any,
-            id: v.name,
-            description: formatString(v.content),
-            onTrigger(action: SpotlightAction) {
-              const content = (action.content as string).replace(/\r\n/g, "\n");
+      return commands.map(v => {
+        const match = ["/", ...findHighlight(v.name, search)];
+        return {
+          match,
+          type: "command",
+          title: (<Highlight highlight={match}>{v.name}</Highlight>) as any,
+          id: v.name,
+          description: formatString(v.content),
+          onTrigger(action: SpotlightAction) {
+            const content = (action.content as string).replace(/\r\n/g, "\n");
 
-              editorRef.current?.setValue(content);
+            editorRef.current?.setValue(content);
 
-              // auto pos
-              if (content.includes("```\n\n```")) {
-                const cursor = content.lastIndexOf("```\n\n```") + 4;
-                editorRef.current?.setSelectionRange(cursor, cursor);
-              } else if (content.includes('""')) {
-                const cursor = content.lastIndexOf('""') + 1;
-                editorRef.current?.setSelectionRange(cursor, cursor);
-              } else if (content.includes("''")) {
-                const cursor = content.lastIndexOf("''") + 1;
-                editorRef.current?.setSelectionRange(cursor, cursor);
-              }
-              //
+            // auto pos
+            if (content.includes("```\n\n```")) {
+              const cursor = content.lastIndexOf("```\n\n```") + 4;
+              editorRef.current?.setSelectionRange(cursor, cursor);
+            } else if (content.includes('""')) {
+              const cursor = content.lastIndexOf('""') + 1;
+              editorRef.current?.setSelectionRange(cursor, cursor);
+            } else if (content.includes("''")) {
+              const cursor = content.lastIndexOf("''") + 1;
+              editorRef.current?.setSelectionRange(cursor, cursor);
+            }
+            //
 
-              editorRef.current?.focus();
-            },
-            ...v,
-          } as SpotlightAction;
-        });
+            editorRef.current?.focus();
+          },
+          ...v,
+        } as SpotlightAction;
+      });
     }, [quickCommands, query]);
     const [openedCommand, { open: openCommand, close: closeCommand }] = useDisclosure(false);
     const commandForm = useForm({
@@ -144,12 +139,10 @@ export const TypeBox = forwardRef(
         name: "",
         content: "",
         category: `${collection}`,
+        id: 0,
       },
       validate: {
-        name: v =>
-          validateField(v)
-            ? null
-            : "Invalid field. Please use lowercase letters and do not use special characters or spaces. Use the _ or - character to replace spaces.",
+        name: v => (v.length ? null : "Required field."),
         content: v => (v.length ? null : "Required field."),
       },
     });
@@ -170,10 +163,6 @@ export const TypeBox = forwardRef(
 
     const handleImprove = () => {
       if (!editorRef.current) return;
-
-      // let selectedText = editorRef.current
-      //   .getValue()
-      //   .substring(editorRef.current.getSelectionStart(), editorRef.current.getSelectionEnd());
 
       let selectedText = editorRef.current.getSelectionText();
 
@@ -320,17 +309,16 @@ export const TypeBox = forwardRef(
           title="Command tool"
           scrollAreaComponent={ScrollArea.Autosize}
         >
-          <TextInput label="Name" placeholder="command_name_example" required {...commandForm.getInputProps("name")} />
-          <Textarea
-            className="mt-2"
-            label="Template"
-            required={true}
-            placeholder="Content..."
-            minRows={5}
-            maxRows={10}
-            autosize={true}
-            {...commandForm.getInputProps("content")}
-          />
+          <TextInput label="Name" placeholder="Name..." required {...commandForm.getInputProps("name")} />
+          <div className={"mt-2"}>
+            <UserInput
+              isReplyBox={true}
+              placeholder={"Content..."}
+              required={true}
+              defaultValue={commandForm.getInputProps("content").value}
+              {...commandForm.getInputProps("content")}
+            />
+          </div>
           <div className="mt-5 flex gap-3 items-center justify-end">
             <Button variant="default" onClick={() => closeCommand()}>
               Close
@@ -357,16 +345,19 @@ export const TypeBox = forwardRef(
                   return;
                 }
 
-                const index = findIndex(quickCommands, v => v.name === commandForm.values.name);
+                const index = findIndex(quickCommands, v => v.id === commandForm.values.id);
                 const saveItem = {
                   name: commandForm.values.name,
                   content: commandForm.values.content,
                   category: commandForm.values.category,
                 };
                 if (index === -1) {
-                  quickCommands!.push(saveItem);
+                  quickCommands!.push({
+                    ...saveItem,
+                    id: Date.now(),
+                  });
                 } else {
-                  quickCommands![index] = saveItem;
+                  quickCommands![index] = { ...quickCommands![index], ...saveItem };
                 }
 
                 setQuickCommands(cloneDeep(quickCommands));
@@ -588,6 +579,7 @@ export const TypeBox = forwardRef(
                   if (index !== -1) {
                     commandForm.setFieldValue("name", quickCommands![index].name);
                     commandForm.setFieldValue("category", quickCommands![index].category);
+                    commandForm.setFieldValue("id", quickCommands![index].id);
                   } else {
                     commandForm.setFieldValue("name", "");
                     commandForm.setFieldValue("category", `${collection}`);

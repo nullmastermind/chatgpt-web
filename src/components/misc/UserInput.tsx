@@ -109,6 +109,9 @@ const UserInput = memo<
       () => {
         if (editor) {
           editor.commands.focus();
+          if (defaultValue) {
+            editor?.commands.setTextSelection({ from: defaultValue.length, to: defaultValue.length });
+          }
         }
       },
       100,
