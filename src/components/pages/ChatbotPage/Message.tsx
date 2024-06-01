@@ -10,7 +10,19 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { clone, cloneDeep, find, findIndex, findLastIndex, forEach, map, throttle, uniqBy, uniqueId } from "lodash";
+import {
+  clone,
+  cloneDeep,
+  find,
+  findIndex,
+  findLastIndex,
+  forEach,
+  map,
+  random,
+  throttle,
+  uniqBy,
+  uniqueId,
+} from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import classNames from "classnames";
 import { requestChatStream } from "@/components/pages/ChatbotPage/Message.api";
@@ -663,23 +675,36 @@ const MessageItem = forwardRef(
     const smoothIntervalId = useRef<any>(-1);
     const smoothCurrentContent = useRef<string>("");
     const smoothCurrentIndex = useRef<number>(-1);
+    const isProcessing = useRef(false);
 
     useImperativeHandle(ref, () => ({
       editMessage(newMessage: string, isDone: boolean) {
         messages[index].content = newMessage;
         clearInterval(smoothIntervalId.current);
 
+        if (!isDone && isProcessing.current) {
+          return;
+        }
+
         if (document.hidden) {
           setMessage({
             ...message,
             content: newMessage,
           });
-          setIsTyping(false);
-          doneMessages.current[message.id] = true;
-          clearInterval(smoothIntervalId.current);
-          setDoScrollToBottom(true);
-          if (!isBottom()) {
-            scrollElementRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "start" });
+          if (isDone) {
+            setIsTyping(false);
+            doneMessages.current[message.id] = true;
+            clearInterval(smoothIntervalId.current);
+            setDoScrollToBottom(true);
+            if (!isBottom()) {
+              scrollElementRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "start" });
+            }
+          } else {
+            if (!isBottom()) {
+              setDoScrollToBottom(false);
+            } else if (isBottom() && !doScrollToBottom) {
+              setDoScrollToBottom(true);
+            }
           }
           return;
         }
@@ -687,14 +712,15 @@ const MessageItem = forwardRef(
         smoothContent.current = newMessage.split("");
 
         smoothIntervalId.current = setInterval(() => {
+          isProcessing.current = true;
           if (smoothContent.current.length > smoothCurrentIndex.current + 1) {
             const bufferSize = 32;
             let nextChars = "";
             const poolSize = smoothContent.current.length - smoothCurrentIndex.current;
-            let smoothSize = 1;
+            let smoothSize = 2;
 
             if (poolSize >= bufferSize || isDone) {
-              smoothSize = Math.min(Math.max(Math.round(poolSize / (isDone ? 1 : 1.25)), 1), 16);
+              smoothSize = Math.min(Math.max(Math.round(poolSize / (isDone ? 1 : 1.25)), 1), 8);
             }
 
             if (isDone) {
@@ -732,6 +758,7 @@ const MessageItem = forwardRef(
               scrollElementRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "start" });
             }
           }
+          isProcessing.current = false;
         }, 8);
       },
     }));
