@@ -615,6 +615,7 @@ export const TypeBox = forwardRef(
             }}
             variant="gradient"
             size={"xs"}
+            className={"flex-grow sm:flex-grow-0"}
           >
             Send
           </Button>

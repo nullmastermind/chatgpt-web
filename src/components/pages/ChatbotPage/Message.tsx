@@ -1,6 +1,15 @@
 import { useCopyToClipboard, useDebounce, useList, useMap, useMeasure, useMount, useUnmount } from "react-use";
 import { ActionIcon, Badge, Container, Loader, Modal, ScrollArea, Text, Tooltip, Transition } from "@mantine/core";
-import React, { forwardRef, MutableRefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
+import React, {
+  forwardRef,
+  Fragment,
+  MutableRefObject,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { clone, cloneDeep, find, findIndex, findLastIndex, forEach, map, throttle, uniqBy, uniqueId } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import classNames from "classnames";
@@ -533,7 +542,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
                   }, 0);
 
                 return (
-                  <>
+                  <div key={i0}>
                     {map(messages, (message, index) => {
                       const isChild = message.isChild;
 
@@ -575,7 +584,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
                       onSend={onSend}
                       exId={i0}
                     />
-                  </>
+                  </div>
                 );
               })}
             </Container>

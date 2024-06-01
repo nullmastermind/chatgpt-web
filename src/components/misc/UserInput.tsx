@@ -140,7 +140,7 @@ const UserInput = memo<
             })}
           >
             <RichTextEditor editor={editor} {...(props as any)}>
-              <RichTextEditor.Toolbar sticky stickyOffset={0} className={"flex-nowrap overflow-auto"}>
+              <RichTextEditor.Toolbar sticky stickyOffset={0} className={"flex-nowrap overflow-auto z-auto"}>
                 <RichTextEditor.ControlsGroup>
                   <RichTextEditor.Bold />
                   <RichTextEditor.Italic />

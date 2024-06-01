@@ -338,7 +338,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             hidden={!opened}
             width={{ sm: 256 }}
             p={"md"}
-            className={classNames("flex flex-col", classes.navbar, {})}
+            className={classNames("flex flex-col z-50", classes.navbar, {})}
           >
             <Navbar.Section className={classes.section}>
               <div className={classes.mainLinks}>{mainLinks}</div>
