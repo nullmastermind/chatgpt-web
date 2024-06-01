@@ -61,8 +61,9 @@ const UserInput = memo<
         if (state.isPasted) {
           // Reset the flag
           editor.view.dispatch(editor.state.tr.setMeta(pastePluginKey, { isPasted: false }));
-          if (editor.getHTML()?.startsWith("<p></p><p>")) {
-            editor.commands.setContent(editor.getHTML().replace("<p></p><p>", "<p>"));
+          console.log("editor.getHTML()", editor.getHTML());
+          if (editor.getHTML()?.startsWith("<p></p>")) {
+            editor.commands.setContent(editor.getHTML().replace("<p></p>", ""));
           }
         }
         onChange?.(editor.getHTML());
