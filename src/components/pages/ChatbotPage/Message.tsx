@@ -1,4 +1,4 @@
-import { useCopyToClipboard, useDebounce, useList, useMap, useMeasure, useMount, useUnmount } from "react-use";
+import { useDebounce, useList, useMap, useMeasure, useMount, useUnmount } from "react-use";
 import { ActionIcon, Badge, Container, Loader, Modal, ScrollArea, Text, Tooltip, Transition } from "@mantine/core";
 import React, {
   forwardRef,
@@ -292,8 +292,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
             ]
               .filter(v => typeof v === "string" && v.length > 0)
               .join("\n"),
-            apiKey: openaiAPIKey.split(",")[0],
-            // maxScore: includes.length > 0 ? 0.4 : 0.45,
+            apiKey: openaiAPIKey.split(",")[0], // maxScore: includes.length > 0 ? 0.4 : 0.45,
             maxScore: 0.6,
             k: includes.length > 0 ? 1 : 5,
             includeAllIfKLessThanScore: 0.3,
@@ -347,8 +346,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
             ...checkedMessages.map(v => ({
               role: v.source,
               content: v.content,
-            })),
-            // If you want to insert before the last user message
+            })), // If you want to insert before the last user message
             // ...map(userMessage.docs, doc => {
             //   return {
             //     role: "system",
@@ -669,90 +667,72 @@ const MessageItem = forwardRef(
     useImperativeHandle(ref, () => ({
       editMessage(newMessage: string, isDone: boolean) {
         messages[index].content = newMessage;
+        clearInterval(smoothIntervalId.current);
 
-        cancelAnimationFrame(smoothIntervalId.current);
+        if (document.hidden) {
+          setMessage({
+            ...message,
+            content: newMessage,
+          });
+          setIsTyping(false);
+          doneMessages.current[message.id] = true;
+          clearInterval(smoothIntervalId.current);
+          setDoScrollToBottom(true);
+          if (!isBottom()) {
+            scrollElementRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "start" });
+          }
+          return;
+        }
 
         smoothContent.current = newMessage.split("");
-        const currentMessageLength = smoothCurrentContent.current.length;
-        const newMessageLength = newMessage.length;
-        const lengthDifference = Math.abs(newMessageLength - currentMessageLength);
 
-        // Adjust interval delay based on the length difference
-        // const intervalDelay = Math.min(1000 / lengthDifference, 33);
-        const intervalDelay = lengthDifference > 100 ? 8 : 16;
-        let lastTime = performance.now();
+        smoothIntervalId.current = setInterval(() => {
+          if (smoothContent.current.length > smoothCurrentIndex.current + 1) {
+            const bufferSize = 32;
+            let nextChars = "";
+            const poolSize = smoothContent.current.length - smoothCurrentIndex.current;
+            let smoothSize = 1;
 
-        const updateContent = (time: number) => {
-          // if (document.hidden || isDone) {
-          //   // If the document is hidden, skip the update
-          //   smoothIntervalId.current = requestAnimationFrame(updateContent);
-          //   return;
-          // }
-          if (time - lastTime >= intervalDelay) {
-            lastTime = time;
+            if (poolSize >= bufferSize || isDone) {
+              smoothSize = Math.min(Math.max(Math.round(poolSize / (isDone ? 1 : 1.25)), 1), 16);
+            }
 
-            if (smoothContent.current.length > smoothCurrentIndex.current + 1) {
-              const baseBufferSize = 1;
-              let nextChars = "";
-              const poolSize = smoothContent.current.length - smoothCurrentIndex.current;
-              let smoothSize = 1;
+            if (isDone) {
+              smoothSize = newMessage.length;
+            }
 
-              // Adjust buffer size dynamically based on the length difference
-              if (poolSize >= baseBufferSize || isDone) {
-                smoothSize = Math.min(
-                  Math.min(
-                    Math.max(Math.round(poolSize / (isDone ? 1 : 1.25)), 1),
-                    Math.min(16, Math.ceil(lengthDifference / 10))
-                  ),
-                  2
-                );
+            for (let i = 0; i < smoothSize; i++) {
+              smoothCurrentIndex.current += 1;
+              if (smoothCurrentIndex.current < smoothContent.current.length) {
+                const nextChar = smoothContent.current[smoothCurrentIndex.current];
+                nextChars += nextChar;
               }
+            }
 
-              if (isDone) {
-                smoothSize = Math.min(newMessage.length, 30);
-              }
+            smoothCurrentContent.current += nextChars;
 
-              if (document.hidden) {
-                smoothSize = newMessage.length;
-              }
+            setMessage(prevState => ({
+              ...prevState,
+              content: smoothCurrentContent.current,
+            }));
 
-              for (let i = 0; i < smoothSize; i++) {
-                smoothCurrentIndex.current += 1;
-                if (smoothCurrentIndex.current < smoothContent.current.length) {
-                  const nextChar = smoothContent.current[smoothCurrentIndex.current];
-                  nextChars += nextChar;
-                }
-              }
+            setIsTyping(true);
 
-              smoothCurrentContent.current += nextChars;
-
-              setMessage(prevState => ({
-                ...prevState,
-                content: smoothCurrentContent.current,
-              }));
-
-              setIsTyping(true);
-
-              if (!isBottom()) {
-                setDoScrollToBottom(false);
-              } else if (isBottom() && !doScrollToBottom) {
-                setDoScrollToBottom(true);
-              }
-            } else if (isDone) {
-              setIsTyping(false);
-              doneMessages.current[message.id] = true;
+            if (!isBottom()) {
+              setDoScrollToBottom(false);
+            } else if (isBottom() && !doScrollToBottom) {
               setDoScrollToBottom(true);
-              if (!isBottom()) {
-                scrollElementRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "start" });
-              }
-              return; // Stop the animation frame loop
+            }
+          } else if (isDone) {
+            setIsTyping(false);
+            doneMessages.current[message.id] = true;
+            clearInterval(smoothIntervalId.current);
+            setDoScrollToBottom(true);
+            if (!isBottom()) {
+              scrollElementRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "start" });
             }
           }
-
-          smoothIntervalId.current = requestAnimationFrame(updateContent);
-        };
-
-        smoothIntervalId.current = requestAnimationFrame(updateContent);
+        }, 8);
       },
     }));
     useEffect(() => {
@@ -879,8 +859,7 @@ const MessageItem = forwardRef(
                       // const htmlBlob = new Blob([message.content], { type: "text/html" });
 
                       const clipboardItem = new ClipboardItem({
-                        "text/plain": textBlob,
-                        // "text/html": htmlBlob,
+                        "text/plain": textBlob, // "text/html": htmlBlob,
                       });
 
                       await navigator.clipboard.write([clipboardItem]);
