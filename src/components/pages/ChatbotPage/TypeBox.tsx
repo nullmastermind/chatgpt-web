@@ -499,10 +499,17 @@ export const TypeBox = forwardRef(
                 //   }
                 // }
 
-                if (e.key === "Enter" && !e.shiftKey) {
-                  onSend();
-                  e.preventDefault();
-                  e.stopPropagation();
+                if (e.key === "Enter") {
+                  const enterToSend = localStorage.getItem(":enterToSend") === "1";
+                  if (!enterToSend && !e.shiftKey) {
+                    onSend();
+                    e.preventDefault();
+                    e.stopPropagation();
+                  } else if (enterToSend && isMod) {
+                    onSend();
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }
                 }
                 if (e.key === "Tab") {
                   if (/[^a-zA-Z0-9]/.test(editorRef.current?.getValue() || "")) {

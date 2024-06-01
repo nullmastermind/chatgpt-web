@@ -1,6 +1,6 @@
 import { useMount, useSetState, useUnmount } from "react-use";
 import { useCollections, useOpenaiAPIKey } from "@/states/states";
-import { Button, NumberInput, PasswordInput, TextInput } from "@mantine/core";
+import { Button, NumberInput, PasswordInput, Switch, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import React from "react";
 import { notifications } from "@mantine/notifications";
@@ -16,6 +16,7 @@ const SettingsPage = () => {
       openaiKey: openaiAPIKey,
       maxMessagesPerBox: parseInt(localStorage.getItem(":maxMessages") || "10"),
       indexerHost: indexerHost,
+      enterToSend: localStorage.getItem(":enterToSend") === "1",
     },
     validate: {
       openaiKey: v => (["", null, undefined, "null"].includes(v) ? "Invalid" : null),
@@ -32,6 +33,7 @@ const SettingsPage = () => {
       localStorage.setItem(":maxMessages", `${settingsForm.values.maxMessagesPerBox}`);
       localStorage.setItem(":openaiKey", settingsForm.values.openaiKey as string);
       localStorage.setItem(":indexerHost", settingsForm.values.indexerHost);
+      localStorage.setItem(":enterToSend", settingsForm.values.enterToSend ? "1" : "0");
       setOpenaiAPIKey(settingsForm.values.openaiKey as string);
       sessionStorage.setItem(":settingSaved", "1");
       if (settingsForm.values.openaiKey) {
@@ -93,6 +95,13 @@ const SettingsPage = () => {
           label="Null-gpt indexer host"
           placeholder="http://localhost:3456"
           {...settingsForm.getInputProps("indexerHost")}
+        />
+        <Switch
+          label={"Press Ctrl+Enter to send"}
+          description={"By default, press Enter to send a message and Shift+Enter to add a new line."}
+          {...settingsForm.getInputProps("enterToSend", {
+            type: "checkbox",
+          })}
         />
         <div>
           <Button loading={loadings.save} onClick={() => saveSettings()}>
