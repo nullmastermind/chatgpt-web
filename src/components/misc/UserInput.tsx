@@ -141,7 +141,7 @@ const UserInput = memo<
             })}
           >
             <RichTextEditor editor={editor} {...(props as any)}>
-              <RichTextEditor.Toolbar sticky stickyOffset={0} className={"hidden sm:flex"}>
+              <RichTextEditor.Toolbar sticky stickyOffset={0}>
                 <RichTextEditor.ControlsGroup>
                   <RichTextEditor.Bold />
                   <RichTextEditor.Italic />

@@ -523,7 +523,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
             viewportRef={viewport}
             offsetScrollbars={false}
           >
-            <Container size="sm" className="mb-10 mt-5 p-0">
+            <Container size="sm" className="mb-5 mt-5 p-0 px-2 sm:px-0">
               {map(messagesList, (messages, i0) => {
                 const position = messagesList
                   .filter((v, i) => i <= i0)
@@ -546,6 +546,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
                         >
                           {styles => (
                             <MessageItem
+                              isFirst={index === 0 && i0 === 0}
                               ref={instance => {
                                 if (instance) messageRefs.current[message.id] = instance;
                               }}
@@ -582,7 +583,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
         )}
       </div>
       <div className={classes.divider1}>
-        <Container size={"sm"} className={classNames("flex flex-col gap-3 p-3 m-auto w-full px-0")}>
+        <Container size={"sm"} className={classNames("flex flex-col gap-3 p-3 m-auto w-full px-2 sm:px-0")}>
           <TypeBox
             ref={boxRef}
             collection={collection}
@@ -608,6 +609,7 @@ const MessageItem = forwardRef(
       autoScrollIds,
       isChild,
       style,
+      isFirst,
     }: {
       classes: any;
       message: any;
@@ -620,6 +622,7 @@ const MessageItem = forwardRef(
       autoScrollIds: MutableRefObject<KeyValue>;
       isChild: boolean;
       style?: any;
+      isFirst: boolean;
     },
     ref
   ) => {
@@ -657,29 +660,6 @@ const MessageItem = forwardRef(
     useImperativeHandle(ref, () => ({
       editMessage(newMessage: string, isDone: boolean) {
         messages[index].content = newMessage;
-
-        if (document.hidden) {
-          const typeMessage = (newMessage: string, isDone: boolean) => {
-            setMessage({
-              ...message,
-              content: newMessage,
-            });
-            setIsTyping(!isDone);
-            if (isDone || !isBottom()) {
-              setDoScrollToBottom(false);
-            } else if (isBottom() && !doScrollToBottom) {
-              setDoScrollToBottom(true);
-            }
-
-            if (isDone) {
-              doneMessages.current[message.id] = true;
-              if (!isBottom()) {
-                scrollElementRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "start" });
-              }
-            }
-          };
-          return;
-        }
 
         clearInterval(smoothIntervalId.current);
 
@@ -814,7 +794,7 @@ const MessageItem = forwardRef(
               })}
           </Container>
         </Modal>
-        {!isChild && <div className={"h-10"} />}
+        {!isChild && !isFirst && <div className={"h-10"} />}
         <div style={style}>
           <div
             className={classNames(
@@ -877,58 +857,17 @@ const MessageItem = forwardRef(
             <div style={{ position: isChild ? "sticky" : undefined }} className="top-3 mx-2">
               <div className={"flex flex-row items-center gap-2"}>
                 <div className={"relative"}>
-                  {!isChild && (
-                    // <Avatar
-                    //   size="sm"
-                    //   // src={message.source === "assistant" ? "/assets/bot1.png" : "/assets/chill.png"}
-                    //   className={classNames({
-                    //     [classes.userAvatar]: message.source !== "assistant",
-                    //     [classes.assistantAvatar]: message.source === "assistant" && !isEffect,
-                    //     [classes.assistantAvatar2]: message.source === "assistant" && isEffect,
-                    //   })}
-                    // >
-                    //   {collection?.emoji}
-                    // </Avatar>
-                    <div>{collection?.emoji}</div>
-                  )}
+                  {!isChild && <div>{collection?.emoji}</div>}
                   {isChild && <div className={"w-3"} />}
                 </div>
                 {!isChild && (
                   <div className={"flex flex-row gap-2 items-center"}>
-                    {/*<Text className={"font-bold"}>*/}
-                    {/*  {message.source === "assistant" ? (*/}
-                    {/*    <>*/}
-                    {/*      {collection?.emoji} {collection?.label}*/}
-                    {/*    </>*/}
-                    {/*  ) : (*/}
-                    {/*    "You"*/}
-                    {/*  )}*/}
-                    {/*</Text>*/}
                     <DateInfo message={message} />
                   </div>
                 )}
               </div>
             </div>
             <div className={classNames("flex-grow w-full")}>
-              {/*{isChild && (*/}
-              {/*  <div*/}
-              {/*    className={"flex flex-row gap-2 items-center mb-2"}*/}
-              {/*    style={{*/}
-              {/*      height: 34,*/}
-              {/*    }}*/}
-              {/*  >*/}
-              {/*    <Text className={"font-bold"}>*/}
-              {/*      {message.source === "assistant" ? (*/}
-              {/*        <>*/}
-              {/*          {collection?.emoji} {collection?.label}*/}
-              {/*        </>*/}
-              {/*      ) : (*/}
-              {/*        "You"*/}
-              {/*      )}*/}
-              {/*    </Text>*/}
-              {/*    <DateInfo message={message} />*/}
-              {/*  </div>*/}
-              {/*)}*/}
               <div
                 className={classNames(classes.messageContent, classes.imgBg, {
                   "px-2": !isMobile,

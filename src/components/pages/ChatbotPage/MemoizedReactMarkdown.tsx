@@ -90,7 +90,13 @@ const MemoizedReactMarkdown = memo(({ content: _content, id, smallText, isFirst 
 
   return (
     <div>
-      <div className={classNames(classes.messageContent, classes.imgBg)}>{md}</div>
+      <div
+        className={classNames(classes.messageContent, classes.imgBg, {
+          "px-2 sm:px-0": isFirst,
+        })}
+      >
+        {md}
+      </div>
       {isFirst && _content.length > MAX_TEXT && (
         <Button
           rightIcon={<IconMenuOrder size={"1rem"} />}

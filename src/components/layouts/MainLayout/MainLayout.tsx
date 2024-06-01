@@ -98,6 +98,9 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const theme = useMantineTheme();
   const [opened, setOpened] = useState(false);
   const [highContrast, setHighContrast] = useLocalStorage("highContrast", "0");
+  const logoText = useMemo(() => {
+    return localStorage.getItem(":logoText") || "Oggy GPT";
+  }, []);
 
   const hotkeySwitchCollection = (index: number) => {
     if (index <= collections.length - 1) {
@@ -417,7 +420,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                     letterSpacing: 0.1,
                   }}
                 >
-                  Oggy GPT
+                  {logoText}
                 </Text>
                 <div className={"-ml-2 -mb-2"}>{/*<TypingBlinkCursor />*/}</div>
               </div>

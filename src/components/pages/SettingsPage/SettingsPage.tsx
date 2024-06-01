@@ -17,6 +17,7 @@ const SettingsPage = () => {
       maxMessagesPerBox: parseInt(localStorage.getItem(":maxMessages") || "10"),
       indexerHost: indexerHost,
       enterToSend: localStorage.getItem(":enterToSend") === "1",
+      logoText: localStorage.getItem(":logoText") || "Oggy GPT",
     },
     validate: {
       openaiKey: v => (["", null, undefined, "null"].includes(v) ? "Invalid" : null),
@@ -34,6 +35,7 @@ const SettingsPage = () => {
       localStorage.setItem(":openaiKey", settingsForm.values.openaiKey as string);
       localStorage.setItem(":indexerHost", settingsForm.values.indexerHost);
       localStorage.setItem(":enterToSend", settingsForm.values.enterToSend ? "1" : "0");
+      localStorage.setItem(":logoText", settingsForm.values.logoText || "Oggy GPT");
       setOpenaiAPIKey(settingsForm.values.openaiKey as string);
       sessionStorage.setItem(":settingSaved", "1");
       if (settingsForm.values.openaiKey) {
@@ -96,6 +98,7 @@ const SettingsPage = () => {
           placeholder="http://localhost:3456"
           {...settingsForm.getInputProps("indexerHost")}
         />
+        <TextInput label="Logo text" placeholder="Oggy GPT" {...settingsForm.getInputProps("logoText")} />
         <Switch
           label={"Press Ctrl+Enter to send"}
           description={"By default, press Enter to send a message and Shift+Enter to add a new line."}
