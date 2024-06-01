@@ -8,6 +8,7 @@ export type ModelConfig = {
   model: string;
   temperature: number;
   max_tokens?: number;
+  seed?: number;
 };
 
 const makeRequestParam = (

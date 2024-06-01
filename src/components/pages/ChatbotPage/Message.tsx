@@ -663,16 +663,11 @@ const MessageItem = forwardRef(
     const smoothIntervalId = useRef<any>(-1);
     const smoothCurrentContent = useRef<string>("");
     const smoothCurrentIndex = useRef<number>(-1);
-    const isProcessing = useRef(false);
 
     useImperativeHandle(ref, () => ({
       editMessage(newMessage: string, isDone: boolean) {
         messages[index].content = newMessage;
         clearInterval(smoothIntervalId.current);
-
-        if (!isDone && isProcessing.current) {
-          return;
-        }
 
         if (document.hidden) {
           setMessage({
@@ -700,20 +695,9 @@ const MessageItem = forwardRef(
         smoothContent.current = newMessage.split("");
 
         smoothIntervalId.current = setInterval(() => {
-          isProcessing.current = true;
-          if (smoothContent.current.length > smoothCurrentIndex.current + 1) {
-            const bufferSize = 32;
+          if (smoothContent.current.length > smoothCurrentIndex.current + 1 && !isDone) {
             let nextChars = "";
-            const poolSize = smoothContent.current.length - smoothCurrentIndex.current;
-            let smoothSize = 2;
-
-            if (poolSize >= bufferSize || isDone) {
-              smoothSize = Math.min(Math.max(Math.round(poolSize / (isDone ? 1 : 1.25)), 1), 8);
-            }
-
-            if (isDone) {
-              smoothSize = newMessage.length;
-            }
+            let smoothSize = 1;
 
             for (let i = 0; i < smoothSize; i++) {
               smoothCurrentIndex.current += 1;
@@ -739,22 +723,30 @@ const MessageItem = forwardRef(
             }
           } else if (isDone) {
             setIsTyping(false);
+            setMessage({
+              ...message,
+              content: newMessage,
+            });
             doneMessages.current[message.id] = true;
             clearInterval(smoothIntervalId.current);
             setDoScrollToBottom(true);
-            if (!isBottom()) {
-              scrollElementRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "start" });
-            }
           }
-          isProcessing.current = false;
-        }, 8);
+        }, 1);
       },
     }));
     useEffect(() => {
       if (!isTyping) return;
+      let itv: any = -1;
       if (doScrollToBottom) {
-        scrollToBottom();
+        let st = Date.now();
+        itv = setInterval(() => {
+          scrollToBottom();
+          if (Date.now() - st > 100) {
+            clearInterval(itv);
+          }
+        });
       }
+      return () => clearInterval(itv);
     }, [doScrollToBottom, message.content, isTyping]);
     useMount(() => {
       if (message.source === "user" && !autoScrollIds.current[message.id]) {
