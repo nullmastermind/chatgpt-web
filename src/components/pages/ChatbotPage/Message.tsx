@@ -10,19 +10,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import {
-  clone,
-  cloneDeep,
-  find,
-  findIndex,
-  findLastIndex,
-  forEach,
-  map,
-  random,
-  throttle,
-  uniqBy,
-  uniqueId,
-} from "lodash";
+import { clone, cloneDeep, find, findIndex, findLastIndex, forEach, map, throttle, uniqBy, uniqueId } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import classNames from "classnames";
 import { requestChatStream } from "@/components/pages/ChatbotPage/Message.api";
