@@ -10,6 +10,8 @@ const converter = new showdown.Converter({
   ghCodeBlocks: true,
   omitExtraWLInCodeBlocks: true,
   simplifiedAutoLink: true,
+  simpleLineBreaks: true,
+  tasklists: true,
 });
 
 export type KeyValue = {
@@ -546,6 +548,7 @@ export const countTokens = async (content: string) => {
 };
 
 export const htmlToMarkdown = (content?: string) => {
+  content = (content || "").split("<li></li>").join("").split("<li><p></p></li>").join("");
   return converter.makeMarkdown(content || "").trim();
 };
 
