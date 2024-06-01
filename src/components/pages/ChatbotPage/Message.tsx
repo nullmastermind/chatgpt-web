@@ -678,21 +678,21 @@ const MessageItem = forwardRef(
         const lengthDifference = Math.abs(newMessageLength - currentMessageLength);
 
         // Adjust interval delay based on the length difference
+        // const intervalDelay = Math.min(1000 / lengthDifference, 33);
         const intervalDelay = lengthDifference > 100 ? 8 : 16;
         let lastTime = performance.now();
 
         const updateContent = (time: number) => {
-          if (document.hidden) {
-            // If the document is hidden, skip the update
-            smoothIntervalId.current = requestAnimationFrame(updateContent);
-            return;
-          }
-
+          // if (document.hidden || isDone) {
+          //   // If the document is hidden, skip the update
+          //   smoothIntervalId.current = requestAnimationFrame(updateContent);
+          //   return;
+          // }
           if (time - lastTime >= intervalDelay) {
             lastTime = time;
 
             if (smoothContent.current.length > smoothCurrentIndex.current + 1) {
-              const baseBufferSize = 32;
+              const baseBufferSize = 1;
               let nextChars = "";
               const poolSize = smoothContent.current.length - smoothCurrentIndex.current;
               let smoothSize = 1;
@@ -700,12 +700,19 @@ const MessageItem = forwardRef(
               // Adjust buffer size dynamically based on the length difference
               if (poolSize >= baseBufferSize || isDone) {
                 smoothSize = Math.min(
-                  Math.max(Math.round(poolSize / (isDone ? 1 : 1.25)), 1),
-                  Math.min(16, Math.ceil(lengthDifference / 10))
+                  Math.min(
+                    Math.max(Math.round(poolSize / (isDone ? 1 : 1.25)), 1),
+                    Math.min(16, Math.ceil(lengthDifference / 10))
+                  ),
+                  2
                 );
               }
 
               if (isDone) {
+                smoothSize = Math.min(newMessage.length, 30);
+              }
+
+              if (document.hidden) {
                 smoothSize = newMessage.length;
               }
 
