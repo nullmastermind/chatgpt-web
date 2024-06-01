@@ -221,14 +221,25 @@ const EventHandler = Extension.create({
             const clipboardData = event.clipboardData;
             const text = clipboardData?.getData("text/plain");
             if (text) {
+              const nodeType = view.state.selection.$from.parent.type;
+              if (nodeType.name === "codeBlock") return false;
+
+              const { from, to } = view.state.selection;
               const html = markdownToHtml(text);
               const { schema } = view.state;
               const parser = DOMParser2.fromSchema(schema);
               const dom = new DOMParser().parseFromString(html, "text/html");
               const node = parser.parse(dom.body);
-              const transaction = view.state.tr.replaceSelectionWith(node);
-              transaction.setMeta(pastePluginKey, { isPasted: true });
-              view.dispatch(transaction);
+              const inlineNodes: any[] = [];
+              node.content.forEach(child => {
+                inlineNodes.push(child);
+              });
+              const fragment = schema.nodes.doc.createAndFill({}, inlineNodes);
+              if (fragment) {
+                const transaction = view.state.tr.replaceRangeWith(from, to, fragment);
+                transaction.setMeta(pastePluginKey, { isPasted: true });
+                view.dispatch(transaction);
+              }
               return true;
             }
             return false;
