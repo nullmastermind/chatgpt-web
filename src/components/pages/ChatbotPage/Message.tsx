@@ -803,7 +803,7 @@ const MessageItem = forwardRef(
               })}
           </Container>
         </Modal>
-        {!isChild && !isFirst && <div className={"h-10"} />}
+        {!isChild && !isFirst && <div className={"h-5"} />}
         <div style={style}>
           <div
             className={classNames(
