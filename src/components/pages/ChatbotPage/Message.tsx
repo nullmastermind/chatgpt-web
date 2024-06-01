@@ -670,57 +670,82 @@ const MessageItem = forwardRef(
       editMessage(newMessage: string, isDone: boolean) {
         messages[index].content = newMessage;
 
-        clearInterval(smoothIntervalId.current);
+        cancelAnimationFrame(smoothIntervalId.current);
 
         smoothContent.current = newMessage.split("");
+        const currentMessageLength = smoothCurrentContent.current.length;
+        const newMessageLength = newMessage.length;
+        const lengthDifference = Math.abs(newMessageLength - currentMessageLength);
 
-        smoothIntervalId.current = setInterval(() => {
-          if (smoothContent.current.length > smoothCurrentIndex.current + 1) {
-            const bufferSize = 32;
-            let nextChars = "";
-            const poolSize = smoothContent.current.length - smoothCurrentIndex.current;
-            let smoothSize = 1;
+        // Adjust interval delay based on the length difference
+        const intervalDelay = lengthDifference > 100 ? 8 : 16;
+        let lastTime = performance.now();
 
-            if (poolSize >= bufferSize || isDone) {
-              smoothSize = Math.min(Math.max(Math.round(poolSize / (isDone ? 1 : 1.25)), 1), 8);
-            }
+        const updateContent = (time: number) => {
+          if (document.hidden) {
+            // If the document is hidden, skip the update
+            smoothIntervalId.current = requestAnimationFrame(updateContent);
+            return;
+          }
 
-            if (isDone) {
-              smoothSize = newMessage.length;
-            }
+          if (time - lastTime >= intervalDelay) {
+            lastTime = time;
 
-            for (let i = 0; i < smoothSize; i++) {
-              smoothCurrentIndex.current += 1;
-              if (smoothCurrentIndex.current < smoothContent.current.length) {
-                const nextChar = smoothContent.current[smoothCurrentIndex.current];
-                nextChars += nextChar;
+            if (smoothContent.current.length > smoothCurrentIndex.current + 1) {
+              const baseBufferSize = 32;
+              let nextChars = "";
+              const poolSize = smoothContent.current.length - smoothCurrentIndex.current;
+              let smoothSize = 1;
+
+              // Adjust buffer size dynamically based on the length difference
+              if (poolSize >= baseBufferSize || isDone) {
+                smoothSize = Math.min(
+                  Math.max(Math.round(poolSize / (isDone ? 1 : 1.25)), 1),
+                  Math.min(16, Math.ceil(lengthDifference / 10))
+                );
               }
-            }
 
-            smoothCurrentContent.current += nextChars;
+              if (isDone) {
+                smoothSize = newMessage.length;
+              }
 
-            setMessage(prevState => ({
-              ...prevState,
-              content: smoothCurrentContent.current,
-            }));
+              for (let i = 0; i < smoothSize; i++) {
+                smoothCurrentIndex.current += 1;
+                if (smoothCurrentIndex.current < smoothContent.current.length) {
+                  const nextChar = smoothContent.current[smoothCurrentIndex.current];
+                  nextChars += nextChar;
+                }
+              }
 
-            setIsTyping(true);
+              smoothCurrentContent.current += nextChars;
 
-            if (!isBottom()) {
-              setDoScrollToBottom(false);
-            } else if (isBottom() && !doScrollToBottom) {
+              setMessage(prevState => ({
+                ...prevState,
+                content: smoothCurrentContent.current,
+              }));
+
+              setIsTyping(true);
+
+              if (!isBottom()) {
+                setDoScrollToBottom(false);
+              } else if (isBottom() && !doScrollToBottom) {
+                setDoScrollToBottom(true);
+              }
+            } else if (isDone) {
+              setIsTyping(false);
+              doneMessages.current[message.id] = true;
               setDoScrollToBottom(true);
-            }
-          } else if (isDone) {
-            setIsTyping(false);
-            doneMessages.current[message.id] = true;
-            clearInterval(smoothIntervalId.current);
-            setDoScrollToBottom(true);
-            if (!isBottom()) {
-              scrollElementRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "start" });
+              if (!isBottom()) {
+                scrollElementRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "start" });
+              }
+              return; // Stop the animation frame loop
             }
           }
-        }, 16);
+
+          smoothIntervalId.current = requestAnimationFrame(updateContent);
+        };
+
+        smoothIntervalId.current = requestAnimationFrame(updateContent);
       },
     }));
     useEffect(() => {
