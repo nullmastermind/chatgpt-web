@@ -626,7 +626,6 @@ const MessageItem = forwardRef(
     const [message, setMessage] = useState<MessageItemType>(inputMessage);
     const [isTyping, setIsTyping] = useState(false);
     const [doScrollToBottom, setDoScrollToBottom] = useState<boolean>(true);
-    const [, setCopyText] = useCopyToClipboard();
     const [isCopied, setIsCopied] = useState(false);
     const updateIsCopied = useMemo(() => {
       let timeoutId: any;
@@ -853,8 +852,20 @@ const MessageItem = forwardRef(
                 <ActionIcon
                   size="xs"
                   variant="subtle"
-                  onClick={() => {
-                    setCopyText(message.content);
+                  onClick={async () => {
+                    try {
+                      const textBlob = new Blob([message.content], { type: "text/plain" });
+                      const htmlBlob = new Blob([message.content], { type: "text/html" });
+
+                      const clipboardItem = new ClipboardItem({
+                        "text/plain": textBlob,
+                        "text/html": htmlBlob,
+                      });
+
+                      await navigator.clipboard.write([clipboardItem]);
+                    } catch (error) {
+                      console.error("Failed to write to clipboard: ", error);
+                    }
                     updateIsCopied();
                   }}
                   style={{ zIndex: 100 }}
