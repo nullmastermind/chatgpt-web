@@ -1,8 +1,6 @@
 import React, { createRef, forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { useDebounce, useLocalStorage, useMeasure, useMount, useSessionStorage, useSetState } from "react-use";
 import {
-  useCollections,
-  useCurrentCollection,
   useCurrentTypeBoxId,
   useDocId,
   useEnableDocument,
@@ -28,14 +26,13 @@ import {
   Highlight,
   Modal,
   NativeSelect,
-  Portal,
   ScrollArea,
   Switch,
   Textarea,
   TextInput,
   Tooltip,
 } from "@mantine/core";
-import { spotlight, SpotlightAction } from "@mantine/spotlight";
+import { SpotlightAction } from "@mantine/spotlight";
 import { useForm } from "@mantine/form";
 import { cloneDeep, findIndex, uniqueId } from "lodash";
 import { requestChatStream } from "@/components/pages/ChatbotPage/Message.api";
@@ -50,6 +47,7 @@ import DocsModal from "@/components/pages/ChatbotPage/DocsModal";
 import { isMobile } from "react-device-detect";
 import UserInput from "@/components/misc/UserInput";
 import classNames from "classnames";
+import UploadFile from "@/components/pages/ChatbotPage/UploadFile";
 
 export const TypeBox = forwardRef(
   (
@@ -77,10 +75,7 @@ export const TypeBox = forwardRef(
       `:messageBox:${collection}:${exId}`,
       ""
     );
-    const inputRef = useRef<HTMLTextAreaElement>(null);
     const inputImproveRef = useRef<HTMLTextAreaElement>(null);
-    const [collections] = useCollections();
-    const [, setCurrentCollection] = useCurrentCollection();
     const [isFocus, setIsFocus] = useState(false);
     const [opened, { open, close }] = useDisclosure(false);
     const [improvedPrompt, setImprovedPrompt] = useState("");
@@ -123,22 +118,22 @@ export const TypeBox = forwardRef(
               const content = (action.content as string).replace(/\r\n/g, "\n");
 
               setMessageContent(content);
-              inputRef.current!.value = content;
+              editorRef.current?.setValue(content);
 
               // auto pos
               if (content.includes("```\n\n```")) {
                 const cursor = content.lastIndexOf("```\n\n```") + 4;
-                inputRef.current?.setSelectionRange(cursor, cursor);
+                editorRef.current?.setSelectionRange(cursor, cursor);
               } else if (content.includes('""')) {
                 const cursor = content.lastIndexOf('""') + 1;
-                inputRef.current?.setSelectionRange(cursor, cursor);
+                editorRef.current?.setSelectionRange(cursor, cursor);
               } else if (content.includes("''")) {
                 const cursor = content.lastIndexOf("''") + 1;
-                inputRef.current?.setSelectionRange(cursor, cursor);
+                editorRef.current?.setSelectionRange(cursor, cursor);
               }
               //
 
-              inputRef.current?.focus();
+              editorRef.current?.focus();
             },
             ...v,
           } as SpotlightAction;
@@ -163,7 +158,7 @@ export const TypeBox = forwardRef(
       return findIndex(quickCommands, v => v.content === messageContent) !== -1;
     }, [messageContent, quickCommands]);
     const [, setQuickActions] = useQuickActions();
-    const [currentTypeBoxId, setCurrentTypeBoxId] = useCurrentTypeBoxId();
+    const [currentTypeBoxId] = useCurrentTypeBoxId();
     const countTokenRef = createRef<any>();
     const [docs, setDocs] = useIndexedDocs();
     const [docId, setDocId] = useDocId();
@@ -173,16 +168,16 @@ export const TypeBox = forwardRef(
       initDocId: "",
     });
     const [enableDocument, setEnableDocument] = useEnableDocument();
+    const editorRef = useRef<any>(null);
 
     const handleImprove = () => {
-      if (!inputRef.current) return;
+      if (!editorRef.current) return;
 
-      let selectedText = inputRef.current.value.substring(
-        inputRef.current.selectionStart,
-        inputRef.current.selectionEnd
-      );
+      let selectedText = editorRef.current
+        .getValue()
+        .substring(editorRef.current.getSelectionStart(), editorRef.current.getSelectionEnd());
       if (!selectedText) {
-        selectedText = inputRef.current.value;
+        selectedText = editorRef.current.getValue();
       }
 
       if (!selectedText) return;
@@ -190,8 +185,8 @@ export const TypeBox = forwardRef(
       open();
       setImprovedPrompt("");
       setCanEdit(false);
-      setSelectionStart(inputRef.current.selectionStart);
-      setSelectionEnd(inputRef.current.selectionEnd);
+      setSelectionStart(editorRef.current.getSelectionStart());
+      setSelectionEnd(editorRef.current.getSelectionEnd());
 
       requestChatStream("v1/completions", getImprovePrompt(selectedText), {
         token: openaiAPIKey,
@@ -224,7 +219,7 @@ export const TypeBox = forwardRef(
             }
           } else {
             if (!isFocus && !isShowQuickCommand) {
-              inputRef.current?.focus();
+              editorRef.current?.focus();
             }
           }
         },
@@ -249,49 +244,36 @@ export const TypeBox = forwardRef(
     const onSend = (c?: string) => {
       onSubmit(c || messageContent, countTokenRef.current?.getTokens(), enableDocument ? docId : "");
       setMessageContent("");
-      if (inputRef.current) {
-        inputRef.current.value = "";
-      }
+      editorRef.current?.setValue("");
     };
 
     const confirmImprove = () => {
-      if (!inputRef.current) return;
+      if (!editorRef.current) return;
       if (selectionEnd === selectionStart) {
         setMessageContent(improvedPrompt);
         onSend(improvedPrompt);
       } else {
-        const part0 = inputRef.current.value.substring(0, selectionStart);
+        const part0 = editorRef.current.getValue().substring(0, selectionStart);
         const part1 = part0 + improvedPrompt;
-        const newContent = part1 + inputRef.current.value.substring(selectionEnd);
-        inputRef.current.value = newContent;
-        inputRef.current.setSelectionRange(part0.length, part1.length);
+        const newContent = part1 + editorRef.current.getValue().substring(selectionEnd);
+        editorRef.current.setValue(newContent);
+        editorRef.current.setSelectionRange(part0.length, part1.length);
         setMessageContent(newContent);
       }
-      inputRef.current.focus();
+      editorRef.current.focus();
       close();
     };
 
     useImperativeHandle(ref, () => ({
       focus() {
-        inputRef.current?.focus();
+        editorRef.current?.focus();
       },
     }));
 
-    useEffect(() => {
-      if (inputRef.current) {
-        inputRef.current.placeholder = [
-          "/ = command\nEnter = submit, Shift+Enter = \\n",
-          "↑↓ to take previous message",
-          "F1 to show Improve",
-        ]
-          .filter(v => !!v)
-          .join("\n");
-      }
-    }, [inputRef, isFocus]);
     useDebounce(
       () => {
         if (nextFocus) {
-          inputRef.current?.focus();
+          editorRef.current?.focus();
           setNextFocus(false);
         }
       },
@@ -306,7 +288,7 @@ export const TypeBox = forwardRef(
           .then(({ data: { data: docs } }) => {
             setDocs((docs as IndexedDocument[]).filter(v => v.isIndexed).map(v => v.doc_id));
           })
-          .catch(e => {
+          .catch(() => {
             setDocId("");
             setEnableDocument(false);
           });
@@ -406,11 +388,12 @@ export const TypeBox = forwardRef(
           </div>
         </Modal>
         <DocsModal opened={docModalOpened} close={closeDocModal} {...docModalOpenSettings} />
+        <UploadFile />
         <div className="flex flex-row items-baseline gap-3">
           <Modal
             opened={opened}
             onClose={() => {
-              inputRef.current?.focus();
+              editorRef.current?.focus();
               close();
             }}
             centered={true}
@@ -445,8 +428,14 @@ export const TypeBox = forwardRef(
           </Modal>
           <div className="flex-grow min-h-[100px] relative" ref={wRef as any}>
             <UserInput
+              ref={editorRef}
+              isReplyBox={isReplyBox}
               onFocus={() => {
-                console.log("onFocus");
+                setIsFocus(true);
+                setQuickActions(quickCommandList);
+              }}
+              onBlur={() => {
+                setIsFocus(false);
               }}
               className={classNames({
                 "absolute bottom-0": !isReplyBox,
@@ -455,6 +444,128 @@ export const TypeBox = forwardRef(
                 setMessageContent(e as string);
               }}
               autoFocus={true}
+              value={messageContent}
+              onKeyDown={(e: any) => {
+                const isMod = e.ctrlKey || e.metaKey;
+                // const isCursorEnd = e.target.selectionStart === e.target.value.length;
+                //
+                // if (e.key === "`" && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+                //   e.preventDefault();
+                //
+                //   const { selectionStart: start, selectionEnd: end, value: text } = e.target;
+                //   const startText = text.slice(0, start);
+                //   const endText = text.slice(end);
+                //   let addText = e.altKey ? "`@`" : "``";
+                //   let cursorOffset = 1;
+                //
+                //   // Add a leading space if the last character of the start text is alphanumeric or specific punctuation
+                //   if (/\w|[,!;)\]?>}]$/.test(startText.slice(-1))) {
+                //     addText = " " + addText;
+                //   }
+                //
+                //   // Prepare full text to insert
+                //   let fullInsertText = addText;
+                //   if (/^\w/.test(endText)) {
+                //     fullInsertText += " ";
+                //     cursorOffset += 1;
+                //   }
+                //
+                //   // Set selection to the start point where text will be inserted
+                //   e.target.setSelectionRange(start, end);
+                //
+                //   // Use execCommand to insert text which should maintain undo stack
+                //   document.execCommand("insertText", false, fullInsertText);
+                //
+                //   // Adjust cursor position after insertion
+                //   const newCursorPos = start + fullInsertText.length - cursorOffset;
+                //   e.target.setSelectionRange(newCursorPos, newCursorPos);
+                // }
+                //
+                // if (e.key === "Escape" && onCancel) {
+                //   if (onCancel) onCancel();
+                //   return;
+                // }
+                //
+                // if (e.key === "/" && e.target.value.length === 0) {
+                //   spotlight.open();
+                //   setCurrentTypeBoxId(id);
+                //   e.preventDefault();
+                //   e.stopPropagation();
+                //   return;
+                // }
+                //
+                // if (e.key === "F1") {
+                //   e.preventDefault();
+                //   e.stopPropagation();
+                //   handleImprove();
+                // }
+                //
+                // if (e.key === "Tab") {
+                //   e.preventDefault();
+                //   const start = e.target.selectionStart;
+                //   const end = e.target.selectionEnd;
+                //   setMessageContent(messageContent.substring(0, start) + "\t" + messageContent.substring(end));
+                //   e.target.selectionStart = e.target.selectionEnd = start + 1;
+                // }
+                // if (isMod && +e.key >= 1 && +e.key <= 9) {
+                //   e.preventDefault();
+                //   const index = +e.key - 1;
+                //   if (index <= collections.length - 1) {
+                //     setCurrentCollection(collections[index].key);
+                //   }
+                // }
+
+                // if (!isReplyBox) {
+                //   if (e.key === "ArrowUp" && !isMod && !e.shiftKey && isCursorEnd) {
+                //     let startScanIndex = messages.length - 1;
+                //     if (messageContent) {
+                //       startScanIndex = findIndex(messages, m => {
+                //         return m.source === "user" && m.content === messageContent;
+                //       });
+                //     }
+                //     if (startScanIndex > 0) {
+                //       for (let i = startScanIndex - 1; i >= 0; i--) {
+                //         if (messages[i].source === "user") {
+                //           e.preventDefault();
+                //           setMessageContent(messages[i].content);
+                //           break;
+                //         }
+                //       }
+                //     }
+                //   }
+                //   if (e.key === "ArrowDown" && !isMod && !e.shiftKey && isCursorEnd) {
+                //     let startScanIndex = 0;
+                //     if (messageContent) {
+                //       startScanIndex = findIndex(messages, m => {
+                //         return m.source === "user" && m.content === messageContent;
+                //       });
+                //     }
+                //     if (startScanIndex < messages.length - 1 && startScanIndex >= 0) {
+                //       if (messageContent.length > 0) {
+                //         startScanIndex += 1;
+                //       }
+                //       for (let i = startScanIndex; i < messages.length; i++) {
+                //         if (messages[i].source === "user") {
+                //           e.preventDefault();
+                //           setMessageContent(messages[i].content);
+                //           break;
+                //         }
+                //       }
+                //     }
+                //   }
+                // }
+
+                if (e.key === "Enter" && !e.shiftKey && isMod) {
+                  onSend();
+                  e.preventDefault();
+                  e.stopPropagation();
+                }
+                if (e.key === "Tab") {
+                  if (/[^a-zA-Z0-9]/.test(messageContent)) {
+                    e.preventDefault();
+                  }
+                }
+              }}
             />
             {/*<Textarea*/}
             {/*  ref={inputRef}*/}
@@ -680,7 +791,7 @@ export const TypeBox = forwardRef(
           )}
           <Button
             onClick={() => {
-              inputRef.current?.focus();
+              editorRef.current?.focus();
               onSend();
             }}
             variant="gradient"

@@ -49,7 +49,7 @@ const MemoizedReactMarkdown = memo(({ content: _content, id, smallText, isFirst 
           let codeContent = postprocessAnswer(rawContent.replace(/\n$/, ""), true);
 
           if (inline && !content.includes("```" + rawContent + "```")) {
-            if (node.position.end.offset - rawContent.length - node.position.start.offset === 2) {
+            if (node.position && node.position.end.offset - rawContent.length - node.position.start.offset === 2) {
               return <code className={classes.inlineCode}>{codeContent}</code>;
             }
           }
