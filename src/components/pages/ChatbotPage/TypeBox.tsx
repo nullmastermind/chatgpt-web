@@ -505,14 +505,10 @@ export const TypeBox = forwardRef(
                   handleImprove();
                 }
                 //
-                // if (e.key === "Tab") {
-                //   e.preventDefault();
-                //   const start = editorRef.current!.getSelectionStart();
-                //   const end = editorRef.current!.getSelectionEnd();
-                //   console.log("start", start, end);
-                //   setMessageContent(messageContent.substring(0, start) + "\t" + messageContent.substring(end));
-                //   e.target.selectionStart = e.target.selectionEnd = start + 1;
-                // }
+                if (e.key === "Tab") {
+                  e.preventDefault();
+                  editorRef.current?.insertContentAtCurrentCursor("\t");
+                }
                 // if (isMod && +e.key >= 1 && +e.key <= 9) {
                 //   e.preventDefault();
                 //   const index = +e.key - 1;
