@@ -287,17 +287,17 @@ export const unWrapRawContent = (content: string) => {
   return content.replace(/\\`/g, "`");
 };
 
-export const preprocessMessageContent = (content: string) => {
+export const preprocessMessageContent = (content: string): string => {
   content = content.trim();
 
   const contentArr = content.split("\n");
 
   if (contentArr[contentArr.length - 1].endsWith("```")) {
-    contentArr[contentArr.length - 1] = contentArr[contentArr.length - 1].replace(/(.*?)```/, "$1\n```");
+    contentArr[contentArr.length - 1] = contentArr[contentArr.length - 1].replace(/(.*?)```$/, "$1\n```");
   }
 
   if (contentArr[0].startsWith("```") && contentArr[0].includes(" ")) {
-    contentArr[0] = contentArr[0].replace(/```(.*?)/, "```\n$1");
+    contentArr[0] = contentArr[0].replace(/^```(.*?)/, "```\n$1");
   }
 
   content = contentArr.join("\n");
@@ -549,7 +549,10 @@ export const countTokens = async (content: string) => {
 
 export const htmlToMarkdown = (content?: string) => {
   content = (content || "").split("<li></li>").join("").split("<li><p></p></li>").join("");
-  return converter.makeMarkdown(content || "").trim();
+  return converter
+    .makeMarkdown(content || "")
+    .trim()
+    .replace(/(\n\s*\n)(?=\s*[\d.\-*])/g, "\n");
 };
 
 export const markdownToHtml = (content?: string) => {
