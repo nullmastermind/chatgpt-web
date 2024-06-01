@@ -9,6 +9,8 @@ import showdown from "showdown";
 
 const converter = new showdown.Converter({
   ghCodeBlocks: true,
+  omitExtraWLInCodeBlocks: true,
+  simplifiedAutoLink: true,
 });
 
 export type KeyValue = {
@@ -546,9 +548,9 @@ export const countTokens = async (content: string) => {
 };
 
 export const htmlToMarkdown = (content?: string) => {
-  return converter.makeMarkdown(content || "");
+  return converter.makeMarkdown(content || "").trim();
 };
 
 export const markdownToHtml = (content?: string) => {
-  return converter.makeHtml(content || "");
+  return converter.makeHtml(content || "").trim();
 };

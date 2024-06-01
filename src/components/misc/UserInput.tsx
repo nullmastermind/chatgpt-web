@@ -1,12 +1,16 @@
 import { ComponentPropsWithRef, forwardRef, memo, useImperativeHandle } from "react";
 import { Link, RichTextEditor } from "@mantine/tiptap";
-import { Editor, Extension, useEditor } from "@tiptap/react";
+import { Editor, useEditor } from "@tiptap/react";
 import { StarterKit } from "@tiptap/starter-kit";
 import { TextAlign } from "@tiptap/extension-text-align";
 import { Placeholder } from "@tiptap/extension-placeholder";
 import classNames from "classnames";
 import { createStyles, Transition } from "@mantine/core";
 import { useDebounce } from "react-use";
+import { markdownToHtml } from "@/utility/utility";
+import { Extension } from "@tiptap/core";
+import { Plugin, PluginKey } from "@tiptap/pm/state";
+import { DOMParser as DOMParser2 } from "prosemirror-model";
 
 const useStyles = createStyles(() => ({
   limitHeight: {
@@ -49,9 +53,18 @@ const UserInput = memo<
           placeholder: "Enter a prompt here",
         }),
         ShiftEnterCreateExtension,
+        EventHandler,
       ],
       content: defaultValue || "",
       onUpdate({ editor }) {
+        const state = pastePluginKey.getState(editor.state);
+        if (state.isPasted) {
+          // Reset the flag
+          editor.view.dispatch(editor.state.tr.setMeta(pastePluginKey, { isPasted: false }));
+          if (editor.getHTML()?.startsWith("<p></p><p>")) {
+            editor.commands.setContent(editor.getHTML().replace("<p></p><p>", "<p>"));
+          }
+        }
         onChange?.(editor.getHTML());
       },
     });
@@ -179,5 +192,49 @@ const ShiftEnterCreateExtension = Extension.create({
         return true;
       },
     };
+  },
+});
+
+const pastePluginKey = new PluginKey("pastePlugin");
+
+const EventHandler = Extension.create({
+  name: "eventHandler",
+
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        key: pastePluginKey,
+        state: {
+          init() {
+            return { isPasted: false };
+          },
+          apply(tr, value, oldState, newState) {
+            const meta = tr.getMeta(pastePluginKey);
+            if (meta && meta.isPasted) {
+              return { isPasted: true };
+            }
+            return { isPasted: false };
+          },
+        },
+        props: {
+          handlePaste(view, event, slice) {
+            const clipboardData = event.clipboardData;
+            const text = clipboardData?.getData("text/plain");
+            if (text) {
+              const html = markdownToHtml(text);
+              const { schema } = view.state;
+              const parser = DOMParser2.fromSchema(schema);
+              const dom = new DOMParser().parseFromString(html, "text/html");
+              const node = parser.parse(dom.body);
+              const transaction = view.state.tr.replaceSelectionWith(node);
+              transaction.setMeta(pastePluginKey, { isPasted: true });
+              view.dispatch(transaction);
+              return true;
+            }
+            return false;
+          },
+        },
+      }),
+    ];
   },
 });

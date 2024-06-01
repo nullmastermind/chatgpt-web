@@ -51,6 +51,7 @@
     "openai": "^3.2.1",
     "pako": "^2.1.0",
     "postcss": "8.4.21",
+    "prosemirror-model": "^1.21.0",
     "react": "18.2.0",
     "react-device-detect": "^2.2.3",
     "react-dom": "18.2.0",
