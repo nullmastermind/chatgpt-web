@@ -32,7 +32,7 @@ import {
   TextInput,
   Tooltip,
 } from "@mantine/core";
-import { SpotlightAction } from "@mantine/spotlight";
+import { spotlight, SpotlightAction } from "@mantine/spotlight";
 import { useForm } from "@mantine/form";
 import { cloneDeep, findIndex, uniqueId } from "lodash";
 import { requestChatStream } from "@/components/pages/ChatbotPage/Message.api";
@@ -45,7 +45,7 @@ import { indexerHost, indexerVersion } from "@/config";
 import { IconSettings } from "@tabler/icons-react";
 import DocsModal from "@/components/pages/ChatbotPage/DocsModal";
 import { isMobile } from "react-device-detect";
-import UserInput from "@/components/misc/UserInput";
+import UserInput, { EditorCommands } from "@/components/misc/UserInput";
 import classNames from "classnames";
 import UploadFile from "@/components/pages/ChatbotPage/UploadFile";
 
@@ -70,7 +70,11 @@ export const TypeBox = forwardRef(
     ref
   ) => {
     const [id] = useState(uniqueId("TypeBox"));
-    const [messageContent, setMessageContent] = useState<string>("");
+    const [messageContent, _setMessageContent] = useState<string>("");
+    const setMessageContent = (content: string) => {
+      _setMessageContent(content);
+      // editorRef.current?.setValue(content);
+    };
     const [messageContentStore, setMessageContentStore] = useSessionStorage<string>(
       `:messageBox:${collection}:${exId}`,
       ""
@@ -158,7 +162,7 @@ export const TypeBox = forwardRef(
       return findIndex(quickCommands, v => v.content === messageContent) !== -1;
     }, [messageContent, quickCommands]);
     const [, setQuickActions] = useQuickActions();
-    const [currentTypeBoxId] = useCurrentTypeBoxId();
+    const [currentTypeBoxId, setCurrentTypeBoxId] = useCurrentTypeBoxId();
     const countTokenRef = createRef<any>();
     const [docs, setDocs] = useIndexedDocs();
     const [docId, setDocId] = useDocId();
@@ -168,7 +172,7 @@ export const TypeBox = forwardRef(
       initDocId: "",
     });
     const [enableDocument, setEnableDocument] = useEnableDocument();
-    const editorRef = useRef<any>(null);
+    const editorRef = useRef<EditorCommands>(null);
 
     const handleImprove = () => {
       if (!editorRef.current) return;
@@ -428,7 +432,7 @@ export const TypeBox = forwardRef(
           </Modal>
           <div className="flex-grow min-h-[100px] relative" ref={wRef as any}>
             <UserInput
-              ref={editorRef}
+              ref={editorRef as any}
               isReplyBox={isReplyBox}
               onFocus={() => {
                 setIsFocus(true);
@@ -486,13 +490,13 @@ export const TypeBox = forwardRef(
                 //   return;
                 // }
                 //
-                // if (e.key === "/" && e.target.value.length === 0) {
-                //   spotlight.open();
-                //   setCurrentTypeBoxId(id);
-                //   e.preventDefault();
-                //   e.stopPropagation();
-                //   return;
-                // }
+                if (e.key === "/" && editorRef.current?.isEmpty()) {
+                  spotlight.open();
+                  setCurrentTypeBoxId(id);
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
                 //
                 // if (e.key === "F1") {
                 //   e.preventDefault();
@@ -502,8 +506,9 @@ export const TypeBox = forwardRef(
                 //
                 // if (e.key === "Tab") {
                 //   e.preventDefault();
-                //   const start = e.target.selectionStart;
-                //   const end = e.target.selectionEnd;
+                //   const start = editorRef.current!.getSelectionStart();
+                //   const end = editorRef.current!.getSelectionEnd();
+                //   console.log("start", start, end);
                 //   setMessageContent(messageContent.substring(0, start) + "\t" + messageContent.substring(end));
                 //   e.target.selectionStart = e.target.selectionEnd = start + 1;
                 // }

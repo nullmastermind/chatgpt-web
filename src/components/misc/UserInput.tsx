@@ -1,6 +1,6 @@
-import { ComponentPropsWithRef, forwardRef, memo, useImperativeHandle } from "react";
+import { ComponentPropsWithRef, forwardRef, memo, RefObject, useImperativeHandle } from "react";
 import { Link, RichTextEditor } from "@mantine/tiptap";
-import { useEditor } from "@tiptap/react";
+import { Editor, useEditor } from "@tiptap/react";
 import { StarterKit } from "@tiptap/starter-kit";
 import { Underline } from "@tiptap/extension-underline";
 import { TextAlign } from "@tiptap/extension-text-align";
@@ -81,7 +81,13 @@ const UserInput = memo<
           getSelectionEnd() {
             return editor?.state.selection.to;
           },
-        } as any)
+          getEditor() {
+            return editor;
+          },
+          isEmpty() {
+            return editor?.isEmpty;
+          },
+        } as EditorCommands as any)
     );
 
     useDebounce(
@@ -136,3 +142,14 @@ const UserInput = memo<
 );
 
 export default UserInput;
+
+export type EditorCommands = {
+  focus: () => void;
+  setValue: (value: string) => void;
+  setSelectionRange: (from: number, to: number) => void;
+  getValue: () => string;
+  isEmpty: () => boolean;
+  getSelectionStart: () => number;
+  getSelectionEnd: () => number;
+  getEditor: () => Editor | undefined | null;
+};
