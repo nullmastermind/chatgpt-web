@@ -99,6 +99,9 @@ const UserInput = memo<
             const { from, to } = editor!.state.selection;
             editor?.commands.insertContentAt({ from: to, to: to }, content);
           },
+          getText() {
+            return editor?.getText() || "";
+          },
         } as EditorCommands as any)
     );
 
@@ -167,4 +170,5 @@ export type EditorCommands = {
   getSelectionEnd: () => number;
   getEditor: () => Editor | undefined | null;
   insertContentAtCurrentCursor: (content: string) => void;
+  getText: () => string;
 };

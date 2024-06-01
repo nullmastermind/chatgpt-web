@@ -72,11 +72,7 @@ export const TypeBox = forwardRef(
     ref
   ) => {
     const [id] = useState(uniqueId("TypeBox"));
-    const [messageContent, _setMessageContent] = useState<string>("");
-    const setMessageContent = (content: string) => {
-      _setMessageContent(content);
-      // editorRef.current?.setValue(content);
-    };
+    const editorRef = useRef<EditorCommands>(null);
     const [messageContentStore, setMessageContentStore] = useSessionStorage<string>(
       `:messageBox:${collection}:${exId}`,
       ""
@@ -89,10 +85,6 @@ export const TypeBox = forwardRef(
     const [canEdit, setCanEdit] = useState(false);
     const [selectionStart, setSelectionStart] = useState(0);
     const [selectionEnd, setSelectionEnd] = useState(0);
-    const isShowQuickCommand = useMemo(() => {
-      const regex = /^\/[a-zA-Z0-9_-]*$/;
-      return (messageContent === "/" || regex.test(messageContent)) && !messageContent.includes("\n");
-    }, [messageContent]);
     const [nextFocus, setNextFocus] = useState(false);
     const [wRef] = useMeasure();
     const [, setCurrentCollection] = useCurrentCollection();
@@ -125,7 +117,6 @@ export const TypeBox = forwardRef(
             onTrigger(action: SpotlightAction) {
               const content = (action.content as string).replace(/\r\n/g, "\n");
 
-              setMessageContent(content);
               editorRef.current?.setValue(content);
 
               // auto pos
@@ -146,7 +137,7 @@ export const TypeBox = forwardRef(
             ...v,
           } as SpotlightAction;
         });
-    }, [quickCommands, query, isShowQuickCommand]);
+    }, [quickCommands, query]);
     const [openedCommand, { open: openCommand, close: closeCommand }] = useDisclosure(false);
     const commandForm = useForm({
       initialValues: {
@@ -163,8 +154,8 @@ export const TypeBox = forwardRef(
       },
     });
     const isEditCommand = useMemo(() => {
-      return findIndex(quickCommands, v => v.content === messageContent) !== -1;
-    }, [messageContent, quickCommands]);
+      return findIndex(quickCommands, v => v.content === editorRef.current?.getValue()) !== -1;
+    }, [quickCommands]);
     const [, setQuickActions] = useQuickActions();
     const [currentTypeBoxId, setCurrentTypeBoxId] = useCurrentTypeBoxId();
     const countTokenRef = createRef<any>();
@@ -176,7 +167,6 @@ export const TypeBox = forwardRef(
       initDocId: "",
     });
     const [enableDocument, setEnableDocument] = useEnableDocument();
-    const editorRef = useRef<EditorCommands>(null);
 
     const handleImprove = () => {
       if (!editorRef.current) return;
@@ -228,22 +218,13 @@ export const TypeBox = forwardRef(
             if (canEdit) {
               confirmImprove();
             }
-          } else {
-            if (!isFocus && !isShowQuickCommand) {
-              editorRef.current?.focus();
-            }
           }
         },
       ],
     ]);
-    useEffect(() => {
-      if (!isReplyBox) {
-        setMessageContentStore(messageContent);
-      }
-    }, [isReplyBox, messageContent]);
     useMount(() => {
       if (!isReplyBox) {
-        setMessageContent(messageContentStore);
+        editorRef.current?.setValue(messageContentStore);
       }
     });
     useEffect(() => {
@@ -253,19 +234,21 @@ export const TypeBox = forwardRef(
     }, [quickCommandList, currentTypeBoxId, id]);
 
     const onSend = (c?: string) => {
-      onSubmit(c || messageContent, countTokenRef.current?.getTokens(), enableDocument ? docId : "");
-      setMessageContent("");
+      onSubmit(
+        c || editorRef.current?.getValue() || "",
+        countTokenRef.current?.getTokens(),
+        enableDocument ? docId : ""
+      );
       editorRef.current?.setValue("");
     };
 
     const confirmImprove = () => {
       if (!editorRef.current) return;
       if (selectionEnd === selectionStart) {
-        setMessageContent(improvedPrompt);
+        editorRef.current?.setValue(improvedPrompt);
         onSend(improvedPrompt);
       } else {
         editorRef.current.replaceSelectionText(improvedPrompt.trim());
-        setMessageContent(editorRef.current.getValue());
       }
       editorRef.current.focus();
       close();
@@ -448,10 +431,11 @@ export const TypeBox = forwardRef(
                 "absolute bottom-0": !isReplyBox,
               })}
               onChange={e => {
-                setMessageContent(e as string);
+                if (!isReplyBox) {
+                  setMessageContentStore(e as string);
+                }
               }}
               autoFocus={true}
-              value={messageContent}
               onKeyDown={(e: any) => {
                 const isMod = e.ctrlKey || e.metaKey;
                 //
@@ -527,7 +511,7 @@ export const TypeBox = forwardRef(
                   e.stopPropagation();
                 }
                 if (e.key === "Tab") {
-                  if (/[^a-zA-Z0-9]/.test(messageContent)) {
+                  if (/[^a-zA-Z0-9]/.test(editorRef.current?.getValue() || "")) {
                     e.preventDefault();
                   }
                 }
@@ -538,7 +522,11 @@ export const TypeBox = forwardRef(
         <div className="flex flex-row gap-2 items-center justify-end">
           {!isMobile && (
             <div className={"flex-grow self-start"}>
-              <CountTokens ref={countTokenRef} content={messageContent} includeMessages={includeMessages} />
+              <CountTokens
+                ref={countTokenRef}
+                content={editorRef.current?.getValue() || ""}
+                includeMessages={includeMessages}
+              />
             </div>
           )}
           {!isMobile && (
@@ -594,9 +582,9 @@ export const TypeBox = forwardRef(
             <Button
               size={"xs"}
               onClick={() => {
-                commandForm.setFieldValue("content", messageContent);
+                commandForm.setFieldValue("content", editorRef.current?.getValue() || "");
                 if (isEditCommand) {
-                  const index = findIndex(quickCommands, v => v.content === messageContent);
+                  const index = findIndex(quickCommands, v => v.content === editorRef.current?.getValue());
                   if (index !== -1) {
                     commandForm.setFieldValue("name", quickCommands![index].name);
                     commandForm.setFieldValue("category", quickCommands![index].category);
