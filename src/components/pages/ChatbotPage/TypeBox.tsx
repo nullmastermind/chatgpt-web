@@ -154,7 +154,7 @@ export const TypeBox = forwardRef(
         findIndex(quickCommands, v => htmlToMarkdown(v.content) === htmlToMarkdown(editorRef.current?.getValue())) !==
         -1
       );
-    }, [quickCommands, editorRef.current?.getValue()]);
+    }, [quickCommands, messageContentStore]);
     const [, setQuickActions] = useQuickActions();
     const [currentTypeBoxId, setCurrentTypeBoxId] = useCurrentTypeBoxId();
     const countTokenRef = createRef<any>();
@@ -217,11 +217,18 @@ export const TypeBox = forwardRef(
         },
       ],
     ]);
-    useMount(() => {
+    useEffect(() => {
+      let timer: any = -1;
       if (!isReplyBox) {
-        editorRef.current?.setValue(messageContentStore);
+        timer = setInterval(() => {
+          if (editorRef.current) {
+            editorRef.current?.setValue(messageContentStore);
+            clearInterval(timer);
+          }
+        }, 30);
       }
-    });
+      return () => clearInterval(timer);
+    }, []);
     useEffect(() => {
       if (currentTypeBoxId === id) {
         setQuickActions(quickCommandList);
