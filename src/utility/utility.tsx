@@ -1,6 +1,5 @@
 import { Language } from "prism-react-renderer";
-import Fuse from "fuse.js";
-import IFuseOptions = Fuse.IFuseOptions;
+import Fuse, { IFuseOptions } from "fuse.js";
 import { findIndex, forEach } from "lodash";
 import dayjs from "dayjs";
 import slug from "slug";
