@@ -231,7 +231,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     >
       <div className="flex flex-row gap-3 items-center relative flex-grow">
         <div className="flex-grow flex gap-1 items-center text-center">
-          <div className={"w-5 justify-center flex items-center"}>
+          <div className={"w-5 justify-center flex items-center relative z-10"}>
             <span style={{ marginRight: rem(8), fontSize: "1rem" }}>
               <FunnyEmoji
                 emoji={collection.emoji}
