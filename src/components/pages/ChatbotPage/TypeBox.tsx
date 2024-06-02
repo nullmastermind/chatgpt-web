@@ -322,18 +322,21 @@ export const TypeBox = forwardRef(
           centered={true}
           title="Message template"
           scrollAreaComponent={ScrollArea.Autosize}
+          size="lg"
         >
-          <TextInput label="Name" placeholder="Name..." required {...commandForm.getInputProps("name")} />
-          <div className={"mt-2"}>
-            <UserInput
-              isReplyBox={true}
-              placeholder={"Content..."}
-              required={true}
-              defaultValue={commandForm.getInputProps("content").value}
-              {...commandForm.getInputProps("content")}
-            />
+          <div>
+            <TextInput label="Name" placeholder="Name..." required {...commandForm.getInputProps("name")} />
+            <div className={"mt-2"}>
+              <UserInput
+                isReplyBox={true}
+                placeholder={"Content..."}
+                required={true}
+                defaultValue={commandForm.getInputProps("content").value}
+                {...commandForm.getInputProps("content")}
+              />
+            </div>
           </div>
-          <div className="mt-5 flex gap-3 items-center justify-end">
+          <div className="mt-5 flex gap-3 items-center justify-end sticky bottom-0">
             <Button variant="default" onClick={() => closeCommand()}>
               Close
             </Button>
@@ -616,7 +619,7 @@ export const TypeBox = forwardRef(
               }}
               variant="default"
             >
-              {isEditCommand ? "Edit this" : "Save as"} command
+              {isEditCommand ? "Edit this" : "Save as"} template
             </Button>
           )}
           <Button
