@@ -39,6 +39,7 @@ import { PromptSaveData } from "@/components/pages/ChatbotPage/AddPrompt";
 import MemoizedReactMarkdown from "@/components/pages/ChatbotPage/MemoizedReactMarkdown";
 import { isMobile } from "react-device-detect";
 import FunnyEmoji from "@/components/misc/FunnyEmoji";
+import store, { messagesKey } from "@/utility/store";
 
 export type MessageProps = {
   collection: any;
@@ -74,18 +75,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
   const [containerRef, { height: containerHeight }] = useMeasure();
   const viewport = useRef<HTMLDivElement>(null);
   const [openaiAPIKey] = useOpenaiAPIKey();
-  const [messages, { push: pushMessage, set: setMessages, insertAt: insertMessage }] = useList<MessageItemType>(
-    JSON.parse(
-      localStorage.getItem(`:messages${collection}`) ||
-        JSON.stringify([
-          {
-            source: "assistant",
-            content: "Hello! How can I assist you today?",
-            id: Date.now(),
-          },
-        ])
-    )
-  );
+  const [messages, { push: pushMessage, set: setMessages, insertAt: insertMessage }] = useList<MessageItemType>([]);
   const [isDone, { set: setIsDone, setAll: setAllIsDone }] = useMap<{
     [key: string]: boolean;
   }>({});
@@ -220,7 +210,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
   const focusTextBox = () => {
     boxRef.current?.focus();
   };
-  const saveSplitMessages = () => {
+  const saveSplitMessages = async () => {
     doneMessages.current = {};
 
     let canSave = true;
@@ -233,16 +223,44 @@ const Message = ({ collection, prompt }: MessageProps) => {
     if (canSave) {
       const maxMessages = parseInt(localStorage.getItem(":maxMessages") || "10");
       const saveMessages = messages.splice(-maxMessages);
-      localStorage.setItem(`:messages${collection}`, JSON.stringify(saveMessages));
+      await store.setItem(messagesKey(collection), saveMessages);
       setMessages(saveMessages);
       setAllIsDone({});
     }
   };
 
+  useEffect(() => {
+    if (collection) {
+      store
+        .getItem(messagesKey(collection))
+        .then(value => {
+          if (Array.isArray(value)) {
+            setMessages(value);
+          } else {
+            setMessages([
+              {
+                source: "assistant",
+                content: "Hello! How can I assist you today?",
+                id: Date.now(),
+              } as MessageItemType,
+            ]);
+          }
+        })
+        .catch(() => {
+          setMessages([
+            {
+              source: "assistant",
+              content: "Hello! How can I assist you today?",
+              id: Date.now(),
+            } as MessageItemType,
+          ]);
+        });
+    }
+  }, [collection]);
   useUnmount(() => {
     messageRefs.current = {};
     autoScrollIds.current = {};
-    saveSplitMessages();
+    void saveSplitMessages();
   });
   useDebounce(
     async () => {
@@ -313,7 +331,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
         messages[streamIndex - 2].docId = undefined;
         userMessage.docId = undefined;
         needRefreshMessageIds.current[userMessage.id] = userMessage;
-        localStorage.setItem(`:messages${collection}`, JSON.stringify(messages));
+        await store.setItem(messagesKey(collection), messages);
         setMessages(clone(messages));
         return;
       }
@@ -376,12 +394,12 @@ const Message = ({ collection, prompt }: MessageProps) => {
         }
       });
 
-      const saveMessagesFn = (message: string) => {
-        const dbMessages = JSON.parse(localStorage.getItem(`:messages${collection}`) || "[]");
+      const saveMessagesFn = async (message: string) => {
+        const dbMessages: any[] = (await store.getItem(messagesKey(collection))) || [];
         const dbMsgIndex = findIndex(dbMessages, (v: any) => v.id === assistantPreMessage.id);
         if (dbMsgIndex >= 0) {
           dbMessages[dbMsgIndex].content = message;
-          localStorage.setItem(`:messages${collection}`, JSON.stringify(dbMessages));
+          await store.setItem(messagesKey(collection), dbMessages);
         }
       };
       const saveMessagesThr = throttle((message: string) => {
@@ -493,7 +511,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
   useDebounce(
     () => {
       if (messages.length > 0) {
-        localStorage.setItem(`:messages${collection}`, JSON.stringify(messages));
+        void store.setItem(messagesKey(collection), messages);
       }
     },
     42,
@@ -505,7 +523,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
   useDebounce(
     () => {
       if (!isIdle) return;
-      saveSplitMessages();
+      void saveSplitMessages();
     },
     60000,
     [isDone, messages, isIdle]
@@ -783,15 +801,17 @@ const MessageItem = forwardRef(
           setMessage(nextMessage);
 
           if (nextMessage.docs) {
-            const saveMessagesFn = () => {
-              const dbMessages = JSON.parse(localStorage.getItem(`:messages${collection}`) || "[]");
+            const saveMessagesFn = async () => {
+              if (!collection) return;
+              const collectionId = (collection?.key || collection) as string;
+              const dbMessages = (await store.getItem<any[]>(messagesKey(collectionId))) || [];
               const dbMsgIndex = findIndex(dbMessages, (v: any) => v.id === nextMessage.id);
               if (dbMsgIndex >= 0) {
                 dbMessages[dbMsgIndex] = nextMessage;
-                localStorage.setItem(`:messages${collection}`, JSON.stringify(dbMessages));
+                await store.setItem(messagesKey(collectionId), dbMessages);
               }
             };
-            saveMessagesFn();
+            void saveMessagesFn();
           }
 
           delete needRefreshMessageIds.current[message.id];

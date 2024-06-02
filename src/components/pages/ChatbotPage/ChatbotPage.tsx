@@ -19,6 +19,7 @@ import Message from "@/components/pages/ChatbotPage/Message";
 import { ignorePromptId } from "@/utility/utility";
 import QuickActions from "@/components/pages/ChatbotPage/QuickActions";
 import { modals } from "@mantine/modals";
+import store, { messagesKey } from "@/utility/store";
 
 const ChatbotPage = () => {
   const [, setAddCollectionAction] = useAddCollectionAction();
@@ -139,10 +140,10 @@ const ChatbotPage = () => {
       }
       const collection = find(collections, v => v.key === deleteId);
       if (collection) {
-        const doRemove = () => {
+        const doRemove = async () => {
           const dbPrompts: any[] = JSON.parse(localStorage.getItem(":prompts") || "[]");
           localStorage.setItem(":prompts", JSON.stringify(dbPrompts.filter(v => v.id !== deleteId)));
-          localStorage.removeItem(`:messages${collection.key}`);
+          await store.removeItem(messagesKey(collection.key));
           ignorePromptId(deleteId);
           getCollections();
         };
@@ -156,11 +157,11 @@ const ChatbotPage = () => {
               confirm: "Confirm",
             },
             onConfirm() {
-              doRemove();
+              void doRemove();
             },
           });
         } else if (force) {
-          doRemove();
+          void doRemove();
         }
       }
       setCurrentCollectionRemoveId(undefined);
