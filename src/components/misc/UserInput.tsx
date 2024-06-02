@@ -11,6 +11,7 @@ import { markdownToHtml } from "@/utility/utility";
 import { Extension } from "@tiptap/core";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { DOMParser as DOMParser2 } from "prosemirror-model";
+import { Underline } from "@tiptap/extension-underline";
 
 const useStyles = createStyles(() => ({
   limitHeight: {
@@ -52,6 +53,7 @@ const UserInput = memo<
         Placeholder.configure({
           placeholder: "Enter a prompt here",
         }),
+        Underline,
         ShiftEnterCreateExtension,
         EventHandler,
       ],
@@ -144,6 +146,8 @@ const UserInput = memo<
                 <RichTextEditor.ControlsGroup>
                   <RichTextEditor.Bold />
                   <RichTextEditor.Italic />
+                  <RichTextEditor.Underline />
+                  <RichTextEditor.Strikethrough />
                   <RichTextEditor.CodeBlock />
                 </RichTextEditor.ControlsGroup>
                 <RichTextEditor.ControlsGroup>
@@ -153,7 +157,6 @@ const UserInput = memo<
                   <RichTextEditor.H4 />
                 </RichTextEditor.ControlsGroup>
                 <RichTextEditor.ControlsGroup>
-                  <RichTextEditor.Hr />
                   <RichTextEditor.BulletList />
                   <RichTextEditor.OrderedList />
                 </RichTextEditor.ControlsGroup>
