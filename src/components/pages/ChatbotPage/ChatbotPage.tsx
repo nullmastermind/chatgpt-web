@@ -44,6 +44,7 @@ const ChatbotPage = () => {
     wrapSingleLine,
     wrapCustomXmlTag,
     customXmlTag,
+    emoji,
   }: PromptSaveData) => {
     const dbPrompts: any[] = JSON.parse(localStorage.getItem(":prompts") || "[]");
     if (id) {
@@ -58,6 +59,7 @@ const ChatbotPage = () => {
             wrapSingleLine,
             wrapCustomXmlTag,
             customXmlTag,
+            emoji,
           },
         };
         ignorePromptId(dbPrompts[index].id);
@@ -71,6 +73,7 @@ const ChatbotPage = () => {
         wrapSingleLine,
         wrapCustomXmlTag,
         customXmlTag,
+        emoji,
         id: id || Date.now(),
         sort: sort,
       });
@@ -94,15 +97,23 @@ const ChatbotPage = () => {
 
     setCollections(
       prompts.map(prompt => {
-        const data: string[] = prompt.name.split(" ");
-        let emoji = data.shift() as string;
-        if (data.length === 0) {
-          data.unshift(emoji);
-          emoji = prompt.name.split("")[0];
+        if (!prompt.emoji) {
+          const data: string[] = prompt.name.split(" ");
+          let emoji = data.shift() as string;
+          if (data.length === 0) {
+            data.unshift(emoji);
+            emoji = prompt.name.split("")[0];
+          }
+          return {
+            emoji,
+            label: data.join(" ").trim(),
+            parent: "nullgpt",
+            key: prompt.id,
+          };
         }
         return {
-          emoji,
-          label: data.join(" ").trim(),
+          emoji: prompt.emoji,
+          label: prompt.name,
           parent: "nullgpt",
           key: prompt.id,
         };

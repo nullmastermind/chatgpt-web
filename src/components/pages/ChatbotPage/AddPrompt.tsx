@@ -21,9 +21,10 @@ import {
 import { IconCopy, IconPlus, IconTrash } from "@tabler/icons-react";
 import classNames from "classnames";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
-import { nameWithEmoji } from "@/utility/utility";
+import EmojiPicker, { EmojiStyle, Theme } from "emoji-picker-react";
 
 export type PromptSaveData = {
+  emoji?: string;
   name: string;
   temperature: number;
   wrapSingleLine: boolean;
@@ -72,6 +73,21 @@ const AddPrompt = ({
       wrapSingleLine: Boolean(editData?.wrapSingleLine),
       wrapCustomXmlTag: Boolean(editData?.wrapCustomXmlTag),
       customXmlTag: editData?.customXmlTag || "document",
+      emoji: (() => {
+        if (editData?.name && !editData?.emoji) {
+          const data: string[] = editData?.name.split(" ");
+          let emoji = data.shift() as string;
+          if (data.length === 0) {
+            data.unshift(emoji);
+            emoji = prompt.name.split("")[0];
+          }
+          setTimeout(() => {
+            addForm.setFieldValue("name", data.join(" ").trim());
+          }, 500);
+          return emoji;
+        }
+        return editData?.emoji || "🤯";
+      })(),
     },
     validate: {
       name: v => (["", null, undefined].includes(v) ? "Invalid field" : null),
@@ -79,6 +95,7 @@ const AddPrompt = ({
     },
   });
   const customXmlTagRef = useRef<HTMLInputElement>(null);
+  const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
 
   const addPromptSetup = (posIndex: number) => {
     prompts.splice(posIndex, 0, { ...defaultValue, role: posIndex === 0 ? "system" : "user" });
@@ -106,7 +123,54 @@ const AddPrompt = ({
     >
       <div>
         <div>
-          <TextInput label={"Name"} required placeholder={"Your agent name..."} {...addForm.getInputProps("name")} />
+          <Modal
+            title={"Agent avatar"}
+            opened={openEmojiPicker}
+            onClose={() => {
+              setOpenEmojiPicker(false);
+            }}
+            className={classes.noModalBodyPad}
+            centered={true}
+          >
+            <EmojiPicker
+              width={"100%"}
+              emojiStyle={EmojiStyle.NATIVE}
+              theme={Theme.AUTO}
+              onEmojiClick={e => {
+                addForm.setFieldValue("emoji", e.emoji);
+                setOpenEmojiPicker(false);
+              }}
+            />
+          </Modal>
+          <div className={"flex flex-row items-center justify-center"}>
+            <div
+              className={"text-5xl border rounded-full flex flex-row items-center justify-center cursor-pointer"}
+              style={{
+                border: "1px solid #373A40",
+                background: "#111",
+                width: 80,
+                height: 80,
+              }}
+              onClick={() => {
+                setOpenEmojiPicker(true);
+              }}
+            >
+              <span
+                style={{
+                  lineHeight: 0,
+                }}
+              >
+                {addForm.values.emoji}
+              </span>
+            </div>
+          </div>
+          <TextInput
+            className={"flex-grow"}
+            label={"Name"}
+            required
+            placeholder={"Your agent name..."}
+            {...addForm.getInputProps("name")}
+          />
           <NumberInput
             label="Temperature"
             description="Temperature controls the creativity of your agent. (0.0-1.0) Higher is more creativity."
@@ -286,7 +350,8 @@ const AddPrompt = ({
                     if (!addForm.validate().hasErrors) {
                       onSave({
                         ...addForm.values,
-                        name: nameWithEmoji(addForm.values.name),
+                        name: addForm.values.name,
+                        emoji: addForm.values.emoji,
                         temperature: +addForm.values.temperature,
                         wrapSingleLine: Boolean(addForm.values.wrapSingleLine),
                         prompts: prompts.filter(v => {
@@ -311,7 +376,8 @@ const AddPrompt = ({
                 if (!addForm.validate().hasErrors) {
                   onSave({
                     ...addForm.values,
-                    name: nameWithEmoji(addForm.values.name),
+                    name: addForm.values.name,
+                    emoji: addForm.values.emoji,
                     temperature: +addForm.values.temperature,
                     wrapSingleLine: Boolean(addForm.values.wrapSingleLine),
                     prompts: prompts.filter(v => {

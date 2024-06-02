@@ -41,6 +41,7 @@
     "darkreader": "^4.9.75",
     "dayjs": "^1.11.7",
     "embla-carousel-react": "^7.1.0",
+    "emoji-picker-react": "^4.9.3",
     "eventsource-parser": "^1.0.0",
     "fuse.js": "^7.0.0",
     "gpt-3-encoder": "^1.1.4",

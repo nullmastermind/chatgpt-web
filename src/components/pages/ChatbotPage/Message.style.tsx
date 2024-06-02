@@ -200,6 +200,19 @@ const useStyles = createStyles(theme => ({
     position: "relative",
     border: 0,
   },
+  noModalBodyPad: {
+    "& .mantine-Modal-body": {
+      padding: 0,
+    },
+    "& .epr-main": {
+      border: 0,
+      borderRadius: 0,
+      background: "transparent",
+    },
+    "& .epr-emoji-category-label": {
+      background: "transparent",
+    },
+  },
 }));
 
 export default useStyles;
