@@ -47,6 +47,7 @@
     "gpt-3-encoder": "^1.1.4",
     "gpt-tokenizer": "^2.1.2",
     "js-base64": "^3.7.7",
+    "localforage": "^1.10.0",
     "lodash": "^4.17.21",
     "next": "13.3.0",
     "openai": "^3.2.1",
@@ -67,6 +68,7 @@
     "typescript": "5.0.4"
   },
   "devDependencies": {
+    "@types/localforage": "^0.0.34",
     "@types/lodash": "^4.14.192",
     "@types/pako": "^2.0.3",
     "@types/showdown": "^2.0.6",
