@@ -81,7 +81,7 @@ export type MainLayoutProps = {
 
 const MainLayout = ({ children }: MainLayoutProps) => {
   const { classes } = useStyles();
-  const [collections, setCollections] = useCollections();
+  const [collections] = useCollections();
   const [globalCurrentTool, setGlobalCurrentTool] = useCurrentTool();
   const [currentTool, setCurrentTool] = useLocalStorage(":currentTool", globalCurrentTool);
   const currentLink = useMemo(() => {
@@ -340,6 +340,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       <Notifications />
       <AppShell
         padding={0}
+        pl={12}
+        pr={12}
         navbar={
           <Navbar
             hidden={!opened}
@@ -354,16 +356,6 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               {renderedScrollContent}
             </Navbar.Section>
             <Navbar.Section>
-              {/*<div className={"flex flex-wrap gap-1 pb-5"}>*/}
-              {/*  <div className={"text-xs"}>Try a better UI version:</div>*/}
-              {/*  <Link className={"text-xs"} href={"https://lobehub.dongnv.dev"}>*/}
-              {/*    lobehub.dongnv.dev*/}
-              {/*  </Link>*/}
-              {/*  <div className={"text-xs opacity-60"}>*/}
-              {/*    Don't worry, this project will continue to be developed. This project is aimed at speed and*/}
-              {/*    compactness*/}
-              {/*  </div>*/}
-              {/*</div>*/}
               <div className={"flex items-center"}>
                 <div className={"flex-grow"}>
                   <Menu shadow="md" width={"100%"}>
@@ -408,7 +400,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         header={
           <Header height={{ base: 33 }} p="md">
             <div style={{ display: "flex", alignItems: "center", height: "100%" }}>
-              <MediaQuery largerThan="sm" styles={{ display: "none" }}>
+              <MediaQuery largerThan="md" styles={{ display: "none" }}>
                 <Burger
                   opened={opened}
                   onClick={() => setOpened(o => !o)}

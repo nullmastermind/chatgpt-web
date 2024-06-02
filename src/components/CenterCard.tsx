@@ -7,13 +7,8 @@ export type CenterCardProps = {
 };
 
 const CenterCard = ({ children }: CenterCardProps) => {
-  // return (
-  //   <Container size="sm" px="lg" py="xs" className="relative">
-  //     {children}
-  //   </Container>
-  // );
   return (
-    <Container size="sm" px="0" py="0">
+    <Container size="md" px="0" py="0">
       <div className="h-screen w-full flex flex-col">
         <Card padding="md" radius="0" withBorder={false} className="flex-grow relative bg-transparent">
           {children}

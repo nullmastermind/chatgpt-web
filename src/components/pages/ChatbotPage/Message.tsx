@@ -531,7 +531,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
             viewportRef={viewport}
             offsetScrollbars={false}
           >
-            <Container size="sm" className="mb-5 mt-5 p-0 px-2 sm:px-0">
+            <Container size="md" className="mb-5 mt-5 p-0">
               {map(messagesList, (messages, i0) => {
                 const position = messagesList
                   .filter((v, i) => i <= i0)
@@ -592,7 +592,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
         )}
       </div>
       <div className={classes.divider1}>
-        <Container size={"sm"} className={classNames("flex flex-col gap-3 p-3 m-auto w-full px-2 sm:px-0")}>
+        <Container size="md" className={classNames("flex flex-col gap-3 p-3 px-0 m-auto w-full")}>
           <TypeBox
             ref={boxRef}
             collection={collection}
