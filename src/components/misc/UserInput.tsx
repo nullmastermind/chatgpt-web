@@ -10,7 +10,7 @@ import { useDebounce } from "react-use";
 import { markdownToHtml } from "@/utility/utility";
 import { Extension } from "@tiptap/core";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
-import { DOMParser as DOMParser2 } from "prosemirror-model";
+import { DOMParser as DOMParser2, Fragment } from "prosemirror-model";
 import { Underline } from "@tiptap/extension-underline";
 import { IconPrompt } from "@tabler/icons-react";
 import { useDebouncedValue } from "@mantine/hooks";
@@ -208,6 +208,20 @@ const EventHandler = Extension.create({
   name: "eventHandler",
 
   addProseMirrorPlugins() {
+    let isPlainTextPaste = false;
+
+    document.addEventListener("keydown", event => {
+      if (event.shiftKey && event.key.toLowerCase() === "v") {
+        isPlainTextPaste = true;
+      }
+    });
+
+    document.addEventListener("keyup", event => {
+      if (event.key.toLowerCase() === "v") {
+        isPlainTextPaste = false;
+      }
+    });
+
     return [
       new Plugin({
         key: pastePluginKey,
@@ -228,6 +242,8 @@ const EventHandler = Extension.create({
             const clipboardData = event.clipboardData;
             const text = clipboardData?.getData("text/plain");
             let textHtml = clipboardData?.getData("text/html");
+
+            if (isPlainTextPaste) return false;
 
             if (textHtml && textHtml.includes("<!--StartFragment-->")) {
               return false;
