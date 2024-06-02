@@ -224,8 +224,8 @@ const MemoizedReactMarkdown = memo(
               setShowAll(!showAll);
             }}
           >
-            <div className={"text-xs font-bold"} style={{ fontSize: 10 }}>
-              {showAll ? "COLLAPSE" : "EXPAND"}
+            <div className={"text-xs italic font-bold"} style={{ fontSize: 10 }}>
+              {showAll ? "Collapse" : "Expand"}
             </div>
           </Button>
         )}
