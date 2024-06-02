@@ -22,6 +22,7 @@ import { IconCopy, IconPlus, IconTrash } from "@tabler/icons-react";
 import classNames from "classnames";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import EmojiPicker, { EmojiStyle, Theme } from "emoji-picker-react";
+import FunnyEmoji from "@/components/misc/FunnyEmoji";
 
 export type PromptSaveData = {
   emoji?: string;
@@ -160,7 +161,7 @@ const AddPrompt = ({
                   lineHeight: 0,
                 }}
               >
-                {addForm.values.emoji}
+                <FunnyEmoji emoji={addForm.values.emoji} emojiType={"anim"} size={55} key={addForm.values.emoji} />
               </span>
             </div>
           </div>

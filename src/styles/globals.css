@@ -9,7 +9,19 @@ body {
   line-height: 1.5 !important;
 }
 
-p, li, a {
+p,
+li,
+a {
   /*font-size: 14px;*/
   /*line-height: 1.5;*/
+}
+
+.fade-in {
+  opacity: 1;
+  transition: opacity 0.3s ease-in;
+}
+
+.fade-out {
+  opacity: 0;
+  transition: opacity 0.3s ease-in;
 }

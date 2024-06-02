@@ -38,6 +38,8 @@ import { indexerHost } from "@/config";
 import { PromptSaveData } from "@/components/pages/ChatbotPage/AddPrompt";
 import MemoizedReactMarkdown from "@/components/pages/ChatbotPage/MemoizedReactMarkdown";
 import { isMobile } from "react-device-detect";
+import { getFunEmojiUrl } from "@/utility/emoji";
+import FunnyEmoji from "@/components/misc/FunnyEmoji";
 
 export type MessageProps = {
   collection: any;
@@ -894,7 +896,9 @@ const MessageItem = forwardRef(
                             }}
                           />
                         </div>
-                        <div className={"relative inline-block"}>{collection?.emoji}</div>
+                        <div className={"relative inline-block"}>
+                          <FunnyEmoji emoji={collection?.emoji || "🤯"} emojiType={"anim"} size={38} />
+                        </div>
                       </div>
                       <div className={"text-xl"}>{collection?.label}</div>
                     </div>
