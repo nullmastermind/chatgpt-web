@@ -541,6 +541,28 @@ if (localStorage.getItem(":prompts-ver") !== promptVer) {
   localStorage.setItem(":prompts", JSON.stringify(oldPrompts.filter(v => !removeIds.has(v.id))));
 }
 
+const quickCommandsKey = ":quickCommands.v1";
+const filledKey = ":quickCommands-filled";
+
+const quickCommands = localStorage.getItem(quickCommandsKey);
+const filled = localStorage.getItem(filledKey);
+
+try {
+  if ((!quickCommands || JSON.parse(quickCommands).length === 0) && filled !== "1") {
+    const initialCommands = [
+      {
+        name: "Fix code",
+        content: "<p>Fix this code:</p><pre><code></code></pre>",
+        category: "1717088796183",
+        id: 1717241298394,
+      },
+    ];
+
+    localStorage.setItem(filledKey, "1");
+    localStorage.setItem(quickCommandsKey, JSON.stringify(initialCommands));
+  }
+} catch {}
+
 export const countTokens = async (content: string) => {
   const { encode } = await import("gpt-tokenizer");
 
