@@ -516,7 +516,7 @@ export const ignorePromptId = (id: any) => {
 
 export const defaultPrompts = require("./defaultPrompts.json");
 
-const promptVer = "v3";
+const promptVer = "v5";
 if (localStorage.getItem(":prompts-ver") !== promptVer) {
   localStorage.setItem(":prompts-ver", promptVer);
 
