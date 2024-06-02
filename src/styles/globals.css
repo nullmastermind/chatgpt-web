@@ -25,3 +25,7 @@ a {
   opacity: 0;
   transition: opacity 0.3s ease-in;
 }
+
+.size-anim {
+  transition: all 0.3s ease-in;
+}
