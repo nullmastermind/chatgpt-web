@@ -12,6 +12,7 @@ import { Extension } from "@tiptap/core";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { DOMParser as DOMParser2 } from "prosemirror-model";
 import { Underline } from "@tiptap/extension-underline";
+import { IconPrompt } from "@tabler/icons-react";
 
 const useStyles = createStyles(() => ({
   limitHeight: {
@@ -145,9 +146,10 @@ const UserInput = memo<
               <RichTextEditor.Toolbar sticky stickyOffset={0} className={"flex-nowrap overflow-auto z-auto"}>
                 <RichTextEditor.ControlsGroup>
                   <RichTextEditor.Bold />
-                  <RichTextEditor.Italic />
-                  <RichTextEditor.Underline />
+                  {/*<RichTextEditor.Italic />*/}
+                  {/*<RichTextEditor.Underline />*/}
                   <RichTextEditor.Strikethrough />
+                  <RichTextEditor.Code icon={IconPrompt} />
                   <RichTextEditor.CodeBlock />
                 </RichTextEditor.ControlsGroup>
                 <RichTextEditor.ControlsGroup>

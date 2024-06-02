@@ -22,7 +22,7 @@
     "@mantine/prism": "^6.0.6",
     "@mantine/spotlight": "^6.0.6",
     "@mantine/tiptap": "^6.0.6",
-    "@tabler/icons-react": "^2.14.0",
+    "@tabler/icons-react": "^3.5.0",
     "@tiptap/extension-highlight": "^2.4.0",
     "@tiptap/extension-link": "^2.4.0",
     "@tiptap/extension-placeholder": "^2.4.0",

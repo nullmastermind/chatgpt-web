@@ -28,7 +28,7 @@ import {
   wrapRawContent,
 } from "@/utility/utility";
 import TypingBlinkCursor from "@/components/misc/TypingBlinkCursor";
-import { IconCopy } from "@tabler/icons-react";
+import { IconCopy, IconMoodPuzzled } from "@tabler/icons-react";
 import ReplyItem from "@/components/pages/ChatbotPage/ReplyItem";
 import { TypeBox } from "@/components/pages/ChatbotPage/TypeBox";
 import DateInfo from "@/components/pages/ChatbotPage/DateInfo";
@@ -38,7 +38,6 @@ import { indexerHost } from "@/config";
 import { PromptSaveData } from "@/components/pages/ChatbotPage/AddPrompt";
 import MemoizedReactMarkdown from "@/components/pages/ChatbotPage/MemoizedReactMarkdown";
 import { isMobile } from "react-device-detect";
-import { getFunEmojiUrl } from "@/utility/emoji";
 import FunnyEmoji from "@/components/misc/FunnyEmoji";
 
 export type MessageProps = {
@@ -906,7 +905,11 @@ const MessageItem = forwardRef(
                       <div className={"text-xl"}>{collection?.label}</div>
                     </div>
                   )}
-                  {isChild && <div className={"w-3"} />}
+                  {isChild && (
+                    <div className={"w-3"}>
+                      {isChild && message.source !== "assistant" && <IconMoodPuzzled size={"1.5rem"} />}
+                    </div>
+                  )}
                 </div>
                 {!isChild && (
                   <div className={"flex flex-row gap-2 items-center"}>
