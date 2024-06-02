@@ -906,8 +906,12 @@ const MessageItem = forwardRef(
                     </div>
                   )}
                   {isChild && (
-                    <div className={"w-3"}>
-                      {isChild && message.source !== "assistant" && <IconMoodPuzzled size={"1.5rem"} />}
+                    <div className={"w-3 relative"}>
+                      {isChild && message.source !== "assistant" && (
+                        <div className={"absolute"}>
+                          <IconMoodPuzzled size={"1.5rem"} />
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
