@@ -13,6 +13,7 @@ import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { DOMParser as DOMParser2 } from "prosemirror-model";
 import { Underline } from "@tiptap/extension-underline";
 import { IconPrompt } from "@tabler/icons-react";
+import { useDebouncedValue } from "@mantine/hooks";
 
 const useStyles = createStyles(() => ({
   limitHeight: {
@@ -71,6 +72,7 @@ const UserInput = memo<
         onChange?.(editor.getHTML());
       },
     });
+    const [isFocused] = useDebouncedValue(editor?.isFocused, 100);
 
     useImperativeHandle(
       ref,
@@ -137,8 +139,8 @@ const UserInput = memo<
           <div
             style={styles}
             className={classNames("w-full shadow-xl", className, {
-              [classes.limitHeight]: !isReplyBox && editor?.isFocused,
-              [classes.limitHeightBlur]: !isReplyBox && !editor?.isFocused,
+              [classes.limitHeight]: !isReplyBox && isFocused,
+              [classes.limitHeightBlur]: !isReplyBox && !isFocused,
               [classes.shadow]: !isReplyBox && (editor?.options?.element as any)?.offsetHeight > 70,
             })}
           >
