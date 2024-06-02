@@ -882,7 +882,23 @@ const MessageItem = forwardRef(
             <div style={{ position: isChild ? "sticky" : undefined }} className="top-3 mx-2">
               <div className={"flex flex-row items-center gap-2"}>
                 <div className={"relative"}>
-                  {!isChild && <div>{collection?.emoji}</div>}
+                  {!isChild && (
+                    <div className={"flex flex-row gap-1 items-center"}>
+                      <div className={"text-3xl relative"}>
+                        <div className={"absolute top-0 left-0 w-full h-full flex items-center justify-center"}>
+                          <div
+                            className={"rounded-full w-[34px] h-[34px]"}
+                            style={{
+                              background: "rgba(255, 255, 255, 0.1)",
+                              border: "1px solid rgba(255, 255, 255, 1)",
+                            }}
+                          />
+                        </div>
+                        <div className={"relative inline-block"}>{collection?.emoji}</div>
+                      </div>
+                      <div className={"text-xl"}>{collection?.label}</div>
+                    </div>
+                  )}
                   {isChild && <div className={"w-3"} />}
                 </div>
                 {!isChild && (
