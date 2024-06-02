@@ -214,15 +214,19 @@ const MemoizedReactMarkdown = memo(
         </div>
         {isFirst && _content.length > MAX_TEXT && (
           <Button
-            rightIcon={<IconMenuOrder size={"1rem"} />}
+            leftIcon={<IconMenuOrder size={"1.3rem"} />}
             size={"xs"}
             fullWidth={true}
-            className={classes.expandBox}
+            className={classNames(classes.expandBox, {
+              "mt-3": showAll,
+            })}
             onClick={() => {
               setShowAll(!showAll);
             }}
           >
-            Expand/Collapse
+            <div className={"text-xs font-bold"} style={{ fontSize: 10 }}>
+              {showAll ? "COLLAPSE" : "EXPAND"}
+            </div>
           </Button>
         )}
       </div>
