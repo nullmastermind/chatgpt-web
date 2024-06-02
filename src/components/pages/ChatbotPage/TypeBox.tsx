@@ -45,7 +45,7 @@ import CountTokens from "@/components/pages/ChatbotPage/CountTokens";
 import { getImprovePrompt } from "@/utility/warmup";
 import axios from "axios";
 import { indexerHost, indexerVersion } from "@/config";
-import { IconSettings } from "@tabler/icons-react";
+import { IconPlus, IconSearch, IconSettings } from "@tabler/icons-react";
 import DocsModal from "@/components/pages/ChatbotPage/DocsModal";
 import { isMobile } from "react-device-detect";
 import UserInput, { EditorCommands } from "@/components/misc/UserInput";
@@ -129,8 +129,10 @@ export const TypeBox = forwardRef(
               editorRef.current?.setSelectionRange(cursor, cursor);
             }
             //
-
-            editorRef.current?.focus();
+            const focusInterval = setInterval(() => {
+              editorRef.current?.focus();
+            }, 16);
+            setTimeout(() => clearInterval(focusInterval), 100);
           },
           ...v,
         } as SpotlightAction;
@@ -386,7 +388,11 @@ export const TypeBox = forwardRef(
           </div>
         </Modal>
         <DocsModal opened={docModalOpened} close={closeDocModal} {...docModalOpenSettings} />
-        <UploadFile />
+        <div className={"flex flex-row gap-1 items-center"}>
+          <div className={"flex-grow"}>
+            <UploadFile />
+          </div>
+        </div>
         <div className="flex flex-row items-baseline gap-3">
           <Modal
             opened={opened}
@@ -594,33 +600,49 @@ export const TypeBox = forwardRef(
             </Button>
           )}
           {!isMobile && !isReplyBox && (
-            <Button
-              size={"xs"}
-              onClick={() => {
-                commandForm.setFieldValue("content", editorRef.current?.getValue() || "");
-                if (isEditCommand) {
-                  const index = findIndex(
-                    quickCommands,
-                    v => htmlToMarkdown(v.content) === htmlToMarkdown(editorRef.current?.getValue())
-                  );
-                  if (index !== -1) {
-                    commandForm.setFieldValue("name", quickCommands![index].name);
-                    commandForm.setFieldValue("category", quickCommands![index].category);
-                    commandForm.setFieldValue("id", quickCommands![index].id);
+            <Button.Group>
+              <Button
+                size={"xs"}
+                onClick={() => {
+                  commandForm.setFieldValue("content", editorRef.current?.getValue() || "");
+                  if (isEditCommand) {
+                    const index = findIndex(
+                      quickCommands,
+                      v => htmlToMarkdown(v.content) === htmlToMarkdown(editorRef.current?.getValue())
+                    );
+                    if (index !== -1) {
+                      commandForm.setFieldValue("name", quickCommands![index].name);
+                      commandForm.setFieldValue("category", quickCommands![index].category);
+                      commandForm.setFieldValue("id", quickCommands![index].id);
+                    } else {
+                      commandForm.setFieldValue("name", "");
+                      commandForm.setFieldValue("category", `${collection}`);
+                    }
                   } else {
                     commandForm.setFieldValue("name", "");
                     commandForm.setFieldValue("category", `${collection}`);
                   }
-                } else {
-                  commandForm.setFieldValue("name", "");
-                  commandForm.setFieldValue("category", `${collection}`);
-                }
-                openCommand();
-              }}
-              variant="default"
-            >
-              {isEditCommand ? "Edit this" : "Save as"} template
-            </Button>
+                  openCommand();
+                }}
+                variant="default"
+              >
+                {isEditCommand ? "Edit this" : "Save as"} template
+              </Button>
+              <Tooltip label={'For quick access, type "/" when the editor is empty to show a list of templates'}>
+                <Button
+                  className={"px-1"}
+                  title={'For quick access, type "/" when the editor is empty to show a list of templates'}
+                  variant={"default"}
+                  size={"xs"}
+                  onClick={() => {
+                    setCurrentTypeBoxId(id);
+                    spotlight.open();
+                  }}
+                >
+                  <IconSearch size={"1.3rem"} />
+                </Button>
+              </Tooltip>
+            </Button.Group>
           )}
           <Button
             onClick={() => {
