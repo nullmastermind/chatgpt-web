@@ -556,6 +556,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
                           {styles => (
                             <MessageItem
                               isFirst={index === 0 && i0 === 0}
+                              isLast={i0 === messagesList.length - 1}
                               ref={instance => {
                                 if (instance) messageRefs.current[message.id] = instance;
                               }}
@@ -619,6 +620,7 @@ const MessageItem = forwardRef(
       isChild,
       style,
       isFirst,
+      isLast,
     }: {
       classes: any;
       message: any;
@@ -632,6 +634,7 @@ const MessageItem = forwardRef(
       isChild: boolean;
       style?: any;
       isFirst: boolean;
+      isLast: boolean;
     },
     ref
   ) => {
@@ -897,7 +900,7 @@ const MessageItem = forwardRef(
                           />
                         </div>
                         <div className={"relative inline-block"}>
-                          <FunnyEmoji emoji={collection?.emoji || "🤯"} emojiType={"anim"} size={38} />
+                          <FunnyEmoji emoji={collection?.emoji || "🥸"} emojiType={isLast ? "anim" : "3d"} size={38} />
                         </div>
                       </div>
                       <div className={"text-xl"}>{collection?.label}</div>

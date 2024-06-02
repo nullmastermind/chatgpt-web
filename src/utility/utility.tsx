@@ -409,7 +409,7 @@ export function nameWithEmoji(name: string) {
   const spaceRegex = /\p{Z}$/u;
   const emojiMatch = name.match(emojiRegex);
   if (!emojiMatch) {
-    name = "🤯 " + name;
+    name = "🥸 " + name;
   } else {
     const emojiEndIndex = emojiMatch[0].length;
     if (!spaceRegex.test(name.slice(emojiEndIndex))) {

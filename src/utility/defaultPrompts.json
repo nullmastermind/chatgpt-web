@@ -1,6 +1,6 @@
 [
   {
-    "name": "🤯 Just Chat",
+    "name": "🥸 Just Chat",
     "temperature": 0.5,
     "prompts": [{ "role": "system", "prompt": "You are a helpful assistant." }, "your"],
     "wrapSingleLine": false,

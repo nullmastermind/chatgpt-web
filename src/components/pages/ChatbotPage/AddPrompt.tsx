@@ -87,7 +87,7 @@ const AddPrompt = ({
           }, 500);
           return emoji;
         }
-        return editData?.emoji || "🤯";
+        return editData?.emoji || "🥸";
       })(),
     },
     validate: {
@@ -119,7 +119,7 @@ const AddPrompt = ({
       centered={true}
       opened={opened}
       onClose={close}
-      title="Add agent"
+      title={editData?.id ? "Edit agent" : "Add agent"}
       scrollAreaComponent={ScrollArea.Autosize}
     >
       <div>

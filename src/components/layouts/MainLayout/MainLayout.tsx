@@ -49,6 +49,7 @@ import classNames from "classnames";
 import { useHotkeys } from "@mantine/hooks";
 import { exportLocalStorageToJSON, importLocalStorageFromFile } from "@/utility/utility";
 import { disable as disableDarkMode, enable as enableDarkMode } from "darkreader";
+import FunnyEmoji from "@/components/misc/FunnyEmoji";
 
 export type CollectionItem = {
   emoji: string;
@@ -231,7 +232,13 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       <div className="flex flex-row gap-3 items-center relative flex-grow">
         <div className="flex-grow flex gap-1 items-center text-center">
           <div className={"w-5 justify-center flex items-center"}>
-            <span style={{ marginRight: rem(8), fontSize: "1rem" }}>{collection.emoji}</span>
+            <span style={{ marginRight: rem(8), fontSize: "1rem" }}>
+              <FunnyEmoji
+                emoji={collection.emoji}
+                emojiType={collection.key === currentCollection ? "anim" : "3d"}
+                size={collection.key === currentCollection ? 34 : 20}
+              />
+            </span>
           </div>
           <div className={"whitespace-nowrap"}>{collection.label}</div>
           {index < 9 && (
