@@ -149,7 +149,7 @@ const UserInput = memo<
                   {/*<RichTextEditor.Italic />*/}
                   {/*<RichTextEditor.Underline />*/}
                   <RichTextEditor.Strikethrough />
-                  <RichTextEditor.Code icon={IconPrompt} />
+                  <RichTextEditor.Code icon={IconPrompt as any} />
                   <RichTextEditor.CodeBlock />
                 </RichTextEditor.ControlsGroup>
                 <RichTextEditor.ControlsGroup>
