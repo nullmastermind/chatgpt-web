@@ -7,7 +7,7 @@ import { Placeholder } from "@tiptap/extension-placeholder";
 import classNames from "classnames";
 import { createStyles, Transition } from "@mantine/core";
 import { useDebounce } from "react-use";
-import { markdownToHtml } from "@/utility/utility";
+import { isMarkdown, markdownToHtml } from "@/utility/utility";
 import { Extension } from "@tiptap/core";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { DOMParser as DOMParser2, Fragment } from "prosemirror-model";
@@ -252,6 +252,10 @@ const EventHandler = Extension.create({
             if (text) {
               const nodeType = view.state.selection.$from.parent.type;
               if (nodeType.name === "codeBlock") return false;
+              const { isMarkdown: isMd, inline } = isMarkdown(text);
+
+              // console.log(isMarkdown(text));
+              if (!isMd) return false;
 
               const { from, to } = view.state.selection;
               const html = markdownToHtml(text);
@@ -260,12 +264,29 @@ const EventHandler = Extension.create({
               const dom = new DOMParser().parseFromString(html, "text/html");
               const node = parser.parse(dom.body);
               const inlineNodes: any[] = [];
-              node.content.forEach(child => {
-                inlineNodes.push(child);
-              });
-              const fragment = schema.nodes.doc.createAndFill({}, inlineNodes);
-              if (fragment) {
-                const transaction = view.state.tr.replaceRangeWith(from, to, fragment);
+
+              // console.log("inline", inline);
+
+              if (inline) {
+                node.content.forEach((child, i) => {
+                  if (child.isInline || i > 0) {
+                    inlineNodes.push(child);
+                  } else {
+                    child.content.forEach(grandChild => {
+                      inlineNodes.push(grandChild);
+                    });
+                  }
+                });
+              } else {
+                node.content.forEach((child, i) => {
+                  inlineNodes.push(child);
+                });
+              }
+
+              if (inlineNodes.length > 0) {
+                const fragment = Fragment.fromArray(inlineNodes);
+                const parentNode = schema.nodes.paragraph.create(null, fragment);
+                const transaction = view.state.tr.replaceRangeWith(from, to, parentNode);
                 transaction.setMeta(pastePluginKey, { isPasted: true });
                 view.dispatch(transaction);
               }

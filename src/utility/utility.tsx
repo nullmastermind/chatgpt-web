@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import { NotificationProps, notifications } from "@mantine/notifications";
 import { IconX } from "@tabler/icons-react";
 import showdown from "showdown";
+import { marked, Tokens } from "marked";
 
 const converter = new showdown.Converter({
   ghCodeBlocks: true,
@@ -586,4 +587,47 @@ export const addTypingSymbol = (content: string, canAdd?: boolean) => {
     return content + "█";
   }
   return content;
+};
+
+// Helper function to classify a token as inline or block
+const classifyMarkdownToken = (token: Tokens.Generic): "inline" | "block" | null => {
+  const inlineTokenTypes = new Set(["codespan", "strong", "em", "link", "image", "emStrong"]);
+
+  const blockTokenTypes = new Set(["heading", "list", "blockquote", "code", "table"]);
+
+  if (inlineTokenTypes.has(token.type)) {
+    return "inline";
+  }
+
+  if (blockTokenTypes.has(token.type)) {
+    return "block";
+  }
+
+  if (token.tokens && token.tokens.length > 0) {
+    for (const childToken of token.tokens) {
+      const classification = classifyMarkdownToken(childToken);
+      if (classification) {
+        return classification;
+      }
+    }
+  }
+
+  return null;
+};
+
+// Function to check if input is Markdown and classify as inline or block
+export const isMarkdown = (input: string): { isMarkdown: boolean; inline: boolean } => {
+  try {
+    const tokens = marked.lexer(input);
+    for (const token of tokens) {
+      const classification = classifyMarkdownToken(token);
+      if (classification) {
+        return { isMarkdown: true, inline: classification === "inline" };
+      }
+    }
+  } catch (error) {
+    console.error("Error parsing Markdown:", error);
+  }
+
+  return { isMarkdown: false, inline: false };
 };
