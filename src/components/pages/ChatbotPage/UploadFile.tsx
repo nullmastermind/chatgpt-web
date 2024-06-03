@@ -20,7 +20,16 @@ const UploadFile = memo(() => {
           </Button>
         </Menu.Target>
         <Menu.Dropdown>
-          <Menu.Item className={"p-1"} disabled={false}>
+          <div
+            className={"px-1"}
+            style={{
+              fontSize: 10,
+              color: "orange",
+            }}
+          >
+            Features are under testing before release
+          </div>
+          <Menu.Item className={"p-1"} disabled={true}>
             <div className={"flex flex-row gap-1 items-center"}>
               <IconFileStack size={"1.3rem"} />
               <div>Private document</div>
