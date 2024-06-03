@@ -1,4 +1,4 @@
-import { ComponentPropsWithRef, forwardRef, memo, useImperativeHandle } from "react";
+import { ComponentPropsWithRef, forwardRef, memo, useEffect, useImperativeHandle, useState } from "react";
 import { Link, RichTextEditor } from "@mantine/tiptap";
 import { Editor, useEditor } from "@tiptap/react";
 import { StarterKit } from "@tiptap/starter-kit";
@@ -72,7 +72,7 @@ const UserInput = memo<
         onChange?.(editor.getHTML());
       },
     });
-    const [isFocused] = useDebouncedValue(editor?.isFocused, 100);
+    const [isFocused, setIsFocused] = useState(false);
 
     useImperativeHandle(
       ref,
@@ -132,6 +132,16 @@ const UserInput = memo<
       100,
       [editor]
     );
+    useDebounce(
+      () => {
+        if (!editor?.isFocused) setIsFocused(false);
+      },
+      100,
+      [editor?.isFocused]
+    );
+    useEffect(() => {
+      if (editor?.isFocused) setIsFocused(true);
+    }, [editor?.isFocused]);
 
     return (
       <Transition transition={"fade"} mounted={!!editor}>
@@ -256,6 +266,7 @@ const EventHandler = Extension.create({
 
               // console.log(isMarkdown(text));
               if (!isMd) return false;
+              if (!view.state.selection) return false;
 
               const { from, to } = view.state.selection;
               const html = markdownToHtml(text);
