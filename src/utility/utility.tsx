@@ -635,16 +635,9 @@ export const isMarkdown = (input: string): { isMarkdown: boolean; inline: boolea
 };
 
 const trimEmptyListItems = (markdown: string): string => {
-  const renderer = new marked.Renderer();
-
-  renderer.listitem = text => {
-    if (text.trim() === "") {
-      return "";
-    }
-    return `<li>${text}</li>\n`;
-  };
-
-  return marked(markdown, { renderer }) as string;
+  const lines = markdown.split("\n");
+  const trimmedLines = lines.filter(line => !/^(\s*[-*]\s*|\d+\.\s*)$/.test(line));
+  return trimmedLines.join("\n");
 };
 
 export const fixEditorOutput = (content?: string) => {
