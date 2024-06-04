@@ -11,6 +11,7 @@ import { Extension } from "@tiptap/core";
 import { Underline } from "@tiptap/extension-underline";
 import { IconPrompt } from "@tabler/icons-react";
 import { Markdown } from "tiptap-markdown";
+import { fixEditorOutput } from "@/utility/utility";
 
 const useStyles = createStyles(() => ({
   limitHeight: {
@@ -61,7 +62,7 @@ const UserInput = memo<
       ],
       content: defaultValue || "",
       onUpdate({ editor }) {
-        onChange?.(editor.storage.markdown.getMarkdown());
+        onChange?.(fixEditorOutput(editor.storage.markdown.getMarkdown()));
       },
     });
     const [isFocused, setIsFocused] = useState(false);
@@ -80,7 +81,7 @@ const UserInput = memo<
             editor?.commands.setTextSelection({ from, to });
           },
           getValue() {
-            return editor?.storage.markdown.getMarkdown();
+            return fixEditorOutput(editor?.storage.markdown.getMarkdown());
           },
           getSelectionStart() {
             return editor?.state.selection.from;
