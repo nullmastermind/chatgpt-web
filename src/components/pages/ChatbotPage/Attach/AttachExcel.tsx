@@ -1,17 +1,5 @@
 import React, { memo, useEffect, useState } from "react";
-import {
-  Button,
-  Group,
-  Modal,
-  rem,
-  ScrollArea,
-  Title,
-  useMantineTheme,
-  Text,
-  Divider,
-  Card,
-  Switch,
-} from "@mantine/core";
+import { Button, Card, Group, Modal, rem, ScrollArea, Switch, Text, Title, useMantineTheme } from "@mantine/core";
 import { AttachItem, AttachItemType } from "@/components/misc/types";
 import { v4 } from "uuid";
 import { IconBrandOffice, IconCheck, IconCsv, IconUpload, IconX } from "@tabler/icons-react";
