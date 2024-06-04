@@ -32,7 +32,7 @@ import { IconCopy, IconMoodPuzzled } from "@tabler/icons-react";
 import ReplyItem from "@/components/pages/ChatbotPage/ReplyItem";
 import { TypeBox } from "@/components/pages/ChatbotPage/TypeBox";
 import DateInfo from "@/components/pages/ChatbotPage/DateInfo";
-import { useDisclosure, useIdle } from "@mantine/hooks";
+import { useDisclosure, useElementSize, useIdle } from "@mantine/hooks";
 import axios from "axios";
 import { indexerHost } from "@/config";
 import { PromptSaveData } from "@/components/pages/ChatbotPage/AddPrompt";
@@ -42,6 +42,8 @@ import FunnyEmoji from "@/components/misc/FunnyEmoji";
 import store, { attachKey, messagesKey } from "@/utility/store";
 import { AttachItem, TMessageItem } from "@/components/misc/types";
 import { it } from "node:test";
+import AttachName from "@/components/pages/ChatbotPage/Attach/AttachName";
+import { modals } from "@mantine/modals";
 
 export type MessageProps = {
   collection: any;
@@ -727,6 +729,14 @@ const MessageItem = forwardRef(
     const smoothIntervalId = useRef<any>(-1);
     const smoothCurrentContent = useRef<string>("");
     const smoothCurrentIndex = useRef<number>(-1);
+    const [attachItems, setAttachItems] = useState<AttachItem[]>([]);
+
+    const updateAttachInfo = async () => {
+      const attachItems: AttachItem[] | null = await store.getItem(attachKey(collectionId, inputMessage.id));
+      if (Array.isArray(attachItems)) {
+        setAttachItems(attachItems);
+      }
+    };
 
     useImperativeHandle(ref, () => ({
       editMessage(newMessage: string, isDone: boolean) {
@@ -864,6 +874,9 @@ const MessageItem = forwardRef(
         clearInterval(intervalId);
       };
     }, [message, hasDocs, isBottom]);
+    useEffect(() => {
+      void updateAttachInfo();
+    }, [inputMessage?.id]);
 
     return (
       <>
@@ -1022,6 +1035,21 @@ const MessageItem = forwardRef(
                   >
                     Documents
                   </Badge>
+                </div>
+              )}
+              {attachItems.length > 0 && (
+                <div className={"flex flex-row relative px-2 mt-2"}>
+                  <div className={"flex-grow"}>
+                    <div className={"flex flex-row w-full gap-1 items-center flex-wrap"}>
+                      {map(attachItems, item => {
+                        return (
+                          <div key={item.id} className={"flex items-center"}>
+                            <AttachName name={item.name} type={item.type} />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
