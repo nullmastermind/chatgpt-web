@@ -1,8 +1,9 @@
-import React, { memo } from "react";
-import { Button, Menu } from "@mantine/core";
+import React, { memo, useState } from "react";
+import { Button, Menu, ScrollArea } from "@mantine/core";
 import {
   IconBlockquote,
   IconBrandShazam,
+  IconClearAll,
   IconCsv,
   IconFileStack,
   IconPdf,
@@ -10,74 +11,159 @@ import {
   IconPlus,
   IconUnlink,
 } from "@tabler/icons-react";
-import { AttachItem } from "@/components/misc/types";
+import { AttachItem, AttachItemType } from "@/components/misc/types";
+import AttachTextData from "@/components/pages/ChatbotPage/Attach/AttachTextData";
+import { clone, findIndex, map } from "lodash";
+import AttachName from "@/components/pages/ChatbotPage/Attach/AttachName";
+import { modals } from "@mantine/modals";
+import { useElementSize } from "@mantine/hooks";
 
 const UploadFile = memo<{
   onChange: (value: AttachItem[]) => any;
 }>(() => {
+  const [showAttach, setShowAttach] = useState<AttachItemType | null>(null);
+  const [data, setData] = useState<AttachItem[]>([]);
+  const [editItem, setEditItem] = useState<AttachItem | null>(null);
+  const { ref: attachContainerRef, width: attachContainerWidth } = useElementSize();
+
+  const resetEdit = () => {
+    setEditItem(null);
+    setShowAttach(null);
+  };
+
   return (
-    <div className="flex flex-row gap-2 items-center">
-      <Menu>
-        <Menu.Target>
-          <Button className={"p-0 px-1 h-auto"} variant={"default"} size={"xs"} rightIcon={<IconPlus size={"1rem"} />}>
-            Attach
-          </Button>
-        </Menu.Target>
-        <Menu.Dropdown>
-          <div
-            className={"px-1"}
-            style={{
-              fontSize: 10,
-              color: "orange",
-            }}
-          >
-            Features are under testing before release
+    <>
+      <AttachTextData
+        opened={showAttach === AttachItemType.TextData}
+        onClose={() => {
+          resetEdit();
+        }}
+        value={editItem}
+        onSubmit={value => {
+          setData(prevState => {
+            const index = findIndex(prevState, value1 => value1.id === value.id);
+            if (index !== -1) prevState[index] = value;
+            else prevState.push(value);
+            return clone(prevState);
+          });
+          resetEdit();
+        }}
+      />
+      <div className="flex flex-row gap-2 items-center h-[20px]">
+        <Menu>
+          <Menu.Target>
+            <Button
+              className={"p-0 px-1 h-auto"}
+              variant={"default"}
+              size={"xs"}
+              rightIcon={<IconPlus size={"1rem"} />}
+            >
+              Attach
+            </Button>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <div
+              className={"px-1"}
+              style={{
+                fontSize: 10,
+                color: "orange",
+              }}
+            >
+              Features are under testing before release
+            </div>
+            <Menu.Item className={"p-1"} disabled={true}>
+              <div className={"flex flex-row gap-1 items-center"}>
+                <IconFileStack size={"1.3rem"} />
+                <div>Private document</div>
+              </div>
+            </Menu.Item>
+            <Menu.Item className={"p-1"} onClick={() => setShowAttach(AttachItemType.TextData)}>
+              <div className={"flex flex-row gap-1 items-center"}>
+                <IconBlockquote size={"1.3rem"} />
+                <div>Text data</div>
+              </div>
+            </Menu.Item>
+            <Menu.Item className={"p-1"} disabled={true}>
+              <div className={"flex flex-row gap-1 items-center"}>
+                <IconCsv size={"1.3rem"} />
+                <div>Excel/Word/Text</div>
+              </div>
+            </Menu.Item>
+            <Menu.Item className={"p-1"} disabled={true}>
+              <div className={"flex flex-row gap-1 items-center"}>
+                <IconPdf size={"1.3rem"} />
+                <div>OCR - Pdf/Image</div>
+              </div>
+            </Menu.Item>
+            <Menu.Item className={"p-1"} disabled={true}>
+              <div className={"flex flex-row gap-1 items-center"}>
+                <IconPhotoEdit size={"1.3rem"} />
+                <div>Image</div>
+              </div>
+            </Menu.Item>
+            <Menu.Item className={"p-1"} disabled={true}>
+              <div className={"flex flex-row gap-1 items-center"}>
+                <IconBrandShazam size={"1.3rem"} />
+                <div>Audio</div>
+              </div>
+            </Menu.Item>
+            <Menu.Item className={"p-1"} disabled={true}>
+              <div className={"flex flex-row gap-1 items-center"}>
+                <IconUnlink size={"1.3rem"} />
+                <div>Website URL</div>
+              </div>
+            </Menu.Item>
+            <Menu.Divider />
+            <Menu.Item className={"p-1"} onClick={() => setData([])}>
+              <div className={"flex flex-row gap-1 items-center"}>
+                <IconClearAll size={"1.3rem"} />
+                <div>Clear all</div>
+              </div>
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
+        <div className={"flex-grow relative h-full"}>
+          <div className={"absolute top-0.5 w-full"} ref={attachContainerRef}>
+            <ScrollArea w={attachContainerWidth} scrollbarSize={8}>
+              <div className={"flex flex-row w-full gap-1 items-center pb-2 pr-2"}>
+                {map(data, item => {
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => {
+                        setEditItem(item);
+                        setShowAttach(item.type);
+                      }}
+                      className={"flex items-center"}
+                    >
+                      <AttachName
+                        name={item.name}
+                        type={item.type}
+                        onRemove={e => {
+                          e.stopPropagation();
+                          modals.openConfirmModal({
+                            title: "Confirm",
+                            centered: true,
+                            children: `Delete the attachment "${item.name}"?`,
+                            labels: { confirm: "Confirm", cancel: "Cancel" },
+                            transitionProps: { transition: "slide-up" },
+                            onConfirm: async () => {
+                              setData(prevState => {
+                                return prevState.filter(v => v.id !== item.id);
+                              });
+                            },
+                          });
+                        }}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            </ScrollArea>
           </div>
-          <Menu.Item className={"p-1"} disabled={true}>
-            <div className={"flex flex-row gap-1 items-center"}>
-              <IconFileStack size={"1.3rem"} />
-              <div>Private document</div>
-            </div>
-          </Menu.Item>
-          <Menu.Item className={"p-1"} disabled={false}>
-            <div className={"flex flex-row gap-1 items-center"}>
-              <IconBlockquote size={"1.3rem"} />
-              <div>Text data</div>
-            </div>
-          </Menu.Item>
-          <Menu.Item className={"p-1"} disabled={true}>
-            <div className={"flex flex-row gap-1 items-center"}>
-              <IconCsv size={"1.3rem"} />
-              <div>Excel/Word/Text</div>
-            </div>
-          </Menu.Item>
-          <Menu.Item className={"p-1"} disabled={true}>
-            <div className={"flex flex-row gap-1 items-center"}>
-              <IconPdf size={"1.3rem"} />
-              <div>OCR - Pdf/Image</div>
-            </div>
-          </Menu.Item>
-          <Menu.Item className={"p-1"} disabled={true}>
-            <div className={"flex flex-row gap-1 items-center"}>
-              <IconPhotoEdit size={"1.3rem"} />
-              <div>Image</div>
-            </div>
-          </Menu.Item>
-          <Menu.Item className={"p-1"} disabled={true}>
-            <div className={"flex flex-row gap-1 items-center"}>
-              <IconBrandShazam size={"1.3rem"} />
-              <div>Audio</div>
-            </div>
-          </Menu.Item>
-          <Menu.Item className={"p-1"} disabled={true}>
-            <div className={"flex flex-row gap-1 items-center"}>
-              <IconUnlink size={"1.3rem"} />
-              <div>Website URL</div>
-            </div>
-          </Menu.Item>
-        </Menu.Dropdown>
-      </Menu>
-    </div>
+        </div>
+      </div>
+    </>
   );
 });
 

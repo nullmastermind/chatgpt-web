@@ -4,6 +4,7 @@ export enum AttachItemType {
   Excel = "EXCEL",
   Text = "TEXT",
   OCR = "OCR",
+  Image = "IMAGE",
   Audio = "AUDIO",
   Website = "WEBSITE",
 }
@@ -11,11 +12,11 @@ export enum AttachItemType {
 export type AttachItem = {
   id: string;
   type: AttachItemType;
+  name: string;
   data: {
     name: string;
     content: string;
     base64Image?: string;
   }[];
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: number;
 };

@@ -29,3 +29,13 @@ a {
 .size-anim {
   transition: all 0.3s ease-in;
 }
+
+.no-dot {
+  .mantine-Badge-root::before {
+    display: none !important;
+  }
+}
+
+.no-dot::before {
+  display: none !important;
+}

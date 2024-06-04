@@ -16,7 +16,7 @@ import classNames from "classnames";
 const AttachName = memo<{
   name: string;
   type: AttachItemType;
-  onRemove?: () => any;
+  onRemove?: (e: MouseEvent) => any;
 }>(({ name, type, onRemove }) => {
   return (
     <Badge
@@ -39,7 +39,7 @@ const AttachName = memo<{
       })}
       rightSection={
         onRemove ? (
-          <ActionIcon size="xs" color="blue" radius="xl" variant="transparent" onClick={() => onRemove?.()}>
+          <ActionIcon size="xs" color="blue" radius="xl" variant="transparent" onClick={e => onRemove?.(e as any)}>
             <IconX size={"1rem"} />
           </ActionIcon>
         ) : undefined

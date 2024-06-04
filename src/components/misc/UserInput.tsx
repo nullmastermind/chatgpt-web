@@ -44,7 +44,7 @@ const UserInput = memo<
     isReplyBox?: boolean;
   }
 >(
-  forwardRef(({ className, defaultValue, onChange, isReplyBox, ...props }, ref) => {
+  forwardRef(({ className, defaultValue, onChange, isReplyBox, placeholder, ...props }, ref) => {
     const { classes } = useStyles();
     const editor = useEditor({
       extensions: [
@@ -56,7 +56,7 @@ const UserInput = memo<
         Link,
         TextAlign.configure({ types: ["heading", "paragraph"] }),
         Placeholder.configure({
-          placeholder: "Enter a prompt here",
+          placeholder: placeholder || "Enter a prompt here",
         }),
         Underline,
         ShiftEnterCreateExtension, // EventHandler,
