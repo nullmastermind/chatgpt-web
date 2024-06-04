@@ -12,6 +12,7 @@ import { Underline } from "@tiptap/extension-underline";
 import { IconPrompt } from "@tabler/icons-react";
 import { Markdown } from "tiptap-markdown";
 import { fixEditorOutput } from "@/utility/utility";
+import { useClickOutside } from "@mantine/hooks";
 
 const useStyles = createStyles(() => ({
   limitHeight: {
@@ -66,6 +67,9 @@ const UserInput = memo<
       },
     });
     const [isFocused, setIsFocused] = useState(false);
+    const clickOutsideRef = useClickOutside(() => {
+      setIsFocused(false);
+    });
 
     useImperativeHandle(
       ref,
@@ -125,13 +129,13 @@ const UserInput = memo<
       100,
       [editor]
     );
-    useDebounce(
-      () => {
-        if (!editor?.isFocused) setIsFocused(false);
-      },
-      100,
-      [editor?.isFocused]
-    );
+    // useDebounce(
+    //   () => {
+    //     if (!editor?.isFocused) setIsFocused(false);
+    //   },
+    //   100,
+    //   [editor?.isFocused]
+    // );
     useEffect(() => {
       if (editor?.isFocused) setIsFocused(true);
     }, [editor?.isFocused]);
@@ -140,6 +144,7 @@ const UserInput = memo<
       <Transition transition={"fade"} mounted={!!editor}>
         {styles => (
           <div
+            ref={clickOutsideRef}
             style={styles}
             className={classNames("w-full shadow-xl", className, {
               [classes.limitHeight]: !isReplyBox && isFocused,
