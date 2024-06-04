@@ -35,7 +35,7 @@ const PreviewAttach = memo<{
           {map(attachItem.data, (value, index) => {
             return (
               <Card key={value.content}>
-                {value.name && (
+                {!!value.name && (
                   <>
                     <Card.Section>
                       <div
