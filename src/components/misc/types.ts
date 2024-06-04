@@ -20,3 +20,10 @@ export type AttachItem = {
   }[];
   createdAt: number;
 };
+
+export type TMessageItem = {
+  role: "system" | "user" | "assistant";
+  content: string;
+  name?: string;
+  id?: string | number;
+};

@@ -39,8 +39,9 @@ import { PromptSaveData } from "@/components/pages/ChatbotPage/AddPrompt";
 import MemoizedReactMarkdown from "@/components/pages/ChatbotPage/MemoizedReactMarkdown";
 import { isMobile } from "react-device-detect";
 import FunnyEmoji from "@/components/misc/FunnyEmoji";
-import store, { messagesKey } from "@/utility/store";
-import { AttachItem } from "@/components/misc/types";
+import store, { attachKey, messagesKey } from "@/utility/store";
+import { AttachItem, TMessageItem } from "@/components/misc/types";
+import { it } from "node:test";
 
 export type MessageProps = {
   collection: any;
@@ -161,11 +162,17 @@ const Message = ({ collection, prompt }: MessageProps) => {
       // notifyIndexerVersionError();
     }
 
+    const userMessageId = Date.now() - 1;
+
+    if (attachItems.length) {
+      await store.setItem(attachKey(collection, userMessageId), attachItems);
+    }
+
     const userMessage: MessageItemType = {
       source: "user",
       content: content,
       checked: checkedMessages.length > 0,
-      id: Date.now() - 1,
+      id: userMessageId,
       date: new Date(),
       isChild: false,
       scrollToBottom: true,
@@ -344,7 +351,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
 
       setIsDone(assistantPreMessage.id, false);
 
-      const requestMessages: any[] = [];
+      const requestMessages: TMessageItem[] = [];
       const allDocs = [];
 
       forEach(includes, includedMessage => {
@@ -361,12 +368,14 @@ const Message = ({ collection, prompt }: MessageProps) => {
                 {
                   role: v.source,
                   content: v.content,
+                  id: v.id,
                 },
               ] as any[];
             }).flat(),
             ...checkedMessages.map(v => ({
               role: v.source,
               content: v.content,
+              id: v.id,
             })), // If you want to insert before the last user message
             // ...map(userMessage.docs, doc => {
             //   return {
@@ -380,21 +389,47 @@ const Message = ({ collection, prompt }: MessageProps) => {
             userMessages.push({
               role: "user",
               content: userMessage.content,
+              id: userMessage.id,
             });
           }
           forEach(userMessages, uMessage => {
             requestMessages.push({
               role: uMessage.role,
               content: uMessage.content,
+              id: uMessage.id,
             });
           });
         } else {
           requestMessages.push({
             role: prompt.role,
             content: prompt.prompt,
+            id: prompt.id,
           });
         }
       });
+
+      for (let i = 0; i < requestMessages.length; i++) {
+        const messageItem = requestMessages[i];
+        if (messageItem.role === "user" && !messageItem.name) {
+          requestMessages[i].name = "User";
+        }
+        const attachItems = await store.getItem(attachKey(collection, messageItem.id));
+        if (attachItems) {
+          const attachMessages: TMessageItem[] = [];
+          forEach(attachItems, (item: AttachItem) => {
+            forEach(item.data, value => {
+              attachMessages.push({
+                role: "user",
+                content: value.content,
+                name: "Attachment",
+              });
+            });
+          });
+
+          requestMessages.splice(i, 0, ...attachMessages);
+          i += attachMessages.length; // Adjust index to account for newly inserted messages
+        }
+      }
 
       const saveMessagesFn = async (message: string) => {
         const dbMessages: any[] = (await store.getItem(messagesKey(collection))) || [];
@@ -428,7 +463,10 @@ const Message = ({ collection, prompt }: MessageProps) => {
               v.content = `<${tag}>${htmlEncode(v.content)}</${tag}>`;
             }
           }
-          return v;
+
+          const { id, ...apiData } = v;
+
+          return apiData;
         });
       const finalMessages = uniqBy(apiMessages, v => {
         const b = v.role === "system" ? v.role : uniqueId("apiMessages");
@@ -439,7 +477,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
         const insertToIndex = findLastIndex(finalMessages, v => {
           return v.role === "system";
         });
-        const docMessages = allDocs.map(doc => ({
+        const docMessages: any[] = allDocs.map(doc => ({
           role: "user",
           content: doc,
         }));
