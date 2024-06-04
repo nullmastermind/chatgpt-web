@@ -44,6 +44,7 @@ import FunnyEmoji from "@/components/misc/FunnyEmoji";
 import store, { attachKey, messagesKey } from "@/utility/store";
 import { AttachItem, TMessageItem } from "@/components/misc/types";
 import AttachName from "@/components/pages/ChatbotPage/Attach/AttachName";
+import PreviewAttach from "@/components/misc/PreviewAttach";
 
 export type MessageProps = {
   collection: any;
@@ -730,6 +731,7 @@ const MessageItem = forwardRef(
     const smoothCurrentContent = useRef<string>("");
     const smoothCurrentIndex = useRef<number>(-1);
     const [attachItems, setAttachItems] = useState<AttachItem[]>([]);
+    const [previewAttachItem, setPreviewAttachItem] = useState<AttachItem | null>(null);
 
     const updateAttachInfo = async () => {
       const attachItems: AttachItem[] | null = await store.getItem(attachKey(collectionId, inputMessage.id));
@@ -880,6 +882,9 @@ const MessageItem = forwardRef(
 
     return (
       <>
+        {previewAttachItem && (
+          <PreviewAttach attachItem={previewAttachItem} onClose={() => setPreviewAttachItem(null)} />
+        )}
         <Modal
           opened={isShowDocs}
           onClose={closeDocs}
@@ -1044,7 +1049,14 @@ const MessageItem = forwardRef(
                       <div className={"flex flex-row w-full gap-1 items-center flex-wrap"}>
                         {map(attachItems, item => {
                           return (
-                            <div key={item.id} className={"flex items-center"}>
+                            <div
+                              key={item.id}
+                              className={"flex items-center cursor-pointer"}
+                              title={"Preview"}
+                              onClick={() => {
+                                setPreviewAttachItem(item);
+                              }}
+                            >
                               <AttachName name={item.name} type={item.type} />
                             </div>
                           );

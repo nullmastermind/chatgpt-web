@@ -2,21 +2,13 @@ import ReactMarkdown from "react-markdown";
 import classNames from "classnames";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
-import {
-  addTypingSymbol,
-  convertToSupportLang,
-  detectProgramLang,
-  Node,
-  postprocessAnswer,
-  preprocessMessageContent,
-} from "@/utility/utility";
+import { addTypingSymbol, convertToSupportLang, detectProgramLang, Node, postprocessAnswer } from "@/utility/utility";
 import { memo, useMemo, useRef, useState } from "react";
 import { Prism } from "@mantine/prism";
 import { Button, ScrollArea } from "@mantine/core";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import { IconMenuOrder } from "@tabler/icons-react";
 import MermaidDraw from "@/components/pages/ChatbotPage/MermaidDraw";
-import TypingBlinkCursor from "@/components/misc/TypingBlinkCursor";
 
 type MemoizedReactMarkdownProps = {
   content: string;
