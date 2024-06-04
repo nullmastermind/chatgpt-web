@@ -634,7 +634,7 @@ export const isMarkdown = (input: string): { isMarkdown: boolean; inline: boolea
   return { isMarkdown: false, inline: false };
 };
 
-const trimEmptyListItems = (markdown: string) => {
+const trimEmptyListItems = (markdown: string): string => {
   const renderer = new marked.Renderer();
 
   renderer.listitem = text => {
@@ -644,7 +644,7 @@ const trimEmptyListItems = (markdown: string) => {
     return `<li>${text}</li>\n`;
   };
 
-  return marked(markdown, { renderer });
+  return marked(markdown, { renderer }) as string;
 };
 
 export const fixEditorOutput = (content?: string) => {
