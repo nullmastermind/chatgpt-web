@@ -195,7 +195,8 @@ const MemoizedReactMarkdown = memo(
           },
         }}
       >
-        {preprocessMessageContent(content)}
+        {/*{preprocessMessageContent(content)}*/}
+        {content}
       </ReactMarkdown>
     );
 
