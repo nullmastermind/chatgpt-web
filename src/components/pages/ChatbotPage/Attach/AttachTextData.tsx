@@ -15,7 +15,6 @@ const AttachTextData = memo<{
 
   useEffect(() => {
     if (opened) {
-      console.log("opened", opened);
       setAttachItem(
         value || {
           name: "Text data",
