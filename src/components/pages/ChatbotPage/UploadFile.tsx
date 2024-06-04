@@ -10,8 +10,11 @@ import {
   IconPlus,
   IconUnlink,
 } from "@tabler/icons-react";
+import { AttachItem } from "@/components/misc/types";
 
-const UploadFile = memo(() => {
+const UploadFile = memo<{
+  onChange: (value: AttachItem[]) => any;
+}>(() => {
   return (
     <div className="flex flex-row gap-2 items-center">
       <Menu>
@@ -36,7 +39,7 @@ const UploadFile = memo(() => {
               <div>Private document</div>
             </div>
           </Menu.Item>
-          <Menu.Item className={"p-1"} disabled={true}>
+          <Menu.Item className={"p-1"} disabled={false}>
             <div className={"flex flex-row gap-1 items-center"}>
               <IconBlockquote size={"1.3rem"} />
               <div>Text data</div>

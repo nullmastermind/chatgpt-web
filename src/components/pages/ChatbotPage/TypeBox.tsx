@@ -50,6 +50,7 @@ import { isMobile } from "react-device-detect";
 import UserInput, { EditorCommands } from "@/components/misc/UserInput";
 import classNames from "classnames";
 import UploadFile from "@/components/pages/ChatbotPage/UploadFile";
+import { AttachItem } from "@/components/misc/types";
 
 export const TypeBox = forwardRef(
   (
@@ -62,7 +63,7 @@ export const TypeBox = forwardRef(
       includeMessages,
     }: {
       collection: any;
-      onSubmit: (content: string, tokens: number, docId: string) => any;
+      onSubmit: (content: string, tokens: number, docId: string, attachItems: AttachItem[]) => any;
       messages: any[];
       onCancel?: () => any;
       isReplyBox?: boolean;
@@ -78,7 +79,7 @@ export const TypeBox = forwardRef(
       ""
     );
     const inputImproveRef = useRef<HTMLTextAreaElement>(null);
-    const [isFocus, setIsFocus] = useState(false);
+    const [, setIsFocus] = useState(false);
     const [opened, { open, close }] = useDisclosure(false);
     const [improvedPrompt, setImprovedPrompt] = useState("");
     const [openaiAPIKey] = useOpenaiAPIKey();
@@ -164,6 +165,7 @@ export const TypeBox = forwardRef(
       initDocId: "",
     });
     const [enableDocument, setEnableDocument] = useEnableDocument();
+    const [attachItems, setAttachItems] = useState<AttachItem[]>([]);
 
     const handleImprove = () => {
       if (!editorRef.current) return;
@@ -237,7 +239,8 @@ export const TypeBox = forwardRef(
       onSubmit(
         c || editorRef.current?.getValue() || "",
         countTokenRef.current?.getTokens(),
-        enableDocument ? docId : ""
+        enableDocument ? docId : "",
+        attachItems
       );
       editorRef.current?.setValue("");
       setMessageContentStore("");
@@ -386,7 +389,7 @@ export const TypeBox = forwardRef(
         <DocsModal opened={docModalOpened} close={closeDocModal} {...docModalOpenSettings} />
         <div className={"flex flex-row gap-1 items-center"}>
           <div className={"flex-grow"}>
-            <UploadFile />
+            <UploadFile onChange={value => setAttachItems(value)} />
           </div>
         </div>
         <div className="flex flex-row items-baseline gap-3">

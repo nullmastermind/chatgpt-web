@@ -40,6 +40,7 @@ import MemoizedReactMarkdown from "@/components/pages/ChatbotPage/MemoizedReactM
 import { isMobile } from "react-device-detect";
 import FunnyEmoji from "@/components/misc/FunnyEmoji";
 import store, { messagesKey } from "@/utility/store";
+import { AttachItem } from "@/components/misc/types";
 
 export type MessageProps = {
   collection: any;
@@ -130,6 +131,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
   };
   const onSend = async (
     content: string,
+    attachItems: AttachItem[],
     index?: number,
     includeMessages?: MessageItemType[],
     tokens?: number,
@@ -614,7 +616,9 @@ const Message = ({ collection, prompt }: MessageProps) => {
           <TypeBox
             ref={boxRef}
             collection={collection}
-            onSubmit={(content, tokens, docId) => onSend(content, undefined, [], tokens, docId)}
+            onSubmit={(content, tokens, docId, attachItems) => {
+              void onSend(content, attachItems, undefined, [], tokens, docId);
+            }}
             messages={messages}
             includeMessages={[]}
           />

@@ -1,20 +1,28 @@
 import { useCollections, useCurrentCollection } from "@/states/states";
-import { RefObject, useEffect, useMemo, useRef, useState } from "react";
+import { memo, RefObject, useEffect, useMemo, useRef, useState } from "react";
 import { find } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import { TextInput } from "@mantine/core";
 import { TypeBox } from "@/components/pages/ChatbotPage/TypeBox";
+import { AttachItem } from "@/components/misc/types";
 
 type ReplyItemProps = {
   messages: any[];
   viewport: RefObject<HTMLDivElement>;
   includeMessages: any[];
   position: number;
-  onSend: (content: string, index?: number, includeMessages?: any[], tokens?: number, docId?: string) => any;
+  onSend: (
+    content: string,
+    attachItems: AttachItem[],
+    index?: number,
+    includeMessages?: any[],
+    tokens?: number,
+    docId?: string
+  ) => any;
   exId: any;
 };
 
-const ReplyItem = ({ messages, includeMessages, position, onSend, exId }: ReplyItemProps) => {
+const ReplyItem = memo<ReplyItemProps>(({ messages, includeMessages, position, onSend, exId }) => {
   const [collectionId] = useCurrentCollection();
   const [collections] = useCollections();
   const collection = useMemo(() => {
@@ -49,7 +57,9 @@ const ReplyItem = ({ messages, includeMessages, position, onSend, exId }: ReplyI
               exId={exId}
               ref={boxRef}
               collection={collection}
-              onSubmit={(content, tokens, docId) => onSend(content, position, includeMessages, tokens, docId)}
+              onSubmit={(content, tokens, docId, attachItems) => {
+                onSend(content, attachItems, position, includeMessages, tokens, docId);
+              }}
               messages={messages}
               onCancel={() => setShowFullEdit(false)}
               isReplyBox={true}
@@ -67,6 +77,6 @@ const ReplyItem = ({ messages, includeMessages, position, onSend, exId }: ReplyI
       </div>
     </div>
   );
-};
+});
 
 export default ReplyItem;
