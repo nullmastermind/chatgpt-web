@@ -1,3 +1,5 @@
+"use client";
+
 import { useDebounce, useList, useMap, useMeasure, useMount, useUnmount } from "react-use";
 import { ActionIcon, Badge, Container, Loader, Modal, ScrollArea, Text, Tooltip, Transition } from "@mantine/core";
 import React, {
@@ -32,7 +34,7 @@ import { IconCopy, IconMoodPuzzled } from "@tabler/icons-react";
 import ReplyItem from "@/components/pages/ChatbotPage/ReplyItem";
 import { TypeBox } from "@/components/pages/ChatbotPage/TypeBox";
 import DateInfo from "@/components/pages/ChatbotPage/DateInfo";
-import { useDisclosure, useElementSize, useIdle } from "@mantine/hooks";
+import { useDisclosure, useIdle } from "@mantine/hooks";
 import axios from "axios";
 import { indexerHost } from "@/config";
 import { PromptSaveData } from "@/components/pages/ChatbotPage/AddPrompt";
@@ -41,9 +43,7 @@ import { isMobile } from "react-device-detect";
 import FunnyEmoji from "@/components/misc/FunnyEmoji";
 import store, { attachKey, messagesKey } from "@/utility/store";
 import { AttachItem, TMessageItem } from "@/components/misc/types";
-import { it } from "node:test";
 import AttachName from "@/components/pages/ChatbotPage/Attach/AttachName";
-import { modals } from "@mantine/modals";
 
 export type MessageProps = {
   collection: any;
@@ -1037,21 +1037,23 @@ const MessageItem = forwardRef(
                   </Badge>
                 </div>
               )}
-              {attachItems.length > 0 && (
-                <div className={"flex flex-row relative px-2 mt-2"}>
-                  <div className={"flex-grow"}>
-                    <div className={"flex flex-row w-full gap-1 items-center flex-wrap"}>
-                      {map(attachItems, item => {
-                        return (
-                          <div key={item.id} className={"flex items-center"}>
-                            <AttachName name={item.name} type={item.type} />
-                          </div>
-                        );
-                      })}
+              <Transition transition={"slide-up"} mounted={attachItems.length > 0} duration={200} timingFunction="ease">
+                {styles => (
+                  <div style={styles} className={"flex flex-row relative px-2 mt-2"}>
+                    <div className={"flex-grow"}>
+                      <div className={"flex flex-row w-full gap-1 items-center flex-wrap"}>
+                        {map(attachItems, item => {
+                          return (
+                            <div key={item.id} className={"flex items-center"}>
+                              <AttachName name={item.name} type={item.type} />
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
+              </Transition>
             </div>
           </div>
         </div>
