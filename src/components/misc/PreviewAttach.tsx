@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { AttachItem, AttachItemType } from "@/components/misc/types";
-import { Card, Modal, ScrollArea, Title } from "@mantine/core";
+import { Card, Divider, Modal, ScrollArea, Title } from "@mantine/core";
 import { IconBlockquote } from "@tabler/icons-react";
 import { map } from "lodash";
 import MemoizedReactMarkdown from "@/components/pages/ChatbotPage/MemoizedReactMarkdown";
@@ -24,25 +24,41 @@ const PreviewAttach = memo<{
               <Title size="md" className="line-clamp-1">
                 Preview
               </Title>
+              <div className="line-clamp-1 text-xs">{attachItem.name || attachItem.type}</div>
             </div>
           </div>
         }
         scrollAreaComponent={ScrollArea.Autosize}
         className="relative"
       >
-        {attachItem?.type === AttachItemType.TextData && (
-          <div className={"flex flex-col gap-2"}>
-            {map(attachItem.data, (value, index) => {
-              return (
-                <Card key={value.content}>
-                  <ScrollArea.Autosize mah={300}>
+        <div className={"flex flex-col gap-2"}>
+          {map(attachItem.data, (value, index) => {
+            return (
+              <Card key={value.content}>
+                {value.name && (
+                  <>
+                    <Card.Section>
+                      <div
+                        className={"text-xs font-bold px-2"}
+                        style={{
+                          color: "rgb(77, 171, 247)",
+                        }}
+                      >
+                        {value.name}
+                      </div>
+                    </Card.Section>
+                    <Divider />
+                  </>
+                )}
+                <Card.Section className={"p-2"}>
+                  <ScrollArea.Autosize maw={570} mah={attachItem.data.length > 1 ? 250 : 400}>
                     <MemoizedReactMarkdown content={value.content} />
                   </ScrollArea.Autosize>
-                </Card>
-              );
-            })}
-          </div>
-        )}
+                </Card.Section>
+              </Card>
+            );
+          })}
+        </div>
       </Modal>
     </>
   );
