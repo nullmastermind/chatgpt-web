@@ -70,7 +70,8 @@
     "tailwindcss": "3.3.1",
     "tiptap-markdown": "^0.8.10",
     "typescript": "5.0.4",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/localforage": "^0.0.34",
@@ -79,6 +80,7 @@
     "@types/pako": "^2.0.3",
     "@types/showdown": "^2.0.6",
     "@types/slug": "^5.0.3",
+    "@types/xlsx": "^0.0.36",
     "prettier": "^2.8.7",
     "ts-node": "^10.9.1"
   },

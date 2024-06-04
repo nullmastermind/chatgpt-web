@@ -33,6 +33,7 @@ const PreviewAttach = memo<{
       >
         <div className={"flex flex-col gap-2"}>
           {map(attachItem.data, (value, index) => {
+            if (value.disabled) return null;
             return (
               <Card key={value.content}>
                 {!!value.name && (

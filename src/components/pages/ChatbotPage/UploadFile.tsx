@@ -17,6 +17,7 @@ import { clone, findIndex, map } from "lodash";
 import AttachName from "@/components/pages/ChatbotPage/Attach/AttachName";
 import { modals } from "@mantine/modals";
 import { useElementSize } from "@mantine/hooks";
+import AttachExcel from "@/components/pages/ChatbotPage/Attach/AttachExcel";
 
 const UploadFile = memo<{
   onChange: (value: AttachItem[]) => any;
@@ -36,6 +37,20 @@ const UploadFile = memo<{
     <>
       <AttachTextData
         opened={showAttach === AttachItemType.TextData}
+        onClose={() => {
+          resetEdit();
+        }}
+        value={editItem}
+        onSubmit={value => {
+          const index = findIndex(data, value1 => value1.id === value.id);
+          if (index !== -1) data[index] = value;
+          else data.push(value);
+          onChange(clone(data));
+          resetEdit();
+        }}
+      />
+      <AttachExcel
+        opened={showAttach === AttachItemType.Excel}
         onClose={() => {
           resetEdit();
         }}
@@ -82,7 +97,7 @@ const UploadFile = memo<{
                 <div>Text data</div>
               </div>
             </Menu.Item>
-            <Menu.Item className={"p-1"} disabled={true}>
+            <Menu.Item className={"p-1"} onClick={() => setShowAttach(AttachItemType.Excel)}>
               <div className={"flex flex-row gap-1 items-center"}>
                 <IconCsv size={"1.3rem"} />
                 <div>Excel/Word/Text</div>

@@ -44,7 +44,7 @@ const AttachTextData = memo<{
               <Title size="md" className="line-clamp-1">
                 Attach - Text data
               </Title>
-              <div className="line-clamp-1 text-xs">Include your text data to improve your agent context</div>
+              <div className="line-clamp-1 text-xs">Include your text data to improve your agent's context</div>
             </div>
           </div>
         }

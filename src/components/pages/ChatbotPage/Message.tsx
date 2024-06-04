@@ -421,11 +421,13 @@ const Message = ({ collection, prompt }: MessageProps) => {
           const attachMessages: TMessageItem[] = [];
           forEach(attachItems, (item: AttachItem) => {
             forEach(item.data, value => {
-              attachMessages.push({
-                role: "user",
-                content: value.content,
-                name: "Attachment",
-              });
+              if (!value.disabled) {
+                attachMessages.push({
+                  role: "user",
+                  content: value.content,
+                  name: "Attachment",
+                });
+              }
             });
           });
 

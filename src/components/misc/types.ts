@@ -17,6 +17,7 @@ export type AttachItem = {
     name: string;
     content: string;
     base64Image?: string;
+    disabled?: boolean;
   }[];
   createdAt: number;
 };
