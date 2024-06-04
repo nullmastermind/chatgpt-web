@@ -584,6 +584,15 @@ export const markdownToHtml = (content?: string) => {
   // return converter.makeHtml(content || "").trim();
 };
 
+export const htmlToMarkdown2 = (content?: string) => {
+  content = (content || "").split("<li></li>").join("").split("<li><p></p></li>").join("");
+  return converter
+    .makeMarkdown(content || "")
+    .trim()
+    .replace(/(\n\s*\n)(?=\s*[\d.\-*])/g, "\n");
+};
+
+
 export const addTypingSymbol = (content: string, canAdd?: boolean) => {
   if (canAdd && !content.endsWith("█")) {
     return content + "█";

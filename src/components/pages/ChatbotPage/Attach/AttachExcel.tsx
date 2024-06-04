@@ -6,6 +6,8 @@ import { IconBrandOffice, IconCheck, IconCsv, IconUpload, IconX } from "@tabler/
 import { Dropzone, FileWithPath } from "@mantine/dropzone";
 import * as XLSX from "xlsx";
 import { clone, forEach, map } from "lodash";
+import mammoth from "mammoth";
+import { htmlToMarkdown2 } from "@/utility/utility";
 
 const AttachExcel = memo<{
   opened: boolean;
@@ -26,9 +28,10 @@ const AttachExcel = memo<{
 
       await new Promise((rel, rej) => {
         const reader = new FileReader();
-        reader.onload = e => {
+        reader.onload = async e => {
+          const arrayBuffer = e.target?.result as ArrayBuffer;
           if (file.path?.endsWith(".xlsx") || file.path?.endsWith("xls")) {
-            const data = new Uint8Array(e.target?.result as ArrayBuffer);
+            const data = new Uint8Array(arrayBuffer);
             const workbook = XLSX.read(data, { type: "array" });
 
             forEach(workbook.SheetNames, sheetName => {
@@ -48,6 +51,15 @@ const AttachExcel = memo<{
                 content: markdown,
               });
             });
+          } else if (file.path?.endsWith(".doc") || file.path?.endsWith(".docx")) {
+            try {
+              const { value: html } = await mammoth.convertToHtml({ arrayBuffer });
+              newData.push({
+                content: htmlToMarkdown2(html),
+              });
+            } catch (e) {
+              return rej(e);
+            }
           }
           rel(true);
         };
@@ -58,7 +70,9 @@ const AttachExcel = memo<{
       attachItem!.data = newData;
       attachItem!.name = file.name;
       setAttachItem(clone(attachItem));
-    } catch {}
+    } catch (e) {
+      console.error(e);
+    }
     setLoading(false);
   };
 
@@ -182,7 +196,7 @@ const AttachExcel = memo<{
                 </div>
                 <div>
                   <div className={"font-bold"}>{attachItem.name}</div>
-                  {attachItem.data.length > 0 && (
+                  {attachItem.data.length > 1 && (
                     <Card>
                       <Card.Section className={"flex flex-col gap-1 p-2"}>
                         {map(attachItem.data, (data, index) => {
