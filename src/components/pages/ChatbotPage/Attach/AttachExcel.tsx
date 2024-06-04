@@ -30,6 +30,8 @@ const AttachExcel = memo<{
         const reader = new FileReader();
         reader.onload = async e => {
           const arrayBuffer = e.target?.result as ArrayBuffer;
+          const textContent = new TextDecoder().decode(arrayBuffer);
+
           if (file.path?.endsWith(".xlsx") || file.path?.endsWith("xls")) {
             const data = new Uint8Array(arrayBuffer);
             const workbook = XLSX.read(data, { type: "array" });
@@ -60,6 +62,25 @@ const AttachExcel = memo<{
             } catch (e) {
               return rej(e);
             }
+          } else if (file.path?.endsWith(".csv")) {
+            const rows = textContent.split("\n");
+            let markdown = "";
+            rows.forEach((row, rowIndex) => {
+              const cells = row.split(",");
+              const rowString = cells.map(cell => `| ${cell} `).join("") + "|";
+              markdown += rowString + "\n";
+              if (rowIndex === 0) {
+                const separator = cells.map(() => "| --- ").join("") + "|";
+                markdown += separator + "\n";
+              }
+            });
+            newData.push({
+              content: markdown,
+            });
+          } else {
+            newData.push({
+              content: textContent,
+            });
           }
           rel(true);
         };
