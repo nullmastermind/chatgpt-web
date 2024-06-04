@@ -571,15 +571,17 @@ export const countTokens = async (content: string) => {
 };
 
 export const htmlToMarkdown = (content?: string) => {
-  content = (content || "").split("<li></li>").join("").split("<li><p></p></li>").join("");
-  return converter
-    .makeMarkdown(content || "")
-    .trim()
-    .replace(/(\n\s*\n)(?=\s*[\d.\-*])/g, "\n");
+  return content;
+  // content = (content || "").split("<li></li>").join("").split("<li><p></p></li>").join("");
+  // return converter
+  //   .makeMarkdown(content || "")
+  //   .trim()
+  //   .replace(/(\n\s*\n)(?=\s*[\d.\-*])/g, "\n");
 };
 
 export const markdownToHtml = (content?: string) => {
-  return converter.makeHtml(content || "").trim();
+  return converter;
+  // return converter.makeHtml(content || "").trim();
 };
 
 export const addTypingSymbol = (content: string, canAdd?: boolean) => {

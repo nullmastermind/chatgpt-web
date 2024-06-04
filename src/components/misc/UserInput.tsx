@@ -7,13 +7,10 @@ import { Placeholder } from "@tiptap/extension-placeholder";
 import classNames from "classnames";
 import { createStyles, Transition } from "@mantine/core";
 import { useDebounce } from "react-use";
-import { isMarkdown, markdownToHtml } from "@/utility/utility";
 import { Extension } from "@tiptap/core";
-import { Plugin, PluginKey } from "@tiptap/pm/state";
-import { DOMParser as DOMParser2, Fragment } from "prosemirror-model";
 import { Underline } from "@tiptap/extension-underline";
 import { IconPrompt } from "@tabler/icons-react";
-import { useDebouncedValue } from "@mantine/hooks";
+import { Markdown } from "tiptap-markdown";
 
 const useStyles = createStyles(() => ({
   limitHeight: {
@@ -50,26 +47,21 @@ const UserInput = memo<
     const editor = useEditor({
       extensions: [
         StarterKit,
+        Markdown.configure({
+          transformCopiedText: true,
+          transformPastedText: true,
+        }),
         Link,
         TextAlign.configure({ types: ["heading", "paragraph"] }),
         Placeholder.configure({
           placeholder: "Enter a prompt here",
         }),
         Underline,
-        ShiftEnterCreateExtension,
-        EventHandler,
+        ShiftEnterCreateExtension, // EventHandler,
       ],
       content: defaultValue || "",
       onUpdate({ editor }) {
-        const state = pastePluginKey.getState(editor.state);
-        if (state.isPasted) {
-          // Reset the flag
-          editor.view.dispatch(editor.state.tr.setMeta(pastePluginKey, { isPasted: false }));
-          if (editor.getHTML()?.startsWith("<p></p>")) {
-            editor.commands.setContent(editor.getHTML().replace("<p></p>", ""));
-          }
-        }
-        onChange?.(editor.getHTML());
+        onChange?.(editor.storage.markdown.getMarkdown());
       },
     });
     const [isFocused, setIsFocused] = useState(false);
@@ -88,7 +80,7 @@ const UserInput = memo<
             editor?.commands.setTextSelection({ from, to });
           },
           getValue() {
-            return editor?.getHTML();
+            return editor?.storage.markdown.getMarkdown();
           },
           getSelectionStart() {
             return editor?.state.selection.from;
@@ -112,7 +104,7 @@ const UserInput = memo<
           },
           insertContentAtCurrentCursor(content: string) {
             const { from, to } = editor!.state.selection;
-            editor?.commands.insertContentAt({ from: to, to: to }, content);
+            editor?.commands.insertContentAt({ from: from, to: to }, content);
           },
           getText() {
             return editor?.getText() || "";
@@ -209,104 +201,5 @@ const ShiftEnterCreateExtension = Extension.create({
         return true;
       },
     };
-  },
-});
-
-const pastePluginKey = new PluginKey("pastePlugin");
-
-const EventHandler = Extension.create({
-  name: "eventHandler",
-
-  addProseMirrorPlugins() {
-    let isPlainTextPaste = false;
-
-    document.addEventListener("keydown", event => {
-      if (event.shiftKey && event.key.toLowerCase() === "v") {
-        isPlainTextPaste = true;
-      }
-    });
-
-    document.addEventListener("keyup", event => {
-      if (event.key.toLowerCase() === "v") {
-        isPlainTextPaste = false;
-      }
-    });
-
-    return [
-      new Plugin({
-        key: pastePluginKey,
-        state: {
-          init() {
-            return { isPasted: false };
-          },
-          apply(tr, value, oldState, newState) {
-            const meta = tr.getMeta(pastePluginKey);
-            if (meta && meta.isPasted) {
-              return { isPasted: true };
-            }
-            return { isPasted: false };
-          },
-        },
-        props: {
-          handlePaste(view, event, slice) {
-            const clipboardData = event.clipboardData;
-            const text = clipboardData?.getData("text/plain");
-            let textHtml = clipboardData?.getData("text/html");
-
-            if (isPlainTextPaste) return false;
-
-            if (textHtml && textHtml.includes("<!--StartFragment-->")) {
-              return false;
-            }
-
-            if (text) {
-              const nodeType = view.state.selection.$from.parent.type;
-              if (nodeType.name === "codeBlock") return false;
-              const { isMarkdown: isMd, inline } = isMarkdown(text);
-
-              // console.log(isMarkdown(text));
-              if (!isMd) return false;
-              if (!view.state.selection) return false;
-
-              const { from, to } = view.state.selection;
-              const html = markdownToHtml(text);
-              const { schema } = view.state;
-              const parser = DOMParser2.fromSchema(schema);
-              const dom = new DOMParser().parseFromString(html, "text/html");
-              const node = parser.parse(dom.body);
-              const inlineNodes: any[] = [];
-
-              // console.log("inline", inline);
-
-              if (inline) {
-                node.content.forEach((child, i) => {
-                  if (child.isInline || i > 0) {
-                    inlineNodes.push(child);
-                  } else {
-                    child.content.forEach(grandChild => {
-                      inlineNodes.push(grandChild);
-                    });
-                  }
-                });
-              } else {
-                node.content.forEach((child, i) => {
-                  inlineNodes.push(child);
-                });
-              }
-
-              if (inlineNodes.length > 0) {
-                const fragment = Fragment.fromArray(inlineNodes);
-                const parentNode = schema.nodes.paragraph.create(null, fragment);
-                const transaction = view.state.tr.replaceRangeWith(from, to, parentNode);
-                transaction.setMeta(pastePluginKey, { isPasted: true });
-                view.dispatch(transaction);
-              }
-              return true;
-            }
-            return false;
-          },
-        },
-      }),
-    ];
   },
 });

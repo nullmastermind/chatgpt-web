@@ -1,5 +1,5 @@
 import React, { createRef, forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { useDebounce, useLocalStorage, useMeasure, useMount, useSessionStorage, useSetState } from "react-use";
+import { useDebounce, useLocalStorage, useMeasure, useSessionStorage, useSetState } from "react-use";
 import {
   useCollections,
   useCurrentCollection,
@@ -15,7 +15,6 @@ import { useDisclosure, useHotkeys } from "@mantine/hooks";
 import {
   findHighlight,
   formatString,
-  htmlToMarkdown,
   IndexedDocument,
   notifyIndexerVersionError,
   processTaggedMessage,
@@ -45,7 +44,7 @@ import CountTokens from "@/components/pages/ChatbotPage/CountTokens";
 import { getImprovePrompt } from "@/utility/warmup";
 import axios from "axios";
 import { indexerHost, indexerVersion } from "@/config";
-import { IconPlus, IconSearch, IconSettings } from "@tabler/icons-react";
+import { IconSearch, IconSettings } from "@tabler/icons-react";
 import DocsModal from "@/components/pages/ChatbotPage/DocsModal";
 import { isMobile } from "react-device-detect";
 import UserInput, { EditorCommands } from "@/components/misc/UserInput";
@@ -152,10 +151,7 @@ export const TypeBox = forwardRef(
       },
     });
     const isEditCommand = useMemo(() => {
-      return (
-        findIndex(quickCommands, v => htmlToMarkdown(v.content) === htmlToMarkdown(editorRef.current?.getValue())) !==
-        -1
-      );
+      return findIndex(quickCommands, v => v.content === editorRef.current?.getValue()) !== -1;
     }, [quickCommands, messageContentStore, editorRef.current?.getValue()]);
     const [, setQuickActions] = useQuickActions();
     const [currentTypeBoxId, setCurrentTypeBoxId] = useCurrentTypeBoxId();
@@ -239,7 +235,7 @@ export const TypeBox = forwardRef(
 
     const onSend = (c?: string) => {
       onSubmit(
-        htmlToMarkdown(c || editorRef.current?.getValue() || ""),
+        c || editorRef.current?.getValue() || "",
         countTokenRef.current?.getTokens(),
         enableDocument ? docId : ""
       );
@@ -606,10 +602,7 @@ export const TypeBox = forwardRef(
                 onClick={() => {
                   commandForm.setFieldValue("content", editorRef.current?.getValue() || "");
                   if (isEditCommand) {
-                    const index = findIndex(
-                      quickCommands,
-                      v => htmlToMarkdown(v.content) === htmlToMarkdown(editorRef.current?.getValue())
-                    );
+                    const index = findIndex(quickCommands, v => v.content === editorRef.current?.getValue());
                     if (index !== -1) {
                       commandForm.setFieldValue("name", quickCommands![index].name);
                       commandForm.setFieldValue("category", quickCommands![index].category);
