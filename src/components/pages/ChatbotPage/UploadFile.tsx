@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { Button, Menu } from "@mantine/core";
 import {
+  IconBlockquote,
   IconBrandShazam,
   IconCsv,
   IconFileStack,
@@ -33,6 +34,12 @@ const UploadFile = memo(() => {
             <div className={"flex flex-row gap-1 items-center"}>
               <IconFileStack size={"1.3rem"} />
               <div>Private document</div>
+            </div>
+          </Menu.Item>
+          <Menu.Item className={"p-1"} disabled={true}>
+            <div className={"flex flex-row gap-1 items-center"}>
+              <IconBlockquote size={"1.3rem"} />
+              <div>Text data</div>
             </div>
           </Menu.Item>
           <Menu.Item className={"p-1"} disabled={true}>
