@@ -240,8 +240,9 @@ export const TypeBox = forwardRef(
         c || editorRef.current?.getValue() || "",
         countTokenRef.current?.getTokens(),
         enableDocument ? docId : "",
-        attachItems
+        cloneDeep(attachItems)
       );
+      setAttachItems([]);
       editorRef.current?.setValue("");
       setMessageContentStore("");
     };
@@ -389,7 +390,11 @@ export const TypeBox = forwardRef(
         <DocsModal opened={docModalOpened} close={closeDocModal} {...docModalOpenSettings} />
         <div className={"flex flex-row gap-1 items-center"}>
           <div className={"flex-grow"}>
-            <UploadFile onChange={value => setAttachItems(value)} />
+            <UploadFile
+              data={attachItems}
+              onChange={value => setAttachItems(value)}
+              onClear={() => setAttachItems([])}
+            />
           </div>
         </div>
         <div className="flex flex-row items-baseline gap-3">

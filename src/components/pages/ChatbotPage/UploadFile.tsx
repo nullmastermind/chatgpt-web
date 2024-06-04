@@ -20,9 +20,10 @@ import { useElementSize } from "@mantine/hooks";
 
 const UploadFile = memo<{
   onChange: (value: AttachItem[]) => any;
-}>(() => {
+  data: AttachItem[];
+  onClear: () => any;
+}>(({ onChange, data, onClear }) => {
   const [showAttach, setShowAttach] = useState<AttachItemType | null>(null);
-  const [data, setData] = useState<AttachItem[]>([]);
   const [editItem, setEditItem] = useState<AttachItem | null>(null);
   const { ref: attachContainerRef, width: attachContainerWidth } = useElementSize();
 
@@ -40,12 +41,10 @@ const UploadFile = memo<{
         }}
         value={editItem}
         onSubmit={value => {
-          setData(prevState => {
-            const index = findIndex(prevState, value1 => value1.id === value.id);
-            if (index !== -1) prevState[index] = value;
-            else prevState.push(value);
-            return clone(prevState);
-          });
+          const index = findIndex(data, value1 => value1.id === value.id);
+          if (index !== -1) data[index] = value;
+          else data.push(value);
+          onChange(clone(data));
           resetEdit();
         }}
       />
@@ -114,7 +113,7 @@ const UploadFile = memo<{
               </div>
             </Menu.Item>
             <Menu.Divider />
-            <Menu.Item className={"p-1"} onClick={() => setData([])}>
+            <Menu.Item className={"p-1"} onClick={() => onClear()}>
               <div className={"flex flex-row gap-1 items-center"}>
                 <IconClearAll size={"1.3rem"} />
                 <div>Clear all</div>
@@ -148,9 +147,7 @@ const UploadFile = memo<{
                             labels: { confirm: "Confirm", cancel: "Cancel" },
                             transitionProps: { transition: "slide-up" },
                             onConfirm: async () => {
-                              setData(prevState => {
-                                return prevState.filter(v => v.id !== item.id);
-                              });
+                              onChange(data.filter(v => v.id !== item.id));
                             },
                           });
                         }}
