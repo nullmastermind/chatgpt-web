@@ -636,7 +636,7 @@ export const isMarkdown = (input: string): { isMarkdown: boolean; inline: boolea
 
 const trimEmptyListItems = (markdown: string): string => {
   const lines = markdown.split("\n");
-  const trimmedLines = lines.filter(line => !/^(\s*[-*]\s*|\d+\.\s*)$/.test(line));
+  const trimmedLines = lines.filter(line => !/^(\s*[-*]\s*|\d+\.\s*)$/.test(line.trim()));
   return trimmedLines.join("\n");
 };
 
