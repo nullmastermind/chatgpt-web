@@ -8,8 +8,8 @@ import {
   Modal,
   rem,
   ScrollArea,
-  Switch,
   Text,
+  TextInput,
   Title,
   useMantineTheme,
 } from "@mantine/core";
@@ -21,6 +21,8 @@ import * as XLSX from "xlsx";
 import { clone, forEach, map } from "lodash";
 import mammoth from "mammoth";
 import { htmlToMarkdown2 } from "@/utility/utility";
+import { useLocalStorage } from "react-use";
+import * as mime from "mime-types";
 
 const AttachExcel = memo<{
   opened: boolean;
@@ -43,6 +45,45 @@ const AttachExcel = memo<{
 
     return disabledCount;
   }, [attachItem]);
+  const [supportExtensions, setSupportExtensions] = useLocalStorage<string[]>("SUPPORT_EXTENSIONS", [
+    ".xlsx",
+    ".xls", // Excel files
+    ".doc",
+    ".docx", // Word files
+    ".csv", // CSV files
+    ".txt",
+    ".md", // Text files
+    ".js",
+    ".ts", // JavaScript and TypeScript files
+    ".py", // Python files
+    ".java", // Java files
+    ".cpp",
+    ".c", // C++ and C files
+    ".cs", // C# files
+    ".rb", // Ruby files
+    ".go", // Go files
+    ".php", // PHP files
+    ".rs", // Rust files
+    ".swift", // Swift files
+    ".kt",
+    ".kts", // Kotlin files
+    ".sh", // Shell script files
+    ".pl", // Perl files
+    ".r", // R files
+    ".scala", // Scala files
+    ".lua", // Lua files
+    ".dart", // Dart files
+    ".m",
+    ".mm", // Objective-C and Objective-C++ files
+    ".sql", // SQL files
+    ".html",
+    ".css", // HTML and CSS files
+    ".xml", // XML files
+    ".json", // JSON files
+    ".yaml",
+    ".yml", // YAML files
+  ]);
+  const [fileSupports, setFileSupports] = useState<string>(supportExtensions?.join(", ") || "");
 
   const handleUploadFile = async (files: FileWithPath[]) => {
     const file = files?.[0];
@@ -126,7 +167,7 @@ const AttachExcel = memo<{
     if (opened) {
       setAttachItem(
         value || {
-          name: "Excel/Csv data",
+          name: "Excel/Text data",
           data: [],
           createdAt: Date.now(),
           type: AttachItemType.Excel,
@@ -164,50 +205,40 @@ const AttachExcel = memo<{
       >
         <div className={"flex flex-col gap-2"}>
           <div>
+            <TextInput
+              label={"File support (editable)"}
+              size={"xs"}
+              value={fileSupports}
+              onChange={e => {
+                setFileSupports(e.target.value);
+              }}
+              onBlur={() => {
+                const newValue = fileSupports
+                  .split(",")
+                  .map(v => v.trim())
+                  .filter(v => v.startsWith("."));
+                setSupportExtensions(newValue);
+                setFileSupports(newValue.join(", "));
+              }}
+              onKeyDown={e => {
+                if (e.key === "Enter") {
+                  (e.target as any).blur();
+                  e.stopPropagation();
+                  e.preventDefault();
+                }
+              }}
+            />
+          </div>
+          <div>
             <Dropzone
               onDrop={files => {
                 void handleUploadFile(files);
               }}
               loading={loading}
               multiple={false}
-              accept={[
-                ".xlsx",
-                ".xls", // Excel files
-                ".doc",
-                ".docx", // Word files
-                ".csv", // CSV files
-                ".txt",
-                ".md", // Text files
-                ".js",
-                ".ts", // JavaScript and TypeScript files
-                ".py", // Python files
-                ".java", // Java files
-                ".cpp",
-                ".c", // C++ and C files
-                ".cs", // C# files
-                ".rb", // Ruby files
-                ".go", // Go files
-                ".php", // PHP files
-                ".rs", // Rust files
-                ".swift", // Swift files
-                ".kt",
-                ".kts", // Kotlin files
-                ".sh", // Shell script files
-                ".pl", // Perl files
-                ".r", // R files
-                ".scala", // Scala files
-                ".lua", // Lua files
-                ".dart", // Dart files
-                ".m",
-                ".mm", // Objective-C and Objective-C++ files
-                ".sql", // SQL files
-                ".html",
-                ".css", // HTML and CSS files
-                ".xml", // XML files
-                ".json", // JSON files
-                ".yaml",
-                ".yml", // YAML files
-              ]}
+              accept={supportExtensions?.map(fileExtension => {
+                return mime.lookup(fileExtension) as string;
+              })}
             >
               <Group position="center" spacing="xl" style={{ minHeight: rem(80), pointerEvents: "none" }}>
                 <Dropzone.Accept>
