@@ -31,6 +31,7 @@ const makeRequestParam = (
   let sendMessages = messages.map(v => ({
     role: v.role,
     content: v.content,
+    name: v.name || undefined,
   }));
 
   if (options?.filterBot) {
@@ -48,6 +49,7 @@ export type Message = ChatCompletionResponseMessage & {
   streaming?: boolean;
   isError?: boolean;
   id?: number;
+  name?: string;
 };
 
 export type APIPath = "v1/chat/completions" | "v1/completions";

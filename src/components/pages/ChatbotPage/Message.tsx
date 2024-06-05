@@ -482,6 +482,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
 
           return apiData;
         });
+
       const finalMessages = uniqBy(apiMessages, v => {
         const b = v.role === "system" ? v.role : uniqueId("apiMessages");
         return [v.content, b].join(":");
