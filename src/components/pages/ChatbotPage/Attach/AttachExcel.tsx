@@ -1,5 +1,18 @@
-import React, { memo, useEffect, useState } from "react";
-import { Button, Card, Group, Modal, rem, ScrollArea, Switch, Text, Title, useMantineTheme } from "@mantine/core";
+import React, { memo, useEffect, useMemo, useState } from "react";
+import {
+  Button,
+  Card,
+  Checkbox,
+  Divider,
+  Group,
+  Modal,
+  rem,
+  ScrollArea,
+  Switch,
+  Text,
+  Title,
+  useMantineTheme,
+} from "@mantine/core";
 import { AttachItem, AttachItemType } from "@/components/misc/types";
 import { v4 } from "uuid";
 import { IconBrandOffice, IconCheck, IconCsv, IconUpload, IconX } from "@tabler/icons-react";
@@ -18,6 +31,18 @@ const AttachExcel = memo<{
   const [attachItem, setAttachItem] = useState<AttachItem | null>(null);
   const theme = useMantineTheme();
   const [loading, setLoading] = useState(false);
+  const disabledCount = useMemo<number>(() => {
+    const items = map(attachItem?.data);
+    let disabledCount = 0;
+
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].disabled) {
+        disabledCount += 1;
+      }
+    }
+
+    return disabledCount;
+  }, [attachItem]);
 
   const handleUploadFile = async (files: FileWithPath[]) => {
     const file = files?.[0];
@@ -215,15 +240,33 @@ const AttachExcel = memo<{
                 <div>
                   <IconCheck color={"green"} className={"-mb-1"} />
                 </div>
-                <div>
+                <div className="flex-grow">
                   <div className={"font-bold"}>{attachItem.name}</div>
                   {attachItem.data.length > 1 && (
                     <Card>
-                      <Card.Section className={"flex flex-col gap-1 p-2"}>
+                      <Card.Section className={"flex flex-col gap-1 p-2 pl-0"}>
+                        <Checkbox
+                          checked={disabledCount === 0}
+                          indeterminate={disabledCount > 0 && disabledCount !== attachItem.data.length}
+                          label={<div className={"font-bold"}>All</div>}
+                          onChange={() => {
+                            setAttachItem(prevState => {
+                              forEach(prevState?.data, (value, index) => {
+                                if (disabledCount === 0) {
+                                  prevState!.data[index].disabled = true;
+                                } else {
+                                  prevState!.data[index].disabled = false;
+                                }
+                              });
+                              return clone(prevState);
+                            });
+                          }}
+                        />
+                        <Divider />
                         {map(attachItem.data, (data, index) => {
                           return (
                             <div key={index}>
-                              <Switch
+                              <Checkbox
                                 label={data.name}
                                 checked={!data.disabled}
                                 onChange={e => {
