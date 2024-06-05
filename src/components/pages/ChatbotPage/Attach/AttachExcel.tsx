@@ -156,6 +156,7 @@ const AttachExcel = memo<{
 
       attachItem!.data = newData;
       attachItem!.name = file.name;
+      attachItem!.isFile = true;
       setAttachItem(clone(attachItem));
     } catch (e) {
       console.error(e);

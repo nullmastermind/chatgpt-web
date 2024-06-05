@@ -422,9 +422,18 @@ const Message = ({ collection, prompt }: MessageProps) => {
           forEach(attachItems, (item: AttachItem) => {
             forEach(item.data, value => {
               if (!value.disabled) {
+                let header = "";
+                if (item.isFile) {
+                  header = `# File: ${item.name}`;
+                  if (value.name) {
+                    header += `\n\n${value.name}`;
+                  }
+                } else {
+                  header = "# Text data";
+                }
                 attachMessages.push({
                   role: "user",
-                  content: value.content,
+                  content: `${header}\n\n---\n\n${value.content}`,
                   name: "Attachment",
                 });
               }

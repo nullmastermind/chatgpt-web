@@ -13,6 +13,7 @@ export type AttachItem = {
   id: string;
   type: AttachItemType;
   name: string;
+  isFile?: boolean;
   data: {
     name: string;
     content: string;
