@@ -585,13 +585,20 @@ export const markdownToHtml = (content?: string) => {
 };
 
 export const htmlToMarkdown2 = (content?: string) => {
+  // Remove empty list items
   content = (content || "").split("<li></li>").join("").split("<li><p></p></li>").join("");
+
+  // Remove image, svg, and video tags
+  content = content
+    .replace(/<img[^>]*>/g, "")
+    .replace(/<svg[^>]*>[\s\S]*?<\/svg>/g, "")
+    .replace(/<video[^>]*>[\s\S]*?<\/video>/g, "");
+
   return converter
     .makeMarkdown(content || "")
     .trim()
     .replace(/(\n\s*\n)(?=\s*[\d.\-*])/g, "\n");
 };
-
 
 export const addTypingSymbol = (content: string, canAdd?: boolean) => {
   if (canAdd && !content.endsWith("█")) {
