@@ -270,9 +270,11 @@ const AttachExcel = memo<{
               }}
               loading={loading}
               multiple={false}
-              accept={supportExtensions?.map(fileExtension => {
-                return mime.lookup(fileExtension) as string;
-              })}
+              accept={supportExtensions
+                ?.map(fileExtension => {
+                  return mime.lookup(fileExtension) as string;
+                })
+                .concat(supportExtensions)}
             >
               <Group position="center" spacing="xl" style={{ minHeight: rem(80), pointerEvents: "none" }}>
                 <Dropzone.Accept>
