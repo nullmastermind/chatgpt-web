@@ -1,5 +1,6 @@
-import React, { memo, useEffect, useMemo, useState } from "react";
+import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import {
+  ActionIcon,
   Button,
   Card,
   Checkbox,
@@ -15,7 +16,7 @@ import {
 } from "@mantine/core";
 import { AttachItem, AttachItemType } from "@/components/misc/types";
 import { v4 } from "uuid";
-import { IconBrandOffice, IconCheck, IconCsv, IconUpload, IconX } from "@tabler/icons-react";
+import { IconBrandOffice, IconCheck, IconCsv, IconFileAlert, IconPencil, IconUpload, IconX } from "@tabler/icons-react";
 import { Dropzone, FileWithPath } from "@mantine/dropzone";
 import * as XLSX from "xlsx";
 import { clone, forEach, map } from "lodash";
@@ -23,6 +24,8 @@ import mammoth from "mammoth";
 import { htmlToMarkdown2 } from "@/utility/utility";
 import { useLocalStorage } from "react-use";
 import * as mime from "mime-types";
+import classNames from "classnames";
+import { notifications } from "@mantine/notifications";
 
 const AttachExcel = memo<{
   opened: boolean;
@@ -84,6 +87,8 @@ const AttachExcel = memo<{
     ".yml", // YAML files
   ]);
   const [fileSupports, setFileSupports] = useState<string>(supportExtensions?.join(", ") || "");
+  const [readOnly, setReadOnly] = useState(true);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleUploadFile = async (files: FileWithPath[]) => {
     const file = files?.[0];
@@ -115,7 +120,7 @@ const AttachExcel = memo<{
                 }
               });
               newData.push({
-                name: sheetName,
+                name: "Sheet: " + sheetName,
                 content: markdown,
               });
             });
@@ -158,8 +163,16 @@ const AttachExcel = memo<{
       attachItem!.name = file.name;
       attachItem!.isFile = true;
       setAttachItem(clone(attachItem));
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      notifications.show({
+        title: "Error",
+        message: e.toString(),
+        radius: "lg",
+        withCloseButton: true,
+        color: "red",
+        icon: <IconFileAlert />,
+      });
     }
     setLoading(false);
   };
@@ -177,6 +190,9 @@ const AttachExcel = memo<{
       );
     }
   }, [value, opened]);
+  useEffect(() => {
+    if (!readOnly) inputRef.current?.focus();
+  }, [readOnly]);
 
   if (!attachItem) return null;
 
@@ -205,8 +221,13 @@ const AttachExcel = memo<{
         className="relative"
       >
         <div className={"flex flex-col gap-2"}>
-          <div>
+          <div className={"flex flex-row gap-1 items-center"}>
             <TextInput
+              ref={inputRef}
+              readOnly={readOnly}
+              className={classNames("flex-grow", {
+                "opacity-50": readOnly,
+              })}
               label={"File support (editable)"}
               size={"xs"}
               value={fileSupports}
@@ -220,6 +241,7 @@ const AttachExcel = memo<{
                   .filter(v => v.startsWith("."));
                 setSupportExtensions(newValue);
                 setFileSupports(newValue.join(", "));
+                setReadOnly(true);
               }}
               onKeyDown={e => {
                 if (e.key === "Enter") {
@@ -229,6 +251,17 @@ const AttachExcel = memo<{
                 }
               }}
             />
+            {readOnly && (
+              <ActionIcon
+                className={"-mb-6"}
+                variant="default"
+                onClick={() => {
+                  setReadOnly(prevState => !prevState);
+                }}
+              >
+                <IconPencil />
+              </ActionIcon>
+            )}
           </div>
           <div>
             <Dropzone
