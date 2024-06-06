@@ -26,7 +26,12 @@ const MermaidDraw = memo<{
       .render(id, content)
       .then(value => {
         mermaidDockBlock.current!.innerHTML = value.svg;
-        panzoom(mermaidDockBlock.current!, {});
+        panzoom(mermaidDockBlock.current!, {
+          autocenter: true,
+          bounds: true,
+          minZoom: 0.3,
+          maxZoom: 5,
+        });
         setLoading(false);
         // handle offset height
         const offsetHeight = mermaidDockBlock.current!.getBoundingClientRect().height - prevHeight;
