@@ -176,7 +176,7 @@ const AttachDocument = memo<{
                 }}
                 variant={"filled"}
                 ref={inputRef}
-                placeholder={"Search in document"}
+                placeholder={"Search in your document by anything..."}
                 className={"w-full"}
                 rightSection={
                   <>
@@ -218,6 +218,7 @@ const AttachDocument = memo<{
                       return uniqBy([...prevState, ...queryDocumentItems], item => item[0].metadata.hash);
                     });
                     setQueryDocumentItems([]);
+                    setActiveTab("added");
                     inputRef.current?.select();
                   } else if (activeTab === "added") {
                     setAddedItems([]);
