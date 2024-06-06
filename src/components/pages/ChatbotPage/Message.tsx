@@ -1,7 +1,7 @@
 "use client";
 
 import { useDebounce, useList, useMap, useMeasure, useMount, useUnmount } from "react-use";
-import { ActionIcon, Badge, Container, Loader, Modal, ScrollArea, Text, Tooltip, Transition } from "@mantine/core";
+import { ActionIcon, Badge, Container, Loader, Modal, px, ScrollArea, Text, Tooltip, Transition } from "@mantine/core";
 import React, {
   forwardRef,
   Fragment,
@@ -762,7 +762,7 @@ const MessageItem = forwardRef(
 
     const updateAttachInfo = async () => {
       const attachItems: AttachItem[] | null = await store.getItem(attachKey(collectionId, inputMessage.id));
-      if (Array.isArray(attachItems)) {
+      if (Array.isArray(attachItems) && attachItems.length > 0) {
         setAttachItems(attachItems);
       }
     };
@@ -906,6 +906,15 @@ const MessageItem = forwardRef(
     useEffect(() => {
       void updateAttachInfo();
     }, [inputMessage?.id]);
+    useEffect(() => {
+      if (attachItems.length > 0) {
+        requestAnimationFrame(() => {
+          messagePageScroll.current?.scrollBy({
+            top: 16 + px("0.5rem"),
+          });
+        });
+      }
+    }, [attachItems]);
 
     return (
       <>
