@@ -221,6 +221,7 @@ const AttachDocument = memo<{
               value={activeTab}
               onTabChange={value => {
                 setActiveTab(value as any);
+                inputRef.current?.focus();
               }}
             >
               <Tabs.List>
