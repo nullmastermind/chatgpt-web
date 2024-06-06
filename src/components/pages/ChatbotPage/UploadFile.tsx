@@ -1,5 +1,5 @@
 import React, { memo, useState } from "react";
-import { Button, Menu, ScrollArea } from "@mantine/core";
+import { Button, Kbd, Menu, ScrollArea } from "@mantine/core";
 import {
   IconBlockquote,
   IconBrandShazam,
@@ -16,9 +16,10 @@ import AttachTextData from "@/components/pages/ChatbotPage/Attach/AttachTextData
 import { clone, findIndex, map } from "lodash";
 import AttachName from "@/components/pages/ChatbotPage/Attach/AttachName";
 import { modals } from "@mantine/modals";
-import { useElementSize } from "@mantine/hooks";
+import { useElementSize, useHotkeys } from "@mantine/hooks";
 import AttachExcel from "@/components/pages/ChatbotPage/Attach/AttachExcel";
 import AttachDocument from "@/components/pages/ChatbotPage/Attach/AttachDocument";
+import useDoubleShiftHotkey from "@/utility/hooks/useDoubleShiftHotkey";
 
 const UploadFile = memo<{
   onChange: (value: AttachItem[]) => any;
@@ -40,6 +41,10 @@ const UploadFile = memo<{
     onChange(clone(data));
     resetEdit();
   };
+
+  useDoubleShiftHotkey(() => {
+    setShowAttach(AttachItemType.PrivateDocument);
+  });
 
   return (
     <>
@@ -86,25 +91,30 @@ const UploadFile = memo<{
             </Button>
           </Menu.Target>
           <Menu.Dropdown>
-            <div
-              className={"px-1"}
-              style={{
-                fontSize: 10,
-                color: "orange",
-              }}
-            >
-              Features are under testing before release
-            </div>
-            <Menu.Item className={"p-1"} onClick={() => setShowAttach(AttachItemType.PrivateDocument)}>
-              <div className={"flex flex-row gap-1 items-center"}>
-                <IconFileStack size={"1.3rem"} />
-                <div>Private document</div>
-              </div>
-            </Menu.Item>
+            {/*<div*/}
+            {/*  className={"px-1"}*/}
+            {/*  style={{*/}
+            {/*    fontSize: 10,*/}
+            {/*    color: "orange",*/}
+            {/*  }}*/}
+            {/*>*/}
+            {/*  Features are under testing before release*/}
+            {/*</div>*/}
             <Menu.Item className={"p-1"} onClick={() => setShowAttach(AttachItemType.TextData)}>
               <div className={"flex flex-row gap-1 items-center"}>
                 <IconBlockquote size={"1.3rem"} />
                 <div>Text data</div>
+              </div>
+            </Menu.Item>
+            <Menu.Item
+              className={"p-1"}
+              onClick={() => setShowAttach(AttachItemType.PrivateDocument)}
+              title={"Double Shift for quick use"}
+            >
+              <div className={"flex flex-row gap-1 items-center"}>
+                <IconFileStack size={"1.3rem"} />
+                <div className={"flex-grow"}>Private document</div>
+                <Kbd size={"xs"}>⇧+⇧</Kbd>
               </div>
             </Menu.Item>
             <Menu.Item className={"p-1"} onClick={() => setShowAttach(AttachItemType.Excel)}>
