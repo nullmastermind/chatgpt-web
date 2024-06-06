@@ -18,6 +18,7 @@ import AttachName from "@/components/pages/ChatbotPage/Attach/AttachName";
 import { modals } from "@mantine/modals";
 import { useElementSize } from "@mantine/hooks";
 import AttachExcel from "@/components/pages/ChatbotPage/Attach/AttachExcel";
+import AttachDocument from "@/components/pages/ChatbotPage/Attach/AttachDocument";
 
 const UploadFile = memo<{
   onChange: (value: AttachItem[]) => any;
@@ -32,22 +33,31 @@ const UploadFile = memo<{
     setEditItem(null);
     setShowAttach(null);
   };
+  const onSubmit = (item: AttachItem) => {
+    const index = findIndex(data, value1 => value1.id === item.id);
+    if (index !== -1) data[index] = item;
+    else data.push(item);
+    onChange(clone(data));
+    resetEdit();
+  };
 
   return (
     <>
+      <AttachDocument
+        opened={showAttach === AttachItemType.PrivateDocument}
+        onClose={() => {
+          resetEdit();
+        }}
+        value={editItem}
+        onSubmit={onSubmit}
+      />
       <AttachTextData
         opened={showAttach === AttachItemType.TextData}
         onClose={() => {
           resetEdit();
         }}
         value={editItem}
-        onSubmit={value => {
-          const index = findIndex(data, value1 => value1.id === value.id);
-          if (index !== -1) data[index] = value;
-          else data.push(value);
-          onChange(clone(data));
-          resetEdit();
-        }}
+        onSubmit={onSubmit}
       />
       <AttachExcel
         opened={showAttach === AttachItemType.Excel}
@@ -55,13 +65,7 @@ const UploadFile = memo<{
           resetEdit();
         }}
         value={editItem}
-        onSubmit={value => {
-          const index = findIndex(data, value1 => value1.id === value.id);
-          if (index !== -1) data[index] = value;
-          else data.push(value);
-          onChange(clone(data));
-          resetEdit();
-        }}
+        onSubmit={onSubmit}
       />
       <div className="flex flex-row gap-2 items-center h-[20px]">
         <Menu>
@@ -85,7 +89,7 @@ const UploadFile = memo<{
             >
               Features are under testing before release
             </div>
-            <Menu.Item className={"p-1"} disabled={true}>
+            <Menu.Item className={"p-1"} disabled={true} onClick={() => setShowAttach(AttachItemType.PrivateDocument)}>
               <div className={"flex flex-row gap-1 items-center"}>
                 <IconFileStack size={"1.3rem"} />
                 <div>Private document</div>

@@ -44,6 +44,7 @@ const ReplyItem = memo<ReplyItemProps>(({ messages, includeMessages, position, o
       <div className={"px-3 py-2 relative"}>
         {!showFullEdit && (
           <TextInput
+            variant={"filled"}
             size={"sm"}
             placeholder={"Write a reply"}
             onFocus={() => {

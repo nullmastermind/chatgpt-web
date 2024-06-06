@@ -223,6 +223,7 @@ const AttachExcel = memo<{
         <div className={"flex flex-col gap-2"}>
           <div className={"flex flex-row gap-1 items-center"}>
             <TextInput
+              variant={"filled"}
               ref={inputRef}
               readOnly={readOnly}
               className={classNames("flex-grow", {
