@@ -1,11 +1,11 @@
 import { memo, useEffect, useRef, useState } from "react";
 import { convertToSupportLang } from "@/utility/utility";
-import { Card, ScrollArea, Tabs } from "@mantine/core";
+import { Card, ScrollArea, Switch, Tabs } from "@mantine/core";
 import classNames from "classnames";
 import { Prism } from "@mantine/prism";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import mermaid from "mermaid";
-import panzoom from "panzoom";
+import panzoom, { PanZoom } from "panzoom";
 import { v4 } from "uuid";
 import { messagePageScroll } from "@/components/pages/ChatbotPage/Message";
 
@@ -18,6 +18,8 @@ const MermaidDraw = memo<{
   const [loading, setLoading] = useState(true);
   const mermaidDockBlock = useRef<HTMLDivElement>(null);
   const [id, setId] = useState(v4());
+  const [enablePanNZoom, setEnablePanNZoom] = useState(false);
+  const panNZoomInstance = useRef<PanZoom>(null);
 
   useEffect(() => {
     if (!mermaidDockBlock.current) return;
@@ -26,12 +28,6 @@ const MermaidDraw = memo<{
       .render(id, content)
       .then(value => {
         mermaidDockBlock.current!.innerHTML = value.svg;
-        panzoom(mermaidDockBlock.current!, {
-          autocenter: true,
-          bounds: true,
-          minZoom: 0.3,
-          maxZoom: 5,
-        });
         setLoading(false);
         // handle offset height
         const offsetHeight = mermaidDockBlock.current!.getBoundingClientRect().height - prevHeight;
@@ -47,6 +43,21 @@ const MermaidDraw = memo<{
         }
       });
   }, [content, id]);
+  useEffect(() => {
+    if (enablePanNZoom) {
+      if (!panNZoomInstance.current) {
+        // @ts-ignore
+        panNZoomInstance.current = panzoom(mermaidDockBlock.current!, {
+          minZoom: 0.3,
+          maxZoom: 5,
+        });
+      } else if (panNZoomInstance.current.isPaused()) panNZoomInstance.current.resume();
+    } else {
+      if (panNZoomInstance.current) {
+        panNZoomInstance.current.pause();
+      }
+    }
+  }, [enablePanNZoom]);
 
   return (
     <div className={"py-5"}>
@@ -57,7 +68,7 @@ const MermaidDraw = memo<{
         </Tabs.List>
         <Tabs.Panel value={"diagram"}>
           <div className={"flex relative flex-row justify-center py-2 overflow-hidden"}>
-            <Card className={"w-full"}>
+            <Card className={"w-full min-h-[256px]"}>
               <div
                 ref={mermaidDockBlock}
                 className="w-full !p-0 whitespace-pre-wrap relative my-5 flex flex-row items-center justify-center"
@@ -68,6 +79,15 @@ const MermaidDraw = memo<{
                 <div>Drawing diagram...</div>
               </div>
             )}
+            <div className={"absolute top-0 left-0 p-2 py-3"}>
+              <Switch
+                checked={enablePanNZoom}
+                label={"Pan & Zoom"}
+                onChange={e => {
+                  setEnablePanNZoom(e.target.checked);
+                }}
+              />
+            </div>
           </div>
         </Tabs.Panel>
         <Tabs.Panel value={"text"}>
