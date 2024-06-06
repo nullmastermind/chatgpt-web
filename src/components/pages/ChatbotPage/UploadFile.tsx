@@ -43,30 +43,36 @@ const UploadFile = memo<{
 
   return (
     <>
-      <AttachDocument
-        opened={showAttach === AttachItemType.PrivateDocument}
-        onClose={() => {
-          resetEdit();
-        }}
-        value={editItem}
-        onSubmit={onSubmit}
-      />
-      <AttachTextData
-        opened={showAttach === AttachItemType.TextData}
-        onClose={() => {
-          resetEdit();
-        }}
-        value={editItem}
-        onSubmit={onSubmit}
-      />
-      <AttachExcel
-        opened={showAttach === AttachItemType.Excel}
-        onClose={() => {
-          resetEdit();
-        }}
-        value={editItem}
-        onSubmit={onSubmit}
-      />
+      {showAttach === AttachItemType.PrivateDocument && (
+        <AttachDocument
+          opened={showAttach === AttachItemType.PrivateDocument}
+          onClose={() => {
+            resetEdit();
+          }}
+          value={editItem}
+          onSubmit={onSubmit}
+        />
+      )}
+      {showAttach === AttachItemType.TextData && (
+        <AttachTextData
+          opened={showAttach === AttachItemType.TextData}
+          onClose={() => {
+            resetEdit();
+          }}
+          value={editItem}
+          onSubmit={onSubmit}
+        />
+      )}
+      {showAttach === AttachItemType.Excel && (
+        <AttachExcel
+          opened={showAttach === AttachItemType.Excel}
+          onClose={() => {
+            resetEdit();
+          }}
+          value={editItem}
+          onSubmit={onSubmit}
+        />
+      )}
       <div className="flex flex-row gap-2 items-center h-[20px]">
         <Menu>
           <Menu.Target>
@@ -89,7 +95,7 @@ const UploadFile = memo<{
             >
               Features are under testing before release
             </div>
-            <Menu.Item className={"p-1"} disabled={true} onClick={() => setShowAttach(AttachItemType.PrivateDocument)}>
+            <Menu.Item className={"p-1"} onClick={() => setShowAttach(AttachItemType.PrivateDocument)}>
               <div className={"flex flex-row gap-1 items-center"}>
                 <IconFileStack size={"1.3rem"} />
                 <div>Private document</div>

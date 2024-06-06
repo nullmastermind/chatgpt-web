@@ -29,3 +29,28 @@ export type TMessageItem = {
   name?: string;
   id?: string | number;
 };
+
+export type TDocumentItem = {
+  doc_id: string;
+  extensions: string[];
+  indexAt: string;
+  isIndexed: boolean;
+};
+
+export type TPageContentType = {
+  pageContent: string;
+  metadata: {
+    source: string;
+    loc: {
+      lines: {
+        from: number;
+        to: number;
+      };
+    };
+    md5: string; // file (all parts)
+    hash: string; // part
+    summary: boolean;
+  };
+};
+
+export type TIndexedDocumentItem = [TPageContentType, number];

@@ -660,3 +660,19 @@ export const fixEditorOutput = (content?: string) => {
   content = content || "";
   return trimEmptyListItems(content);
 };
+
+export const trimDocumentContent = (content: string) => {
+  content = content.trim();
+  const lines = content.split("\n");
+
+  if (lines[0].startsWith("DOCUMENT NAME:") || lines[0].startsWith("REFERENCE CODE:")) {
+    lines.shift();
+  }
+
+  return lines.join("\n").trim();
+};
+
+export const isCDocumentCode = (content: string) => {
+  content = content.trim();
+  return content.startsWith("REFERENCE CODE:");
+};
