@@ -8,7 +8,6 @@ import {
   LoadingOverlay,
   Modal,
   NativeSelect,
-  px,
   ScrollArea,
   Tabs,
   TextInput,
@@ -21,7 +20,7 @@ import { useDebouncedState } from "@mantine/hooks";
 import { useDebounce, useLocalStorage, useSetState } from "react-use";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { filter, findIndex, map } from "lodash";
+import { filter, findIndex, map, uniqBy } from "lodash";
 import { useOpenaiAPIKey } from "@/states/states";
 import AttachDocumentItem from "@/components/pages/ChatbotPage/Attach/AttachDocumentItem";
 
@@ -49,7 +48,7 @@ const AttachDocument = memo<{
   const [apiKey] = useOpenaiAPIKey();
   const [queryDocumentItems, setQueryDocumentItems] = useState<TIndexedDocumentItem[]>([]);
   const [addedItems, setAddedItems] = useState<TIndexedDocumentItem[]>([]);
-  const [activeTab, setActiveTab] = useState("query");
+  const [activeTab, setActiveTab] = useState<"query" | "added">("query");
 
   const queryDocuments = (query: string) => {
     setLoadings({ query: true });
@@ -68,6 +67,7 @@ const AttachDocument = memo<{
       })
       .finally(() => {
         setLoadings({ query: false });
+        setActiveTab("query");
       });
   };
 
@@ -194,17 +194,30 @@ const AttachDocument = memo<{
           </div>
           <Divider />
           <div>
-            {queryDocumentItems.length > 0 && (
-              <div className={"flex flex-row items-center justify-end -mb-10 pb-3"}>
-                <Button size={"xs"} variant={"default"}>
-                  {activeTab === "query" ? "Add all" : "Remove all"}
-                </Button>
-              </div>
-            )}
+            <div className={"flex flex-row items-center justify-end -mb-10 pb-3"}>
+              <Button
+                size={"xs"}
+                variant={"default"}
+                onClick={() => {
+                  if (activeTab === "query") {
+                    setAddedItems(prevState => {
+                      return uniqBy([...prevState, ...queryDocumentItems], item => item[0].metadata.hash);
+                    });
+                    setQueryDocumentItems([]);
+                    inputRef.current?.select();
+                  } else if (activeTab === "added") {
+                    setAddedItems([]);
+                  }
+                  inputRef.current?.focus();
+                }}
+              >
+                {activeTab === "query" ? "Add all" : "Remove all"}
+              </Button>
+            </div>
             <Tabs
               value={activeTab}
               onTabChange={value => {
-                setActiveTab(value as string);
+                setActiveTab(value as any);
               }}
             >
               <Tabs.List>
@@ -227,7 +240,15 @@ const AttachDocument = memo<{
                           item={item}
                           key={item[0].metadata.hash}
                           buttonLabel={"Add"}
-                          onClickButton={() => {}}
+                          onClickButton={() => {
+                            setAddedItems(prevState => {
+                              return uniqBy([...prevState, item], item => item[0].metadata.hash);
+                            });
+                            setQueryDocumentItems(prevState => {
+                              return prevState.filter(v => v[0].metadata.hash !== item[0].metadata.hash);
+                            });
+                            inputRef.current?.focus();
+                          }}
                         />
                       );
                     })}
@@ -250,7 +271,12 @@ const AttachDocument = memo<{
                           item={item}
                           key={item[0].metadata.hash}
                           buttonLabel={"Remove"}
-                          onClickButton={() => {}}
+                          onClickButton={() => {
+                            setAddedItems(prevState => {
+                              return prevState.filter(v => v[0].metadata.hash !== item[0].metadata.hash);
+                            });
+                            inputRef.current?.focus();
+                          }}
                         />
                       );
                     })}
