@@ -3,12 +3,13 @@ import classNames from "classnames";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { addTypingSymbol, convertToSupportLang, detectProgramLang, Node, postprocessAnswer } from "@/utility/utility";
-import { memo, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { Prism } from "@mantine/prism";
-import { Button, ScrollArea } from "@mantine/core";
+import { Button, px, ScrollArea } from "@mantine/core";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import { IconMenuOrder } from "@tabler/icons-react";
 import MermaidDraw from "@/components/pages/ChatbotPage/MermaidDraw";
+import { useElementSize } from "@mantine/hooks";
 
 type MemoizedReactMarkdownProps = {
   content: string;
@@ -32,8 +33,10 @@ const MemoizedReactMarkdown = memo(
       return _content;
     }, [_content, isFirst, showAll]);
     const currentNodeLine = useRef(0);
+    const { ref, width } = useElementSize();
+    const [containerWidth, setContainerWidth] = useState<number | undefined>(undefined);
 
-    const md = (
+    const md = () => (
       <ReactMarkdown
         linkTarget="_blank"
         remarkPlugins={[remarkGfm]}
@@ -192,37 +195,58 @@ const MemoizedReactMarkdown = memo(
       </ReactMarkdown>
     );
 
+    useEffect(() => {
+      if (width > 0) setContainerWidth(width);
+    }, [width]);
+
     if (smallText) {
-      return <div className={classNames("text-xs", classes.pBreakAll)}>{md}</div>;
+      if (!containerWidth) {
+        return <div ref={ref} className={"w-full h-[2rem]"} />;
+      }
+
+      return (
+        <>
+          <div
+            style={{
+              maxWidth: containerWidth,
+            }}
+            className={classNames("text-xs", classes.pBreakAll)}
+          >
+            {md()}
+          </div>
+        </>
+      );
     }
 
     return (
-      <div>
-        <div
-          className={classNames(classes.messageContent, classes.imgBg, {
-            "px-2 sm:px-0": isFirst,
-          })}
-        >
-          {md}
-        </div>
-        {isFirst && _content.length > MAX_TEXT && (
-          <Button
-            leftIcon={<IconMenuOrder size={"1.3rem"} />}
-            size={"xs"}
-            fullWidth={true}
-            className={classNames(classes.expandBox, {
-              "mt-3": showAll,
+      <>
+        <div className={"max-w-full"}>
+          <div
+            className={classNames(classes.messageContent, classes.imgBg, {
+              "px-2 sm:px-0": isFirst,
             })}
-            onClick={() => {
-              setShowAll(!showAll);
-            }}
           >
-            <div className={"text-xs italic font-bold"} style={{ fontSize: 10 }}>
-              {showAll ? "Collapse" : "Expand"}
-            </div>
-          </Button>
-        )}
-      </div>
+            {md()}
+          </div>
+          {isFirst && _content.length > MAX_TEXT && (
+            <Button
+              leftIcon={<IconMenuOrder size={"1.3rem"} />}
+              size={"xs"}
+              fullWidth={true}
+              className={classNames(classes.expandBox, {
+                "mt-3": showAll,
+              })}
+              onClick={() => {
+                setShowAll(!showAll);
+              }}
+            >
+              <div className={"text-xs italic font-bold"} style={{ fontSize: 10 }}>
+                {showAll ? "Collapse" : "Expand"}
+              </div>
+            </Button>
+          )}
+        </div>
+      </>
     );
   }
 );

@@ -251,7 +251,7 @@ const AttachDocument = memo<{
               </Tabs.List>
               <Tabs.Panel value={"query"}>
                 <ScrollArea.Autosize mah={window.innerHeight - 350}>
-                  <div className={"flex flex-col gap-2 py-2 max-w-[587px]"}>
+                  <div className={"flex flex-col gap-2 py-2"}>
                     {queryDocumentItems.length === 0 && (
                       <Card>
                         <Card.Section className={"p-3 flex flex-col items-center justify-center min-h-[100px]"}>

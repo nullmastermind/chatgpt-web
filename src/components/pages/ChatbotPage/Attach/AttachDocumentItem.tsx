@@ -26,7 +26,7 @@ const AttachDocumentItem = memo<{
         </Card.Section>
         <Card.Section className={"px-3"}>
           <div className={"flex flex-col sm:flex-row gap-2"}>
-            <ScrollArea.Autosize mah={256} className={"flex-grow"}>
+            <ScrollArea.Autosize mah={256} maw={500} className={"flex-grow"}>
               <MemoizedReactMarkdown
                 smallText={true}
                 content={
