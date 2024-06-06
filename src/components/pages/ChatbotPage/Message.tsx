@@ -23,9 +23,11 @@ import {
   Docs,
   filterDocs,
   htmlEncode,
+  isCDocumentCode,
   KeyValue,
   postprocessAnswer,
   processTaggedMessage,
+  trimDocumentContent,
   unWrapRawContent,
   wrapRawContent,
 } from "@/utility/utility";
@@ -434,6 +436,8 @@ const Message = ({ collection, prompt }: MessageProps) => {
           const attachMessages: TMessageItem[] = [];
           forEach(attachItems, (item: AttachItem) => {
             forEach(item.data, value => {
+              value = cloneDeep(value);
+
               if (!value.disabled) {
                 let header = "";
                 if (item.isFile) {
@@ -441,13 +445,18 @@ const Message = ({ collection, prompt }: MessageProps) => {
                   if (value.name) {
                     header += `\n\n${value.name}`;
                   }
+                } else if (value.isDocument) {
+                  header = `# Reference: ${value.name}`;
+                  const isCode = isCDocumentCode(value.content);
+                  value.content = trimDocumentContent(value.content);
+                  value.content = isCode ? "```\n" + value.content + "\n```" : value.content;
                 } else {
                   header = "# Text data";
                 }
                 attachMessages.push({
                   role: "user",
                   content: `${header}\n\n---\n\n${value.content}`,
-                  name: "Attachment",
+                  name: value.isDocument ? "Documentation" : "Attachment",
                 });
               }
             });

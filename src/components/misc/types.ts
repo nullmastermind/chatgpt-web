@@ -19,6 +19,8 @@ export type AttachItem = {
     content: string;
     base64Image?: string;
     disabled?: boolean;
+    metadata?: Record<string, any>;
+    isDocument?: boolean;
   }[];
   createdAt: number;
 };

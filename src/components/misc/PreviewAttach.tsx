@@ -1,9 +1,10 @@
 import React, { memo } from "react";
 import { AttachItem, AttachItemType } from "@/components/misc/types";
-import { Card, Container, Divider, Modal, ScrollArea, Title } from "@mantine/core";
-import { IconBlockquote, IconBrandOffice } from "@tabler/icons-react";
+import { Card, Divider, Modal, ScrollArea, Title } from "@mantine/core";
+import { IconBlockquote, IconBrandOffice, IconFileStack } from "@tabler/icons-react";
 import { map } from "lodash";
 import MemoizedReactMarkdown from "@/components/pages/ChatbotPage/MemoizedReactMarkdown";
+import { isCDocumentCode, trimDocumentContent } from "@/utility/utility";
 
 const PreviewAttach = memo<{
   attachItem: AttachItem;
@@ -21,6 +22,7 @@ const PreviewAttach = memo<{
           <div className="flex flex-row gap-2 items-center">
             {attachItem?.type === AttachItemType.TextData && <IconBlockquote />}
             {attachItem?.type === AttachItemType.Excel && <IconBrandOffice />}
+            {attachItem?.type === AttachItemType.PrivateDocument && <IconFileStack />}
             <div className="flex flex-col">
               <Title size="md" className="line-clamp-1">
                 Preview
@@ -53,13 +55,23 @@ const PreviewAttach = memo<{
                   </>
                 )}
                 <Card.Section className={"p-2"}>
-                  <ScrollArea.Autosize mah={attachItem.data.length > 1 ? 250 : 400}>
+                  <ScrollArea.Autosize mah={attachItem.data.length > 1 ? 256 : 400}>
                     <div
                       style={{
                         maxWidth: 570,
                       }}
                     >
-                      <MemoizedReactMarkdown content={value.content} />
+                      <MemoizedReactMarkdown
+                        smallText={true}
+                        content={(() => {
+                          if (value.isDocument) {
+                            return isCDocumentCode(value.content)
+                              ? `\`\`\`${trimDocumentContent(value.content)}`
+                              : trimDocumentContent(value.content);
+                          }
+                          return value.content;
+                        })()}
+                      />
                     </div>
                   </ScrollArea.Autosize>
                 </Card.Section>

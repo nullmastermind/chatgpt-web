@@ -76,13 +76,26 @@ const AttachDocument = memo<{
     if (opened) {
       setAttachItem(
         value || {
-          name: "Text data",
+          name: "Private document",
           data: [],
           createdAt: Date.now(),
-          type: AttachItemType.TextData,
+          type: AttachItemType.PrivateDocument,
           id: v4(),
         }
       );
+      if (value) {
+        setAddedItems(
+          map(value.data, v => {
+            return [
+              {
+                metadata: v.metadata,
+                pageContent: v.content,
+              },
+              0,
+            ] as TIndexedDocumentItem;
+          })
+        );
+      }
     }
   }, [value, opened]);
   useDebounce(
@@ -309,7 +322,21 @@ const AttachDocument = memo<{
             <Button variant="default" onClick={() => onClose()}>
               Close
             </Button>
-            <Button onClick={() => onSubmit(attachItem!)}>Save</Button>
+            <Button
+              onClick={() => {
+                attachItem!.data = map(addedItems, item => {
+                  return {
+                    content: item[0].pageContent,
+                    metadata: item[0].metadata,
+                    name: `${item[0].metadata.source}:${item[0].metadata?.loc?.lines?.from}:${item[0].metadata?.loc?.lines?.to}`,
+                    isDocument: true,
+                  };
+                });
+                onSubmit(attachItem!);
+              }}
+            >
+              Save
+            </Button>
           </div>
         </div>
       </Modal>
