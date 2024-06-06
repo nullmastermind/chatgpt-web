@@ -77,6 +77,14 @@ const needRefreshMessageIds = {
 
 export const messagePageScroll = { current: null as HTMLDivElement | null };
 
+const disableBodyScroll = () => {
+  document.body.style.overflowY = "hidden";
+};
+
+const enableBodyScroll = () => {
+  document.body.style.overflow = "";
+};
+
 const Message = ({ collection, prompt }: MessageProps) => {
   const { classes } = useStyles();
   const [containerRef, { height: containerHeight }] = useMeasure();
@@ -242,6 +250,10 @@ const Message = ({ collection, prompt }: MessageProps) => {
     }
   };
 
+  useEffect(() => {
+    disableBodyScroll();
+    return () => enableBodyScroll();
+  }, []);
   useEffect(() => {
     if (collection) {
       store
