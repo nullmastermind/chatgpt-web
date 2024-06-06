@@ -75,10 +75,11 @@ const needRefreshMessageIds = {
   current: {} as Record<string, any>,
 };
 
+export const messagePageScroll = { current: null as HTMLDivElement | null };
+
 const Message = ({ collection, prompt }: MessageProps) => {
   const { classes } = useStyles();
   const [containerRef, { height: containerHeight }] = useMeasure();
-  const viewport = useRef<HTMLDivElement>(null);
   const [openaiAPIKey] = useOpenaiAPIKey();
   const [messages, { push: pushMessage, set: setMessages, insertAt: insertMessage }] = useList<MessageItemType>([]);
   const [isDone, { set: setIsDone, setAll: setAllIsDone }] = useMap<{
@@ -127,9 +128,9 @@ const Message = ({ collection, prompt }: MessageProps) => {
   }, [messages]);
 
   const scrollToBottom = (offset: number = 0) => {
-    const scrollHeight = viewport.current?.scrollHeight || 0;
-    const clientHeight = viewport.current?.clientHeight || 0;
-    viewport.current?.scrollTo({
+    const scrollHeight = messagePageScroll.current?.scrollHeight || 0;
+    const clientHeight = messagePageScroll.current?.clientHeight || 0;
+    messagePageScroll.current?.scrollTo({
       top: scrollHeight - clientHeight - offset,
     });
   };
@@ -213,10 +214,10 @@ const Message = ({ collection, prompt }: MessageProps) => {
     }
   };
   const isBottom = () => {
-    if (!viewport.current) return false;
-    const scrollHeight = viewport.current?.scrollHeight || 0;
-    const clientHeight = viewport.current?.clientHeight || 0;
-    const scrollTop = viewport.current?.scrollTop || 0;
+    if (!messagePageScroll.current) return false;
+    const scrollHeight = messagePageScroll.current?.scrollHeight || 0;
+    const clientHeight = messagePageScroll.current?.clientHeight || 0;
+    const scrollTop = messagePageScroll.current?.scrollTop || 0;
     return scrollTop >= scrollHeight - clientHeight;
   };
   const focusTextBox = () => {
@@ -561,7 +562,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
       }).finally();
     },
     42,
-    [messages, checkedMessages, viewport, collection, streamMessageIndex, includes, model]
+    [messages, checkedMessages, collection, streamMessageIndex, includes, model]
   );
   useDebounce(
     () => {
@@ -601,7 +602,9 @@ const Message = ({ collection, prompt }: MessageProps) => {
             h={containerHeight}
             scrollHideDelay={0}
             scrollbarSize={10}
-            viewportRef={viewport}
+            viewportRef={instance => {
+              messagePageScroll.current = instance;
+            }}
             offsetScrollbars={false}
           >
             <Container size="md" className="mb-5 mt-5 p-0">
@@ -650,7 +653,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
                     })}
                     <ReplyItem
                       includeMessages={messages}
-                      viewport={viewport}
+                      viewport={messagePageScroll}
                       messages={messages}
                       key={[JSON.stringify(messages), i0].join(":")}
                       position={position}

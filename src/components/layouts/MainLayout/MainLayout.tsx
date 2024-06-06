@@ -32,7 +32,7 @@ import {
 } from "@tabler/icons-react";
 import React, { useEffect, useMemo, useState } from "react";
 import { useStyles } from "@/components/pages/MainPage/MainPage.style";
-import { useDebounce, useLocalStorage, useMeasure, useMount, useWindowSize } from "react-use";
+import { useDebounce, useLocalStorage, useMount } from "react-use";
 import {
   useAddCollectionAction,
   useCollections,
@@ -93,9 +93,6 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const [, setCollectionRemoveId] = useCurrentCollectionRemoveId();
   const [, setCollectionUpId] = useCurrentCollectionUpId();
   const [, setCollectionDownId] = useCurrentCollectionDownId();
-  const [refScrollDiv, scrollDivInfo] = useMeasure();
-  const [scrollAreaHeight, setScrollAreaHeight] = useState(0);
-  const { height: wHeight } = useWindowSize();
   const theme = useMantineTheme();
   const [opened, setOpened] = useState(false);
   const [highContrast, setHighContrast] = useLocalStorage("highContrast", "0");
@@ -137,14 +134,6 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       localStorage.setItem(`:currentCollection:${currentTool}`, currentCollection.toString());
     }
   }, [currentCollection, currentTool]);
-  useEffect(() => {
-    if (scrollDivInfo.height > 0 && scrollAreaHeight === 0) {
-      setScrollAreaHeight(scrollDivInfo.height);
-    }
-  }, [scrollAreaHeight, scrollDivInfo, wHeight]);
-  useEffect(() => {
-    setScrollAreaHeight(0);
-  }, [wHeight]);
   useMount(() => {
     // enableDarkMode({
     //   // brightness: 100,
@@ -313,7 +302,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   ));
 
   const renderedScrollContent = (
-    <ScrollArea h={scrollAreaHeight}>
+    <div>
       <Group className={classes.collectionsHeader} position="apart">
         <Text size="xs" weight={500} color="dimmed">
           {currentLink?.collectionsLabel}
@@ -332,7 +321,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           </Button>
         </div>
       )}
-    </ScrollArea>
+    </div>
   );
 
   return (
@@ -352,7 +341,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             <Navbar.Section className={classes.section}>
               <div className={classes.mainLinks}>{mainLinks}</div>
             </Navbar.Section>
-            <Navbar.Section className={classNames(classes.section)} grow ref={refScrollDiv as any}>
+            <Navbar.Section className={classNames(classes.section)} grow component={ScrollArea}>
               {renderedScrollContent}
             </Navbar.Section>
             <Navbar.Section>

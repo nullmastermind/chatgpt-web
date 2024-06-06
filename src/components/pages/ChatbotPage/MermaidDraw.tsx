@@ -7,6 +7,7 @@ import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import mermaid from "mermaid";
 import panzoom from "panzoom";
 import { v4 } from "uuid";
+import { messagePageScroll } from "@/components/pages/ChatbotPage/Message";
 
 mermaid.initialize({ startOnLoad: false, theme: "dark" });
 
@@ -20,12 +21,20 @@ const MermaidDraw = memo<{
 
   useEffect(() => {
     if (!mermaidDockBlock.current) return;
+    const prevHeight = mermaidDockBlock.current.getBoundingClientRect().height;
     mermaid
       .render(id, content)
       .then(value => {
         mermaidDockBlock.current!.innerHTML = value.svg;
         panzoom(mermaidDockBlock.current!, {});
         setLoading(false);
+        // handle offset height
+        const offsetHeight = mermaidDockBlock.current!.getBoundingClientRect().height - prevHeight;
+        if (offsetHeight !== 0) {
+          messagePageScroll.current?.scrollBy({
+            top: offsetHeight,
+          });
+        }
       })
       .catch(e => {
         if (e.toString().includes("is not a valid selector")) {
