@@ -207,6 +207,7 @@ const AttachDocument = memo<{
                     inputRef.current?.select();
                   } else if (activeTab === "added") {
                     setAddedItems([]);
+                    setActiveTab("query");
                   }
                   inputRef.current?.focus();
                 }}
