@@ -1,27 +1,27 @@
-import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { convertToSupportLang } from "@/utility/utility";
 import { ScrollArea, Tabs } from "@mantine/core";
 import classNames from "classnames";
 import { Prism } from "@mantine/prism";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
-import { getMermaidImageUrl } from "@/components/misc/mermaid";
 import mermaid from "mermaid";
+import panzoom from "panzoom";
 
 const MermaidDraw = memo<{
   content: string;
 }>(({ content }) => {
   const { classes } = useStyles();
-  const url = useMemo(() => {
-    return getMermaidImageUrl(content);
-  }, [content]);
   const [loading, setLoading] = useState(true);
   const mermaidDockBlock = useRef<null>(null);
+
   mermaid.initialize({ startOnLoad: false, theme: "dark" });
 
   useEffect(() => {
     if (!mermaidDockBlock.current) {
       return;
     }
+
+    setLoading(true);
 
     // Render mermaid when mounted.
     mermaid
@@ -31,20 +31,21 @@ const MermaidDraw = memo<{
       .then(() => setLoading(false));
   });
 
+  useEffect(() => {
+    if (mermaidDockBlock.current) {
+      panzoom(mermaidDockBlock.current, {});
+    }
+  }, [mermaidDockBlock.current]);
+
   return (
-    <>
+    <div className={'py-5'}>
       <Tabs defaultValue={"diagram"}>
         <Tabs.List>
           <Tabs.Tab value={"diagram"}>Diagram</Tabs.Tab>
           <Tabs.Tab value={"text"}>Text</Tabs.Tab>
         </Tabs.List>
         <Tabs.Panel value={"diagram"}>
-          <div
-            style={{
-              maxWidth: "calc(100% - 50px)",
-            }}
-            className={"relative flex flex-row justify-center overflow-auto py-10"}
-          >
+          <div className={"flex min-h-[256px] relative flex-row justify-center py-10 overflow-hidden"}>
             <div>
               <pre ref={mermaidDockBlock} className="w-full !p-0 whitespace-pre-wrap relative my-5">
                 {content}
@@ -66,7 +67,7 @@ const MermaidDraw = memo<{
           />
         </Tabs.Panel>
       </Tabs>
-    </>
+    </div>
   );
 });
 

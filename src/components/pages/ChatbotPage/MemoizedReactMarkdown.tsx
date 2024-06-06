@@ -172,7 +172,7 @@ const MemoizedReactMarkdown = memo(
               lang = match[1];
             }
 
-            if (!inline && lang === "mermaid") {
+            if (!inline && lang === "mermaid" && !isTyping) {
               return <MermaidDraw content={codeContent} />;
             }
 
