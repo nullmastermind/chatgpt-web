@@ -38,7 +38,7 @@ const MermaidDraw = memo<{
   }, [mermaidDockBlock.current]);
 
   return (
-    <div className={'py-5'}>
+    <div className={"py-5"}>
       <Tabs defaultValue={"diagram"}>
         <Tabs.List>
           <Tabs.Tab value={"diagram"}>Diagram</Tabs.Tab>
@@ -46,8 +46,11 @@ const MermaidDraw = memo<{
         </Tabs.List>
         <Tabs.Panel value={"diagram"}>
           <div className={"flex min-h-[256px] relative flex-row justify-center py-10 overflow-hidden"}>
-            <div>
-              <pre ref={mermaidDockBlock} className="w-full !p-0 whitespace-pre-wrap relative my-5">
+            <div className={"w-full"}>
+              <pre
+                ref={mermaidDockBlock}
+                className="w-full !p-0 whitespace-pre-wrap relative my-5 flex flex-row items-center justify-center"
+              >
                 {content}
               </pre>
             </div>

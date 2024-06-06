@@ -39,3 +39,9 @@ a {
 .no-dot::before {
   display: none !important;
 }
+
+.mermaid-hide-pre {
+  pre {
+    display: none;
+  }
+}
