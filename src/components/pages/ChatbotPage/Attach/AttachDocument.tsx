@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActionIcon,
   Button,
@@ -35,13 +35,16 @@ const AttachDocument = memo<{
   const [attachItem, setAttachItem] = useState<AttachItem | null>(null);
   const [searchValue, setSearchValue] = useDebouncedState<string>("", 100);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const { data: documents, isLoading: isLoadingDocuments } = useQuery<TDocumentItem[]>({
+  const { data: allDocuments, isLoading: isLoadingDocuments } = useQuery<TDocumentItem[]>({
     queryKey: ["documents"],
     async queryFn() {
       const res = await axios.get(`${indexerHost}/api/docs`);
       return res.data.data;
     },
   });
+  const documents = useMemo(() => {
+    return filter(allDocuments, d => d.isIndexed);
+  }, [allDocuments]);
   const [documentId, setDocumentId] = useLocalStorage<string | null>("AttachDocument/document", null);
   const [loadings, setLoadings] = useSetState({
     query: false,

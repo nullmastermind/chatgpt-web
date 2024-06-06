@@ -2,7 +2,6 @@ import React, { memo, ReactNode } from "react";
 import { Button, Card, Divider, ScrollArea } from "@mantine/core";
 import { TIndexedDocumentItem } from "@/components/misc/types";
 import { isCDocumentCode, trimDocumentContent } from "@/utility/utility";
-import { IconPlus } from "@tabler/icons-react";
 import MemoizedReactMarkdown from "@/components/pages/ChatbotPage/MemoizedReactMarkdown";
 
 const AttachDocumentItem = memo<{
