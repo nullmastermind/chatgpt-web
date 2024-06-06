@@ -44,7 +44,7 @@ import CountTokens from "@/components/pages/ChatbotPage/CountTokens";
 import { getImprovePrompt } from "@/utility/warmup";
 import axios from "axios";
 import { indexerHost, indexerVersion } from "@/config";
-import { IconSearch, IconSettings } from "@tabler/icons-react";
+import { IconFileStack, IconSearch, IconSettings } from "@tabler/icons-react";
 import DocsModal from "@/components/pages/ChatbotPage/DocsModal";
 import { isMobile } from "react-device-detect";
 import UserInput, { EditorCommands } from "@/components/misc/UserInput";
@@ -557,7 +557,21 @@ export const TypeBox = forwardRef(
           {!isMobile && (
             <div className="flex flex-row items-center border border-blue-500">
               <Tooltip label={"Private Document Management"}>
-                <ActionIcon
+                {/*<ActionIcon*/}
+                {/*  onClick={() => {*/}
+                {/*    notifyIndexerVersionError();*/}
+                {/*    setDocModalOpenSettings({*/}
+                {/*      initDocId: docId,*/}
+                {/*      initSearchValue: docId,*/}
+                {/*    });*/}
+                {/*    openDocModal();*/}
+                {/*  }}*/}
+                {/*>*/}
+                {/*  <IconSettings size={"1.25rem"} />*/}
+                {/*</ActionIcon>*/}
+                <Button
+                  variant={"default"}
+                  size={"xs"}
                   onClick={() => {
                     notifyIndexerVersionError();
                     setDocModalOpenSettings({
@@ -566,34 +580,35 @@ export const TypeBox = forwardRef(
                     });
                     openDocModal();
                   }}
+                  leftIcon={<IconFileStack size={"1.3rem"} />}
                 >
-                  <IconSettings size={"1.25rem"} />
-                </ActionIcon>
+                  Private document
+                </Button>
               </Tooltip>
-              <NativeSelect
-                value={docId}
-                size={"xs"}
-                data={[
-                  {
-                    label: "Choose document",
-                    value: "",
-                  },
-                  ...docs,
-                ]}
-                onChange={e => {
-                  setDocId(e.target.value);
-                  setEnableDocument(!!e.target.value);
-                }}
-                disabled={!enableDocument}
-              />
-              <div className="ml-2">
-                <Switch
-                  onLabel="ON"
-                  offLabel="OFF"
-                  checked={enableDocument}
-                  onChange={e => setEnableDocument(e.target.checked)}
-                />
-              </div>
+              {/*<NativeSelect*/}
+              {/*  value={docId}*/}
+              {/*  size={"xs"}*/}
+              {/*  data={[*/}
+              {/*    {*/}
+              {/*      label: "Choose document",*/}
+              {/*      value: "",*/}
+              {/*    },*/}
+              {/*    ...docs,*/}
+              {/*  ]}*/}
+              {/*  onChange={e => {*/}
+              {/*    setDocId(e.target.value);*/}
+              {/*    setEnableDocument(!!e.target.value);*/}
+              {/*  }}*/}
+              {/*  disabled={!enableDocument}*/}
+              {/*/>*/}
+              {/*<div className="ml-2">*/}
+              {/*  <Switch*/}
+              {/*    onLabel="ON"*/}
+              {/*    offLabel="OFF"*/}
+              {/*    checked={enableDocument}*/}
+              {/*    onChange={e => setEnableDocument(e.target.checked)}*/}
+              {/*  />*/}
+              {/*</div>*/}
               <Divider orientation={"vertical"} className={"ml-2"} />
             </div>
           )}
@@ -652,7 +667,7 @@ export const TypeBox = forwardRef(
             }}
             variant="gradient"
             size={"xs"}
-            className={"flex-grow sm:flex-grow-0"}
+            className={"flex-grow sm:flex-grow-0 min-w-[100px]"}
           >
             Send
           </Button>
