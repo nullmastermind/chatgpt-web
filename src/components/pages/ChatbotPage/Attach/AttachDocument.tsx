@@ -24,6 +24,7 @@ import axios from "axios";
 import { filter, findIndex, map, uniqBy } from "lodash";
 import { useOpenaiAPIKey } from "@/states/states";
 import AttachDocumentItem from "@/components/pages/ChatbotPage/Attach/AttachDocumentItem";
+import { indexerHost } from "@/config";
 
 const AttachDocument = memo<{
   opened: boolean;
@@ -34,9 +35,8 @@ const AttachDocument = memo<{
   const [attachItem, setAttachItem] = useState<AttachItem | null>(null);
   const [searchValue, setSearchValue] = useDebouncedState<string>("", 100);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const [indexerHost] = useLocalStorage(":indexerHost", "http://localhost:3456");
   const { data: documents, isLoading: isLoadingDocuments } = useQuery<TDocumentItem[]>({
-    queryKey: ["documents", indexerHost],
+    queryKey: ["documents"],
     async queryFn() {
       const res = await axios.get(`${indexerHost}/api/docs`);
       return res.data.data;
@@ -137,6 +137,7 @@ const AttachDocument = memo<{
               <div className={"relative"}>
                 <LoadingOverlay visible={isLoadingDocuments} />
                 <NativeSelect
+                  placeholder={"Documents"}
                   data={map(
                     filter(documents, v => v.isIndexed),
                     document => ({
@@ -157,7 +158,7 @@ const AttachDocument = memo<{
             <div className={"flex-grow"}>
               <TextInput
                 onKeyDown={e => {
-                  if (e.key === "Enter" && inputRef.current?.value && documentId) {
+                  if (e.key === "Enter" && inputRef.current?.value && documentId && Boolean(documents?.length)) {
                     queryDocuments(inputRef.current.value);
                   }
                 }}
@@ -239,8 +240,16 @@ const AttachDocument = memo<{
                   <div className={"flex flex-col gap-2 py-2"}>
                     {queryDocumentItems.length === 0 && (
                       <Card>
-                        <Card.Section className={"p-3 flex items-center justify-center min-h-[100px]"}>
-                          {loadings.query ? "Querying..." : "No results found."}
+                        <Card.Section className={"p-3 flex flex-col items-center justify-center min-h-[100px]"}>
+                          <div>{loadings.query ? "Querying..." : "No results found."}</div>
+                          {!documents?.length && (
+                            <div>
+                              {"Need setup "}
+                              <a target={"_blank"} href="https://github.com/nullmastermind/nullgpt-indexer">
+                                the Indexer
+                              </a>
+                            </div>
+                          )}
                         </Card.Section>
                       </Card>
                     )}
