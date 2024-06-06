@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   Divider,
+  Indicator,
   Loader,
   LoadingOverlay,
   Modal,
@@ -222,8 +223,16 @@ const AttachDocument = memo<{
               }}
             >
               <Tabs.List>
-                <Tabs.Tab value={"query"}>Query</Tabs.Tab>
-                <Tabs.Tab value={"added"}>Added</Tabs.Tab>
+                <Tabs.Tab value={"query"}>
+                  <Indicator disabled={queryDocumentItems.length === 0} size={16} label={queryDocumentItems.length}>
+                    Query
+                  </Indicator>
+                </Tabs.Tab>
+                <Tabs.Tab value={"added"}>
+                  <Indicator size={16} disabled={addedItems.length === 0} label={addedItems.length}>
+                    Added
+                  </Indicator>
+                </Tabs.Tab>
               </Tabs.List>
               <Tabs.Panel value={"query"}>
                 <ScrollArea.Autosize mah={window.innerHeight - 350}>
