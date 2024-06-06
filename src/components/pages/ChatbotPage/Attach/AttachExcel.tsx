@@ -314,7 +314,9 @@ const AttachExcel = memo<{
                     <Card>
                       <Card.Section className={"flex flex-col gap-1 p-2 pl-0"}>
                         <Checkbox
-                          checked={disabledCount === 0}
+                          checked={
+                            disabledCount === 0 || (disabledCount > 0 && disabledCount !== attachItem.data.length)
+                          }
                           indeterminate={disabledCount > 0 && disabledCount !== attachItem.data.length}
                           label={<div className={"font-bold"}>All</div>}
                           onChange={() => {
