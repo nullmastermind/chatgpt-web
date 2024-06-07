@@ -71,7 +71,7 @@ const AddPrompt = ({
   const addForm = useForm({
     initialValues: {
       name: editData?.name || '',
-      temperature: editData && editData.temperature >= 0 ? editData?.temperature : 0.5,
+      temperature: editData && editData.temperature >= 0 ? editData?.temperature : 0.0,
       wrapSingleLine: Boolean(editData?.wrapSingleLine),
       wrapCustomXmlTag: Boolean(editData?.wrapCustomXmlTag),
       customXmlTag: editData?.customXmlTag || 'document',
@@ -180,18 +180,74 @@ const AddPrompt = ({
             placeholder={'Your agent name...'}
             {...addForm.getInputProps('name')}
           />
-          <NumberInput
-            label="Temperature"
-            description="Temperature controls the creativity of your agent. (0.0-1.0) Higher is more creativity."
-            required
-            placeholder={'0.0-2.0 (0.0-Precise, 0.5-Balanced, 1.0-Creative)'}
-            precision={1}
-            min={0.0}
-            step={0.1}
-            max={1.0}
-            {...addForm.getInputProps('temperature')}
-            className="mt-1"
-          />
+          <div className={'mt-2'}>
+            <div
+              className={'text-sm pb-1'}
+              style={{
+                fontWeight: 500,
+              }}
+            >
+              Choose a conversation style
+            </div>
+            <div className={'flex flex-row gap-2'}>
+              <Card padding={8} className={'flex flex-row gap-2 flex-grow'}>
+                <Card
+                  onClick={() => addForm.setFieldValue('temperature', 0.0)}
+                  padding={4}
+                  withBorder={addForm.values.temperature < 1 / 3}
+                  className={'flex flex-col items-center justify-center w-[33.3%] cursor-pointer'}
+                  style={{
+                    borderColor: '#1971c2',
+                    color: addForm.values.temperature < 1 / 3 ? '#1971c2' : undefined,
+                  }}
+                >
+                  <div className={'text-xs'}>More</div>
+                  <div className={'text-sm font-bold'}>Precise</div>
+                </Card>
+                <Card
+                  onClick={() => addForm.setFieldValue('temperature', 0.5)}
+                  padding={4}
+                  withBorder={
+                    addForm.values.temperature >= 1 / 3 && addForm.values.temperature <= 2 / 3
+                  }
+                  className={'flex flex-col items-center justify-center w-[33.4%] cursor-pointer'}
+                  style={{
+                    borderColor: '#1971c2',
+                    color:
+                      addForm.values.temperature >= 1 / 3 && addForm.values.temperature <= 2 / 3
+                        ? '#1971c2'
+                        : undefined,
+                  }}
+                >
+                  <div className={'text-xs'}>More</div>
+                  <div className={'text-sm font-bold'}>Balanced</div>
+                </Card>
+                <Card
+                  onClick={() => addForm.setFieldValue('temperature', 1.0)}
+                  padding={4}
+                  withBorder={addForm.values.temperature > 2 / 3}
+                  className={'flex flex-col items-center justify-center w-[33.3%] cursor-pointer'}
+                  style={{
+                    borderColor: '#1971c2',
+                    color: addForm.values.temperature > 2 / 3 ? '#1971c2' : undefined,
+                  }}
+                >
+                  <div className={'text-xs'}>More</div>
+                  <div className={'text-sm font-bold'}>Creative</div>
+                </Card>
+              </Card>
+              <NumberInput
+                required
+                placeholder={'0.0-2.0 (0.0-Precise, 0.5-Balanced, 1.0-Creative)'}
+                precision={1}
+                min={0.0}
+                step={0.1}
+                max={1.0}
+                {...addForm.getInputProps('temperature')}
+                className="mt-3 w-[80px]"
+              />
+            </div>
+          </div>
           <Checkbox
             label="Wrap user's chat content with quotation marks."
             {...addForm.getInputProps('wrapSingleLine', {
