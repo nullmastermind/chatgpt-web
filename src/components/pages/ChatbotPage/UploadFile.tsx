@@ -16,7 +16,7 @@ import AttachTextData from "@/components/pages/ChatbotPage/Attach/AttachTextData
 import { clone, findIndex, map } from "lodash";
 import AttachName from "@/components/pages/ChatbotPage/Attach/AttachName";
 import { modals } from "@mantine/modals";
-import { useElementSize, useHotkeys } from "@mantine/hooks";
+import { useElementSize } from "@mantine/hooks";
 import AttachExcel from "@/components/pages/ChatbotPage/Attach/AttachExcel";
 import AttachDocument from "@/components/pages/ChatbotPage/Attach/AttachDocument";
 import useDoubleShiftHotkey from "@/utility/hooks/useDoubleShiftHotkey";
