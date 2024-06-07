@@ -95,7 +95,7 @@ const SettingsPage = () => {
           {...settingsForm.getInputProps('maxMessagesPerBox')}
         />
         <TextInput
-          label="Null-gpt indexer host"
+          label="Indexer host"
           placeholder="http://localhost:3456"
           {...settingsForm.getInputProps('indexerHost')}
         />
