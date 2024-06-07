@@ -248,13 +248,13 @@ const AddPrompt = ({
               />
             </div>
           </div>
-          <Checkbox
-            label="Wrap user's chat content with quotation marks."
-            {...addForm.getInputProps('wrapSingleLine', {
-              type: 'checkbox',
-            })}
-            className="mt-3"
-          />
+          {/*<Checkbox*/}
+          {/*  label="Wrap user's chat content with quotation marks."*/}
+          {/*  {...addForm.getInputProps('wrapSingleLine', {*/}
+          {/*    type: 'checkbox',*/}
+          {/*  })}*/}
+          {/*  className="mt-3"*/}
+          {/*/>*/}
           <Checkbox
             label={
               <>
