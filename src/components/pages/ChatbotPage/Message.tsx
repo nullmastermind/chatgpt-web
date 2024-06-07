@@ -237,7 +237,7 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
     if (canSave) {
       const maxMessages = parseInt(localStorage.getItem(':maxMessages') || '10');
       const saveMessages = messages.splice(-maxMessages);
-      await store.setItem(messagesKey(collection), saveMessages);
+      if (saveMessages.length > 0) await store.setItem(messagesKey(collection), saveMessages);
       setMessages(saveMessages);
       setAllIsDone({});
     }
@@ -353,7 +353,7 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
         messages[streamIndex - 2].docId = undefined;
         userMessage.docId = undefined;
         needRefreshMessageIds.current[userMessage.id] = userMessage;
-        await store.setItem(messagesKey(collection), messages);
+        if (messages.length > 0) await store.setItem(messagesKey(collection), messages);
         setMessages(clone(messages));
         return;
       }
