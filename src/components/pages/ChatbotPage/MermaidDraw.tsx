@@ -9,8 +9,6 @@ import panzoom, { PanZoom } from "panzoom";
 import { v4 } from "uuid";
 import { messagePageScroll } from "@/components/pages/ChatbotPage/Message";
 
-mermaid.initialize({ startOnLoad: false, theme: "dark" });
-
 const MermaidDraw = memo<{
   content: string;
 }>(({ content }) => {
@@ -24,6 +22,7 @@ const MermaidDraw = memo<{
   useEffect(() => {
     if (!mermaidDockBlock.current) return;
     const prevHeight = mermaidDockBlock.current.getBoundingClientRect().height;
+    mermaid.initialize({ startOnLoad: false, theme: "dark" });
     mermaid
       .render(id, content)
       .then(value => {
