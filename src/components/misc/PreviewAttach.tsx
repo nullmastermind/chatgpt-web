@@ -1,10 +1,11 @@
-import React, { memo } from "react";
-import { AttachItem, AttachItemType } from "@/components/misc/types";
-import { Card, Divider, Modal, ScrollArea, Title } from "@mantine/core";
-import { IconBlockquote, IconBrandOffice, IconFileStack } from "@tabler/icons-react";
-import { map } from "lodash";
-import MemoizedReactMarkdown from "@/components/pages/ChatbotPage/MemoizedReactMarkdown";
-import { isCDocumentCode, trimDocumentContent } from "@/utility/utility";
+import { Card, Divider, Modal, ScrollArea, Title } from '@mantine/core';
+import { IconBlockquote, IconBrandOffice, IconFileStack } from '@tabler/icons-react';
+import { map } from 'lodash';
+import React, { memo } from 'react';
+
+import { AttachItem, AttachItemType } from '@/components/misc/types';
+import MemoizedReactMarkdown from '@/components/pages/ChatbotPage/MemoizedReactMarkdown';
+import { isCDocumentCode, trimDocumentContent } from '@/utility/utility';
 
 const PreviewAttach = memo<{
   attachItem: AttachItem;
@@ -15,7 +16,7 @@ const PreviewAttach = memo<{
       <Modal
         opened={Boolean(attachItem)}
         onClose={() => onClose()}
-        transitionProps={{ transition: "slide-up" }}
+        transitionProps={{ transition: 'slide-up' }}
         centered
         size="lg"
         title={
@@ -34,7 +35,7 @@ const PreviewAttach = memo<{
         scrollAreaComponent={ScrollArea.Autosize}
         className="relative"
       >
-        <div className={"flex flex-col gap-2"}>
+        <div className={'flex flex-col gap-2'}>
           {map(attachItem.data, (value, index) => {
             if (value.disabled) return null;
             return (
@@ -43,9 +44,9 @@ const PreviewAttach = memo<{
                   <>
                     <Card.Section>
                       <div
-                        className={"text-xs font-bold px-2"}
+                        className={'text-xs font-bold px-2'}
                         style={{
-                          color: "rgb(77, 171, 247)",
+                          color: 'rgb(77, 171, 247)',
                         }}
                       >
                         {value.name}
@@ -54,7 +55,7 @@ const PreviewAttach = memo<{
                     <Divider />
                   </>
                 )}
-                <Card.Section className={"p-2"}>
+                <Card.Section className={'p-2'}>
                   <ScrollArea.Autosize mah={attachItem.data.length > 1 ? 256 : 400}>
                     <div
                       style={{

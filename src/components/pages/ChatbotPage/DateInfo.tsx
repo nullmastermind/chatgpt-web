@@ -1,7 +1,8 @@
-import { MessageItemType } from "@/components/pages/ChatbotPage/Message";
-import { Text } from "@mantine/core";
-import { useEffect, useMemo, useState } from "react";
-import dayjs from "dayjs";
+import { Text } from '@mantine/core';
+import dayjs from 'dayjs';
+import { useEffect, useMemo, useState } from 'react';
+
+import { MessageItemType } from '@/components/pages/ChatbotPage/Message';
 
 type DateInfoProps = {
   message: MessageItemType;
@@ -11,7 +12,7 @@ const DateInfo = ({ message }: DateInfoProps) => {
   const [r, setR] = useState<number>();
   const info = useMemo(() => {
     if (!message.date) {
-      return "in the Past";
+      return 'in the Past';
     }
 
     const d = dayjs(message.date) as any;
@@ -28,7 +29,7 @@ const DateInfo = ({ message }: DateInfoProps) => {
 
   return (
     <>
-      <Text className={"opacity-60 text-xs mt-0.5"}>{info}</Text>
+      <Text className={'opacity-60 text-xs mt-0.5'}>{info}</Text>
     </>
   );
 };

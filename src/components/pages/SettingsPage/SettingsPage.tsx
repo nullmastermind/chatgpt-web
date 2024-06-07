@@ -1,12 +1,13 @@
-import { useMount, useSetState, useUnmount } from "react-use";
-import { useCollections, useOpenaiAPIKey } from "@/states/states";
-import { Button, NumberInput, PasswordInput, Switch, TextInput } from "@mantine/core";
-import { useForm } from "@mantine/form";
-import React from "react";
-import { notifications } from "@mantine/notifications";
-import { IconCircleCheckFilled, IconX } from "@tabler/icons-react";
-import CenterCard from "@/components/CenterCard";
-import { indexerHost } from "@/config";
+import { Button, NumberInput, PasswordInput, Switch, TextInput } from '@mantine/core';
+import { useForm } from '@mantine/form';
+import { notifications } from '@mantine/notifications';
+import { IconCircleCheckFilled, IconX } from '@tabler/icons-react';
+import React from 'react';
+import { useMount, useSetState, useUnmount } from 'react-use';
+
+import CenterCard from '@/components/CenterCard';
+import { indexerHost } from '@/config';
+import { useCollections, useOpenaiAPIKey } from '@/states/states';
 
 const SettingsPage = () => {
   const [, setCollections] = useCollections();
@@ -14,14 +15,14 @@ const SettingsPage = () => {
   const settingsForm = useForm({
     initialValues: {
       openaiKey: openaiAPIKey,
-      maxMessagesPerBox: parseInt(localStorage.getItem(":maxMessages") || "10"),
+      maxMessagesPerBox: parseInt(localStorage.getItem(':maxMessages') || '10'),
       indexerHost: indexerHost,
-      enterToSend: localStorage.getItem(":enterToSend") === "1",
-      logoText: localStorage.getItem(":logoText") || "Oggy GPT",
+      enterToSend: localStorage.getItem(':enterToSend') === '1',
+      logoText: localStorage.getItem(':logoText') || 'Oggy GPT',
     },
     validate: {
-      openaiKey: v => (["", null, undefined, "null"].includes(v) ? "Invalid" : null),
-      maxMessagesPerBox: v => (v <= 0 || v >= 100 ? "Invalid. Max 100" : null),
+      openaiKey: (v) => (['', null, undefined, 'null'].includes(v) ? 'Invalid' : null),
+      maxMessagesPerBox: (v) => (v <= 0 || v >= 100 ? 'Invalid. Max 100' : null),
     },
   });
   const [loadings, setLoadings] = useSetState({
@@ -31,24 +32,24 @@ const SettingsPage = () => {
   const saveSettings = () => {
     setLoadings({ save: true });
     if (!settingsForm.validate().hasErrors) {
-      localStorage.setItem(":maxMessages", `${settingsForm.values.maxMessagesPerBox}`);
-      localStorage.setItem(":openaiKey", settingsForm.values.openaiKey as string);
-      localStorage.setItem(":indexerHost", settingsForm.values.indexerHost);
-      localStorage.setItem(":enterToSend", settingsForm.values.enterToSend ? "1" : "0");
-      localStorage.setItem(":logoText", settingsForm.values.logoText || "Oggy GPT");
+      localStorage.setItem(':maxMessages', `${settingsForm.values.maxMessagesPerBox}`);
+      localStorage.setItem(':openaiKey', settingsForm.values.openaiKey as string);
+      localStorage.setItem(':indexerHost', settingsForm.values.indexerHost);
+      localStorage.setItem(':enterToSend', settingsForm.values.enterToSend ? '1' : '0');
+      localStorage.setItem(':logoText', settingsForm.values.logoText || 'Oggy GPT');
       setOpenaiAPIKey(settingsForm.values.openaiKey as string);
-      sessionStorage.setItem(":settingSaved", "1");
+      sessionStorage.setItem(':settingSaved', '1');
       if (settingsForm.values.openaiKey) {
-        localStorage.setItem(":currentTool", '"nullgpt"');
+        localStorage.setItem(':currentTool', '"nullgpt"');
       }
       window.location.reload();
     } else {
       notifications.show({
-        title: "Error",
-        message: "Please check error fields",
-        radius: "lg",
+        title: 'Error',
+        message: 'Please check error fields',
+        radius: 'lg',
         withCloseButton: true,
-        color: "red",
+        color: 'red',
         icon: <IconX />,
       });
       setLoadings({ save: false });
@@ -58,22 +59,22 @@ const SettingsPage = () => {
   useMount(() => {
     setCollections([
       {
-        emoji: "⚙️",
-        label: "API",
-        parent: "settings",
+        emoji: '⚙️',
+        label: 'API',
+        parent: 'settings',
         key: 0,
       },
     ]);
-    if (sessionStorage.getItem(":settingSaved")) {
+    if (sessionStorage.getItem(':settingSaved')) {
       notifications.show({
-        title: "Success",
-        message: "Settings saved",
-        radius: "lg",
+        title: 'Success',
+        message: 'Settings saved',
+        radius: 'lg',
         withCloseButton: true,
-        color: "green",
+        color: 'green',
         icon: <IconCircleCheckFilled />,
       });
-      sessionStorage.removeItem(":settingSaved");
+      sessionStorage.removeItem(':settingSaved');
     }
   });
   useUnmount(() => setCollections([]));
@@ -85,25 +86,31 @@ const SettingsPage = () => {
           required
           label="OpenAI API Key (token1,token2,...)"
           placeholder="OpenAI API Key..."
-          {...settingsForm.getInputProps("openaiKey")}
+          {...settingsForm.getInputProps('openaiKey')}
         />
         <NumberInput
           label="Maximum number of messages per box"
           placeholder="min 1, max 100"
           required
-          {...settingsForm.getInputProps("maxMessagesPerBox")}
+          {...settingsForm.getInputProps('maxMessagesPerBox')}
         />
         <TextInput
           label="Null-gpt indexer host"
           placeholder="http://localhost:3456"
-          {...settingsForm.getInputProps("indexerHost")}
+          {...settingsForm.getInputProps('indexerHost')}
         />
-        <TextInput label="Logo text" placeholder="Oggy GPT" {...settingsForm.getInputProps("logoText")} />
+        <TextInput
+          label="Logo text"
+          placeholder="Oggy GPT"
+          {...settingsForm.getInputProps('logoText')}
+        />
         <Switch
-          label={"Press Ctrl+Enter to send"}
-          description={"By default, press Enter to send a message and Shift+Enter to add a new line."}
-          {...settingsForm.getInputProps("enterToSend", {
-            type: "checkbox",
+          label={'Press Ctrl+Enter to send'}
+          description={
+            'By default, press Enter to send a message and Shift+Enter to add a new line.'
+          }
+          {...settingsForm.getInputProps('enterToSend', {
+            type: 'checkbox',
           })}
         />
         <div>

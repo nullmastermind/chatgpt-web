@@ -1,7 +1,7 @@
-import * as localforage from "localforage";
+import * as localforage from 'localforage';
 
 const store = localforage.createInstance({
-  name: "store",
+  name: 'store',
   driver: localforage.INDEXEDDB,
 });
 

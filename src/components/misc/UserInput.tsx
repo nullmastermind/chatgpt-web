@@ -1,43 +1,51 @@
-import { ComponentPropsWithRef, forwardRef, memo, useEffect, useImperativeHandle, useState } from "react";
-import { Link, RichTextEditor } from "@mantine/tiptap";
-import { Editor, useEditor } from "@tiptap/react";
-import { StarterKit } from "@tiptap/starter-kit";
-import { TextAlign } from "@tiptap/extension-text-align";
-import { Placeholder } from "@tiptap/extension-placeholder";
-import classNames from "classnames";
-import { createStyles, Transition } from "@mantine/core";
-import { useDebounce } from "react-use";
-import { Extension } from "@tiptap/core";
-import { Underline } from "@tiptap/extension-underline";
-import { IconPrompt } from "@tabler/icons-react";
-import { Markdown } from "tiptap-markdown";
-import { fixEditorOutput } from "@/utility/utility";
-import { useClickOutside } from "@mantine/hooks";
+import { Transition, createStyles } from '@mantine/core';
+import { useClickOutside } from '@mantine/hooks';
+import { Link, RichTextEditor } from '@mantine/tiptap';
+import { IconPrompt } from '@tabler/icons-react';
+import { Extension } from '@tiptap/core';
+import { Placeholder } from '@tiptap/extension-placeholder';
+import { TextAlign } from '@tiptap/extension-text-align';
+import { Underline } from '@tiptap/extension-underline';
+import { Editor, useEditor } from '@tiptap/react';
+import { StarterKit } from '@tiptap/starter-kit';
+import classNames from 'classnames';
+import {
+  ComponentPropsWithRef,
+  forwardRef,
+  memo,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from 'react';
+import { useDebounce } from 'react-use';
+import { Markdown } from 'tiptap-markdown';
+
+import { fixEditorOutput } from '@/utility/utility';
 
 const useStyles = createStyles(() => ({
   limitHeight: {
-    "& .mantine-TypographyStylesProvider-root": {
-      maxHeight: "50vh",
-      overflow: "auto",
-      transition: "max-height 0.2s ease, overflow 0.2s ease",
+    '& .mantine-TypographyStylesProvider-root': {
+      maxHeight: '50vh',
+      overflow: 'auto',
+      transition: 'max-height 0.2s ease, overflow 0.2s ease',
     },
   },
   limitHeightBlur: {
-    "& .mantine-TypographyStylesProvider-root": {
-      maxHeight: "57px",
-      overflow: "hidden",
-      transition: "max-height 0.2s ease, overflow 0.2s ease",
+    '& .mantine-TypographyStylesProvider-root': {
+      maxHeight: '57px',
+      overflow: 'hidden',
+      transition: 'max-height 0.2s ease, overflow 0.2s ease',
     },
   },
   shadow: {
     boxShadow:
-      "0 0 10px rgba(255, 255, 255, 0.1), 0 0 20px rgba(255, 255, 255, 0.1), 0 0 30px rgba(255, 255, 255, 0.1) !important",
-    background: "#1a1b1e",
+      '0 0 10px rgba(255, 255, 255, 0.1), 0 0 20px rgba(255, 255, 255, 0.1), 0 0 30px rgba(255, 255, 255, 0.1) !important',
+    background: '#1a1b1e',
   },
 }));
 
 const UserInput = memo<
-  ComponentPropsWithRef<"textarea"> & {
+  ComponentPropsWithRef<'textarea'> & {
     className?: string;
     defaultValue?: string;
     onChange?: (value: string) => any;
@@ -54,14 +62,14 @@ const UserInput = memo<
           transformPastedText: true,
         }),
         Link,
-        TextAlign.configure({ types: ["heading", "paragraph"] }),
+        TextAlign.configure({ types: ['heading', 'paragraph'] }),
         Placeholder.configure({
-          placeholder: placeholder || "Enter a prompt here",
+          placeholder: placeholder || 'Enter a prompt here',
         }),
         Underline,
         ShiftEnterCreateExtension, // EventHandler,
       ],
-      content: defaultValue || "",
+      content: defaultValue || '',
       onUpdate({ editor }) {
         onChange?.(fixEditorOutput(editor.storage.markdown.getMarkdown()));
       },
@@ -95,7 +103,7 @@ const UserInput = memo<
           },
           getSelectionText() {
             const { from, to } = editor!.state.selection;
-            return editor?.state.doc.textBetween(from, to, " ");
+            return editor?.state.doc.textBetween(from, to, ' ');
           },
           replaceSelectionText(content: string) {
             const { from, to } = editor!.state.selection;
@@ -112,9 +120,9 @@ const UserInput = memo<
             editor?.commands.insertContentAt({ from: from, to: to }, content);
           },
           getText() {
-            return editor?.getText() || "";
+            return editor?.getText() || '';
           },
-        } as EditorCommands as any)
+        }) as EditorCommands as any,
     );
 
     useDebounce(
@@ -122,12 +130,15 @@ const UserInput = memo<
         if (editor) {
           editor.commands.focus();
           if (defaultValue) {
-            editor?.commands.setTextSelection({ from: defaultValue.length, to: defaultValue.length });
+            editor?.commands.setTextSelection({
+              from: defaultValue.length,
+              to: defaultValue.length,
+            });
           }
         }
       },
       100,
-      [editor]
+      [editor],
     );
     // useDebounce(
     //   () => {
@@ -141,19 +152,23 @@ const UserInput = memo<
     }, [editor?.isFocused]);
 
     return (
-      <Transition transition={"fade"} mounted={!!editor}>
-        {styles => (
+      <Transition transition={'fade'} mounted={!!editor}>
+        {(styles) => (
           <div
             ref={clickOutsideRef}
             style={styles}
-            className={classNames("w-full shadow-xl", className, {
+            className={classNames('w-full shadow-xl', className, {
               [classes.limitHeight]: !isReplyBox && isFocused,
               [classes.limitHeightBlur]: !isReplyBox && !isFocused,
               [classes.shadow]: !isReplyBox && (editor?.options?.element as any)?.offsetHeight > 70,
             })}
           >
             <RichTextEditor editor={editor} {...(props as any)}>
-              <RichTextEditor.Toolbar sticky stickyOffset={0} className={"flex-nowrap overflow-auto z-auto"}>
+              <RichTextEditor.Toolbar
+                sticky
+                stickyOffset={0}
+                className={'flex-nowrap overflow-auto z-auto'}
+              >
                 <RichTextEditor.ControlsGroup>
                   <RichTextEditor.Bold />
                   {/*<RichTextEditor.Italic />*/}
@@ -179,7 +194,7 @@ const UserInput = memo<
         )}
       </Transition>
     );
-  })
+  }),
 );
 
 export default UserInput;
@@ -202,7 +217,7 @@ export type EditorCommands = {
 const ShiftEnterCreateExtension = Extension.create({
   addKeyboardShortcuts() {
     return {
-      "Shift-Enter": ({ editor }) => {
+      'Shift-Enter': ({ editor }) => {
         editor.commands.enter();
         return true;
       },

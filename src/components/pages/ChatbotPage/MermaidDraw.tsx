@@ -1,14 +1,15 @@
-import { memo, RefObject, useEffect, useRef, useState } from "react";
-import { convertToSupportLang } from "@/utility/utility";
-import { Card, ScrollArea, Switch, Tabs } from "@mantine/core";
-import classNames from "classnames";
-import { Prism } from "@mantine/prism";
-import useStyles from "@/components/pages/ChatbotPage/Message.style";
-import mermaid from "mermaid";
-import panzoom, { PanZoom } from "panzoom";
-import { v4 } from "uuid";
+import { Card, ScrollArea, Switch, Tabs } from '@mantine/core';
+import { Prism } from '@mantine/prism';
+import classNames from 'classnames';
+import mermaid from 'mermaid';
+import panzoom, { PanZoom } from 'panzoom';
+import { RefObject, memo, useEffect, useRef, useState } from 'react';
+import { v4 } from 'uuid';
 
-mermaid.initialize({ startOnLoad: false, theme: "dark" });
+import useStyles from '@/components/pages/ChatbotPage/Message.style';
+import { convertToSupportLang } from '@/utility/utility';
+
+mermaid.initialize({ startOnLoad: false, theme: 'dark' });
 
 const MermaidDraw = memo<{
   content: string;
@@ -26,7 +27,7 @@ const MermaidDraw = memo<{
     const prevHeight = mermaidDockBlock.current.getBoundingClientRect().height;
     mermaid
       .render(id, content)
-      .then(value => {
+      .then((value) => {
         mermaidDockBlock.current!.innerHTML = value.svg;
         setLoading(false);
         // handle offset height
@@ -37,8 +38,8 @@ const MermaidDraw = memo<{
           });
         }
       })
-      .catch(e => {
-        if (e.toString().includes("is not a valid selector")) {
+      .catch((e) => {
+        if (e.toString().includes('is not a valid selector')) {
           setId(v4());
         }
       });
@@ -60,42 +61,44 @@ const MermaidDraw = memo<{
   }, [enablePanNZoom]);
 
   return (
-    <div className={"py-5"}>
-      <Tabs defaultValue={"diagram"}>
+    <div className={'py-5'}>
+      <Tabs defaultValue={'diagram'}>
         <Tabs.List>
-          <Tabs.Tab value={"diagram"}>Diagram</Tabs.Tab>
-          <Tabs.Tab value={"text"}>Text</Tabs.Tab>
+          <Tabs.Tab value={'diagram'}>Diagram</Tabs.Tab>
+          <Tabs.Tab value={'text'}>Text</Tabs.Tab>
         </Tabs.List>
-        <Tabs.Panel value={"diagram"}>
-          <div className={"flex relative flex-row justify-center py-2 overflow-hidden"}>
-            <Card className={"w-full min-h-[256px]"}>
+        <Tabs.Panel value={'diagram'}>
+          <div className={'flex relative flex-row justify-center py-2 overflow-hidden'}>
+            <Card className={'w-full min-h-[256px]'}>
               <div
                 ref={mermaidDockBlock}
                 className="w-full !p-0 whitespace-pre-wrap relative my-5 flex flex-row items-center justify-center"
               />
             </Card>
             {loading && (
-              <div className={"flex absolute top-0 left-0 w-full h-full items-center justify-center"}>
+              <div
+                className={'flex absolute top-0 left-0 w-full h-full items-center justify-center'}
+              >
                 <div>Drawing diagram...</div>
               </div>
             )}
-            <div className={"absolute top-0 left-0 p-2 py-3"}>
+            <div className={'absolute top-0 left-0 p-2 py-3'}>
               <Switch
                 checked={enablePanNZoom}
-                label={"Pan & Zoom"}
-                onChange={e => {
+                label={'Pan & Zoom'}
+                onChange={(e) => {
                   setEnablePanNZoom(e.target.checked);
                 }}
               />
             </div>
           </div>
         </Tabs.Panel>
-        <Tabs.Panel value={"text"}>
+        <Tabs.Panel value={'text'}>
           <Prism
             children={content}
-            language={convertToSupportLang("mermaid")}
+            language={convertToSupportLang('mermaid')}
             scrollAreaComponent={ScrollArea}
-            className={classNames("mb-1", classes.codeWrap)}
+            className={classNames('mb-1', classes.codeWrap)}
           />
         </Tabs.Panel>
       </Tabs>

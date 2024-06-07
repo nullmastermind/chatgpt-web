@@ -1,4 +1,4 @@
-import { htmlEncode, wrapRawContent } from "@/utility/utility";
+import { htmlEncode, wrapRawContent } from '@/utility/utility';
 
 function buildContent(c: string) {
   // return `My prompt:\n\n${wrapRawContent(c)}`;
@@ -24,19 +24,19 @@ const warmup = {
     //   content: "Quick sort implementation in JavaScript",
     // },
     {
-      role: "user",
+      role: 'user',
       content: buildContent(`ts quick select`),
     },
     {
-      role: "assistant",
-      content: "Quick select implementation in TypeScript",
+      role: 'assistant',
+      content: 'Quick select implementation in TypeScript',
     },
     {
-      role: "user",
+      role: 'user',
       content: buildContent(`rust windows close window title "%1 macro manager"`),
     },
     {
-      role: "assistant",
+      role: 'assistant',
       content: `Rust WinAPI close window title: "%1 macro manager"`,
     },
     // {
@@ -48,12 +48,12 @@ const warmup = {
     //   content: "Using physics in Unity ECS",
     // },
     {
-      role: "user",
+      role: 'user',
       content: buildContent(`Cách triển khai sýtem trong unity ecs`),
     },
     {
-      role: "assistant",
-      content: "How to implement systems in Unity ECS",
+      role: 'assistant',
+      content: 'How to implement systems in Unity ECS',
     },
     // {
     //   role: "user",
@@ -66,12 +66,18 @@ const warmup = {
     //   content: "I need help fixing my code:\n" + "\n" + "```\n" + "\n" + "```\n" + "\n" + "In case: ",
     // },
     {
-      role: "user",
-      content: buildContent("帮助我将 tailwind css 类转换为 MUI sx attr。 我的顺风班是:\n" + "```\n" + "\n" + "```"),
+      role: 'user',
+      content: buildContent(
+        '帮助我将 tailwind css 类转换为 MUI sx attr。 我的顺风班是:\n' + '```\n' + '\n' + '```',
+      ),
     },
     {
-      role: "assistant",
-      content: "Help me convert tailwind css class to MUI sx attr. My tailwind class is:\n" + "```\n" + "\n" + "```",
+      role: 'assistant',
+      content:
+        'Help me convert tailwind css class to MUI sx attr. My tailwind class is:\n' +
+        '```\n' +
+        '\n' +
+        '```',
     },
     // {
     //   role: "user",
@@ -159,25 +165,27 @@ const warmup = {
     //   content: "Write reply in Chinese",
     // },
     {
-      role: "user",
-      content: buildContent(`Help me write python quick sort function. Vui lòng trả lời bằng tiếng Việt`),
+      role: 'user',
+      content: buildContent(
+        `Help me write python quick sort function. Vui lòng trả lời bằng tiếng Việt`,
+      ),
     },
     {
-      role: "assistant",
-      content: "Help me write a Python function for quick sort. Write reply in Vietnamese.",
+      role: 'assistant',
+      content: 'Help me write a Python function for quick sort. Write reply in Vietnamese.',
     },
   ],
 } as Record<
   string,
   Array<{
-    role: "user" | "assistant";
+    role: 'user' | 'assistant';
     content: string;
   }>
 >;
 
 export const getImprovePrompt = (data: string): string => {
-  const preTrains = warmup.improve.map(v => {
-    if (v.role === "user") {
+  const preTrains = warmup.improve.map((v) => {
+    if (v.role === 'user') {
       return buildContent(v.content);
     }
     return `Assistant:\n\n<document>${v.content}</document>`;
@@ -185,7 +193,7 @@ export const getImprovePrompt = (data: string): string => {
 
   const prompt = {
     current: `
-${preTrains.join("\n\n")}    
+${preTrains.join('\n\n')}    
 
 ${buildContent(data)}
 

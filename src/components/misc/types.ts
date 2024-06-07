@@ -1,12 +1,12 @@
 export enum AttachItemType {
-  PrivateDocument = "PRIVATE_DOCUMENT",
-  TextData = "TEXT_DATA",
-  Excel = "EXCEL",
-  Text = "TEXT",
-  OCR = "OCR",
-  Image = "IMAGE",
-  Audio = "AUDIO",
-  Website = "WEBSITE",
+  PrivateDocument = 'PRIVATE_DOCUMENT',
+  TextData = 'TEXT_DATA',
+  Excel = 'EXCEL',
+  Text = 'TEXT',
+  OCR = 'OCR',
+  Image = 'IMAGE',
+  Audio = 'AUDIO',
+  Website = 'WEBSITE',
 }
 
 export type AttachItem = {
@@ -26,7 +26,7 @@ export type AttachItem = {
 };
 
 export type TMessageItem = {
-  role: "system" | "user" | "assistant";
+  role: 'system' | 'user' | 'assistant';
   content: string;
   name?: string;
   id?: string | number;

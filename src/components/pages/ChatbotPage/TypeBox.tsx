@@ -1,5 +1,45 @@
-import React, { createRef, forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { useDebounce, useLocalStorage, useMeasure, useSessionStorage, useSetState } from "react-use";
+import {
+  Button,
+  Divider,
+  Highlight,
+  Modal,
+  ScrollArea,
+  TextInput,
+  Textarea,
+  Tooltip,
+} from '@mantine/core';
+import { useForm } from '@mantine/form';
+import { useDisclosure, useHotkeys } from '@mantine/hooks';
+import { SpotlightAction, spotlight } from '@mantine/spotlight';
+import { IconFileStack, IconSearch } from '@tabler/icons-react';
+import classNames from 'classnames';
+import { cloneDeep, findIndex, uniqueId } from 'lodash';
+import React, {
+  createRef,
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { isMobile } from 'react-device-detect';
+import {
+  useDebounce,
+  useLocalStorage,
+  useMeasure,
+  useSessionStorage,
+  useSetState,
+} from 'react-use';
+
+import UserInput, { EditorCommands } from '@/components/misc/UserInput';
+import { AttachItem } from '@/components/misc/types';
+import CountTokens from '@/components/pages/ChatbotPage/CountTokens';
+import DocsModal from '@/components/pages/ChatbotPage/DocsModal';
+import { MessageItemType } from '@/components/pages/ChatbotPage/Message';
+import { requestChatStream } from '@/components/pages/ChatbotPage/Message.api';
+import ModelSelect from '@/components/pages/ChatbotPage/ModelSelect';
+import UploadFile from '@/components/pages/ChatbotPage/UploadFile';
 import {
   useCollections,
   useCurrentCollection,
@@ -7,8 +47,7 @@ import {
   useOpenaiAPIKey,
   useQuickActions,
   useQuickActionsQuery,
-} from "@/states/states";
-import { useDisclosure, useHotkeys } from "@mantine/hooks";
+} from '@/states/states';
 import {
   findHighlight,
   formatString,
@@ -16,23 +55,8 @@ import {
   processTaggedMessage,
   removeHTMLTags,
   searchArray,
-} from "@/utility/utility";
-import { Button, Divider, Highlight, Modal, ScrollArea, Textarea, TextInput, Tooltip } from "@mantine/core";
-import { spotlight, SpotlightAction } from "@mantine/spotlight";
-import { useForm } from "@mantine/form";
-import { cloneDeep, findIndex, uniqueId } from "lodash";
-import { requestChatStream } from "@/components/pages/ChatbotPage/Message.api";
-import ModelSelect from "@/components/pages/ChatbotPage/ModelSelect";
-import { MessageItemType } from "@/components/pages/ChatbotPage/Message";
-import CountTokens from "@/components/pages/ChatbotPage/CountTokens";
-import { getImprovePrompt } from "@/utility/warmup";
-import { IconFileStack, IconSearch } from "@tabler/icons-react";
-import DocsModal from "@/components/pages/ChatbotPage/DocsModal";
-import { isMobile } from "react-device-detect";
-import UserInput, { EditorCommands } from "@/components/misc/UserInput";
-import classNames from "classnames";
-import UploadFile from "@/components/pages/ChatbotPage/UploadFile";
-import { AttachItem } from "@/components/misc/types";
+} from '@/utility/utility';
+import { getImprovePrompt } from '@/utility/warmup';
 
 export const TypeBox = forwardRef(
   (
@@ -52,18 +76,18 @@ export const TypeBox = forwardRef(
       exId?: any;
       includeMessages: MessageItemType[];
     },
-    ref
+    ref,
   ) => {
-    const [id] = useState(uniqueId("TypeBox"));
+    const [id] = useState(uniqueId('TypeBox'));
     const editorRef = useRef<EditorCommands>(null);
     const [messageContentStore, setMessageContentStore] = useSessionStorage<string>(
       `:messageBox:${collection}:${exId}`,
-      ""
+      '',
     );
     const inputImproveRef = useRef<HTMLTextAreaElement>(null);
     const [, setIsFocus] = useState(false);
     const [opened, { open, close }] = useDisclosure(false);
-    const [improvedPrompt, setImprovedPrompt] = useState("");
+    const [improvedPrompt, setImprovedPrompt] = useState('');
     const [openaiAPIKey] = useOpenaiAPIKey();
     const [canEdit, setCanEdit] = useState(false);
     const [selectionStart, setSelectionStart] = useState(0);
@@ -79,29 +103,29 @@ export const TypeBox = forwardRef(
         category: any;
         id: number;
       }[]
-    >(":quickCommands.v1", []);
+    >(':quickCommands.v1', []);
     const [query] = useQuickActionsQuery();
     const quickCommandList = useMemo(() => {
       const commands = quickCommands as any[];
-      const search = query.replace("/", "");
+      const search = query.replace('/', '');
 
-      return searchArray(search, commands).map(v => {
-        const match = ["/", ...findHighlight(v.name, search)];
+      return searchArray(search, commands).map((v) => {
+        const match = ['/', ...findHighlight(v.name, search)];
 
         return {
           match,
-          type: "command",
+          type: 'command',
           title: (<Highlight highlight={match}>{v.name}</Highlight>) as any,
           id: v.name,
           description: formatString(removeHTMLTags(v.content)),
           onTrigger(action: SpotlightAction) {
-            const content = (action.content as string).replace(/\r\n/g, "\n");
+            const content = (action.content as string).replace(/\r\n/g, '\n');
 
             editorRef.current?.setValue(content);
 
             // auto pos
-            if (content.includes("```\n\n```")) {
-              const cursor = content.lastIndexOf("```\n\n```") + 4;
+            if (content.includes('```\n\n```')) {
+              const cursor = content.lastIndexOf('```\n\n```') + 4;
               editorRef.current?.setSelectionRange(cursor, cursor);
             } else if (content.includes('""')) {
               const cursor = content.lastIndexOf('""') + 1;
@@ -123,26 +147,26 @@ export const TypeBox = forwardRef(
     const [openedCommand, { open: openCommand, close: closeCommand }] = useDisclosure(false);
     const commandForm = useForm({
       initialValues: {
-        name: "",
-        content: "",
+        name: '',
+        content: '',
         category: `${collection}`,
         id: 0,
       },
       validate: {
-        name: v => (v.length ? null : "Required field."),
-        content: v => (v.length ? null : "Required field."),
+        name: (v) => (v.length ? null : 'Required field.'),
+        content: (v) => (v.length ? null : 'Required field.'),
       },
     });
     const isEditCommand = useMemo(() => {
-      return findIndex(quickCommands, v => v.content === editorRef.current?.getValue()) !== -1;
+      return findIndex(quickCommands, (v) => v.content === editorRef.current?.getValue()) !== -1;
     }, [quickCommands, messageContentStore, editorRef.current?.getValue()]);
     const [, setQuickActions] = useQuickActions();
     const [currentTypeBoxId, setCurrentTypeBoxId] = useCurrentTypeBoxId();
     const countTokenRef = createRef<any>();
     const [docModalOpened, { open: openDocModal, close: closeDocModal }] = useDisclosure(false);
     const [docModalOpenSettings, setDocModalOpenSettings] = useSetState({
-      initSearchValue: "",
-      initDocId: "",
+      initSearchValue: '',
+      initDocId: '',
     });
     const [attachItems, setAttachItems] = useState<AttachItem[]>([]);
 
@@ -158,20 +182,20 @@ export const TypeBox = forwardRef(
       if (!selectedText) return;
 
       open();
-      setImprovedPrompt("");
+      setImprovedPrompt('');
       setCanEdit(false);
       setSelectionStart(editorRef.current.getSelectionStart());
       setSelectionEnd(editorRef.current.getSelectionEnd());
 
-      requestChatStream("v1/completions", getImprovePrompt(selectedText), {
+      requestChatStream('v1/completions', getImprovePrompt(selectedText), {
         token: openaiAPIKey,
         modelConfig: {
-          model: "gpt-3.5-turbo-instruct",
+          model: 'gpt-3.5-turbo-instruct',
           temperature: 0.0,
           max_tokens: 2867,
         },
         onMessage: (message, done) => {
-          message = processTaggedMessage("document", message, done);
+          message = processTaggedMessage('document', message, done);
 
           setImprovedPrompt(message);
           if (done) {
@@ -186,7 +210,7 @@ export const TypeBox = forwardRef(
 
     useHotkeys([
       [
-        "Enter",
+        'Enter',
         () => {
           if (opened) {
             if (canEdit) {
@@ -215,10 +239,14 @@ export const TypeBox = forwardRef(
     }, [quickCommandList, currentTypeBoxId, id]);
 
     const onSend = (c?: string) => {
-      onSubmit(c || editorRef.current?.getValue() || "", countTokenRef.current?.getTokens(), cloneDeep(attachItems));
+      onSubmit(
+        c || editorRef.current?.getValue() || '',
+        countTokenRef.current?.getTokens(),
+        cloneDeep(attachItems),
+      );
       setAttachItems([]);
-      editorRef.current?.setValue("");
-      setMessageContentStore("");
+      editorRef.current?.setValue('');
+      setMessageContentStore('');
     };
 
     const confirmImprove = () => {
@@ -247,7 +275,7 @@ export const TypeBox = forwardRef(
         }
       },
       100,
-      [nextFocus]
+      [nextFocus],
     );
 
     return (
@@ -263,14 +291,19 @@ export const TypeBox = forwardRef(
           size="lg"
         >
           <div>
-            <TextInput label="Name" placeholder="Name..." required {...commandForm.getInputProps("name")} />
-            <div className={"mt-2"}>
+            <TextInput
+              label="Name"
+              placeholder="Name..."
+              required
+              {...commandForm.getInputProps('name')}
+            />
+            <div className={'mt-2'}>
               <UserInput
                 isReplyBox={true}
-                placeholder={"Content..."}
+                placeholder={'Content...'}
                 required={true}
-                defaultValue={commandForm.getInputProps("content").value}
-                {...commandForm.getInputProps("content")}
+                defaultValue={commandForm.getInputProps('content').value}
+                {...commandForm.getInputProps('content')}
               />
             </div>
           </div>
@@ -283,7 +316,7 @@ export const TypeBox = forwardRef(
                 variant="outline"
                 color="red"
                 onClick={() => {
-                  const index = findIndex(quickCommands, v => v.id === commandForm.values.id);
+                  const index = findIndex(quickCommands, (v) => v.id === commandForm.values.id);
                   if (index >= 0) {
                     quickCommands?.splice(index, 1);
                     setQuickCommands(cloneDeep(quickCommands));
@@ -300,7 +333,7 @@ export const TypeBox = forwardRef(
                   return;
                 }
 
-                const index = findIndex(quickCommands, v => v.id === commandForm.values.id);
+                const index = findIndex(quickCommands, (v) => v.id === commandForm.values.id);
                 const saveItem = {
                   name: commandForm.values.name,
                   content: commandForm.values.content,
@@ -324,11 +357,11 @@ export const TypeBox = forwardRef(
           </div>
         </Modal>
         <DocsModal opened={docModalOpened} close={closeDocModal} {...docModalOpenSettings} />
-        <div className={"flex flex-row gap-1 items-center"}>
-          <div className={"flex-grow"}>
+        <div className={'flex flex-row gap-1 items-center'}>
+          <div className={'flex-grow'}>
             <UploadFile
               data={attachItems}
-              onChange={value => setAttachItems(value)}
+              onChange={(value) => setAttachItems(value)}
               onClear={() => setAttachItems([])}
             />
           </div>
@@ -354,14 +387,14 @@ export const TypeBox = forwardRef(
               autoFocus={true}
               autosize={true}
               placeholder="Currently improving..."
-              onChange={e => {
+              onChange={(e) => {
                 if (!canEdit) return;
                 if (e.target.value !== improvedPrompt) {
                   setImprovedPrompt(e.target.value);
                 }
               }}
-              onKeyDown={e => {
-                if (e.key === "Enter" && !e.shiftKey) {
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
                   confirmImprove();
                   e.preventDefault();
                   e.stopPropagation();
@@ -382,9 +415,9 @@ export const TypeBox = forwardRef(
                 setIsFocus(false);
               }}
               className={classNames({
-                "absolute bottom-0": !isReplyBox,
+                'absolute bottom-0': !isReplyBox,
               })}
-              onChange={e => {
+              onChange={(e) => {
                 if (!isReplyBox) {
                   setMessageContentStore(e as string);
                 }
@@ -393,7 +426,7 @@ export const TypeBox = forwardRef(
               onKeyDown={(e: any) => {
                 const isMod = e.ctrlKey || e.metaKey;
                 //
-                if (e.key === "/" && editorRef.current?.isEmpty()) {
+                if (e.key === '/' && editorRef.current?.isEmpty()) {
                   spotlight.open();
                   setCurrentTypeBoxId(id);
                   e.preventDefault();
@@ -401,15 +434,15 @@ export const TypeBox = forwardRef(
                   return;
                 }
                 //
-                if (e.key === "F1") {
+                if (e.key === 'F1') {
                   e.preventDefault();
                   e.stopPropagation();
                   handleImprove();
                 }
                 //
-                if (e.key === "Tab") {
+                if (e.key === 'Tab') {
                   e.preventDefault();
-                  editorRef.current?.insertContentAtCurrentCursor("\t");
+                  editorRef.current?.insertContentAtCurrentCursor('\t');
                 }
                 if (isMod && +e.key >= 1 && +e.key <= 9) {
                   e.preventDefault();
@@ -459,8 +492,8 @@ export const TypeBox = forwardRef(
                 //   }
                 // }
 
-                if (e.key === "Enter") {
-                  const enterToSend = localStorage.getItem(":enterToSend") === "1";
+                if (e.key === 'Enter') {
+                  const enterToSend = localStorage.getItem(':enterToSend') === '1';
                   if (!enterToSend && !e.shiftKey) {
                     onSend();
                     e.preventDefault();
@@ -471,8 +504,8 @@ export const TypeBox = forwardRef(
                     e.stopPropagation();
                   }
                 }
-                if (e.key === "Tab") {
-                  if (/[^a-zA-Z0-9]/.test(editorRef.current?.getValue() || "")) {
+                if (e.key === 'Tab') {
+                  if (/[^a-zA-Z0-9]/.test(editorRef.current?.getValue() || '')) {
                     e.preventDefault();
                   }
                 }
@@ -482,77 +515,86 @@ export const TypeBox = forwardRef(
         </div>
         <div className="flex flex-row gap-2 items-center justify-end">
           {!isMobile && (
-            <div className={"flex-grow self-start"}>
+            <div className={'flex-grow self-start'}>
               <CountTokens
                 ref={countTokenRef}
-                content={editorRef.current?.getValue() || ""}
+                content={editorRef.current?.getValue() || ''}
                 includeMessages={includeMessages}
               />
             </div>
           )}
           {!isMobile && (
             <div className="flex flex-row items-center border border-blue-500">
-              <Tooltip label={"Private Document Management"}>
+              <Tooltip label={'Private Document Management'}>
                 <Button
-                  variant={"default"}
-                  size={"xs"}
+                  variant={'default'}
+                  size={'xs'}
                   onClick={() => {
                     notifyIndexerVersionError();
                     setDocModalOpenSettings({});
                     openDocModal();
                   }}
-                  leftIcon={<IconFileStack size={"1.3rem"} />}
+                  leftIcon={<IconFileStack size={'1.3rem'} />}
                 >
                   Private document
                 </Button>
               </Tooltip>
-              <Divider orientation={"vertical"} className={"ml-2"} />
+              <Divider orientation={'vertical'} className={'ml-2'} />
             </div>
           )}
           <ModelSelect />
           {onCancel && (
-            <Button size={"xs"} onClick={onCancel} variant="default">
+            <Button size={'xs'} onClick={onCancel} variant="default">
               Cancel
             </Button>
           )}
           {!isMobile && !isReplyBox && (
             <Button.Group>
               <Button
-                size={"xs"}
+                size={'xs'}
                 onClick={() => {
-                  commandForm.setFieldValue("content", editorRef.current?.getValue() || "");
+                  commandForm.setFieldValue('content', editorRef.current?.getValue() || '');
                   if (isEditCommand) {
-                    const index = findIndex(quickCommands, v => v.content === editorRef.current?.getValue());
+                    const index = findIndex(
+                      quickCommands,
+                      (v) => v.content === editorRef.current?.getValue(),
+                    );
                     if (index !== -1) {
-                      commandForm.setFieldValue("name", quickCommands![index].name);
-                      commandForm.setFieldValue("category", quickCommands![index].category);
-                      commandForm.setFieldValue("id", quickCommands![index].id);
+                      commandForm.setFieldValue('name', quickCommands![index].name);
+                      commandForm.setFieldValue('category', quickCommands![index].category);
+                      commandForm.setFieldValue('id', quickCommands![index].id);
                     } else {
-                      commandForm.setFieldValue("name", "");
-                      commandForm.setFieldValue("category", `${collection}`);
+                      commandForm.setFieldValue('name', '');
+                      commandForm.setFieldValue('category', `${collection}`);
                     }
                   } else {
-                    commandForm.setFieldValue("name", "");
-                    commandForm.setFieldValue("category", `${collection}`);
+                    commandForm.setFieldValue('name', '');
+                    commandForm.setFieldValue('category', `${collection}`);
                   }
                   openCommand();
                 }}
                 variant="default"
               >
-                {isEditCommand ? "Edit this" : "Save as"} template
+                {isEditCommand ? 'Edit this' : 'Save as'} template
               </Button>
-              <Tooltip label={'For quick access, type "/" when the editor is empty to show a list of templates'}>
+              <Tooltip
+                label={
+                  'For quick access, type "/" when the editor is empty to show a list of templates'
+                }
+              >
                 <Button
-                  className={"px-1"}
-                  title={'For quick access, type "/" when the editor is empty to show a list of templates'}
-                  variant={"default"}
-                  size={"xs"}
+                  className={'px-1'}
+                  title={
+                    'For quick access, type "/" when the editor is empty to show a list of templates'
+                  }
+                  variant={'default'}
+                  size={'xs'}
                   onClick={() => {
                     setCurrentTypeBoxId(id);
                     spotlight.open();
                   }}
                 >
-                  <IconSearch size={"1.3rem"} />
+                  <IconSearch size={'1.3rem'} />
                 </Button>
               </Tooltip>
             </Button.Group>
@@ -563,13 +605,13 @@ export const TypeBox = forwardRef(
               onSend();
             }}
             variant="gradient"
-            size={"xs"}
-            className={"flex-grow sm:flex-grow-0 min-w-[100px]"}
+            size={'xs'}
+            className={'flex-grow sm:flex-grow-0 min-w-[100px]'}
           >
             Send
           </Button>
         </div>
       </>
     );
-  }
+  },
 );

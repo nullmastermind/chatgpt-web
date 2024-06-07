@@ -1,3 +1,3 @@
-import dynamic from "next/dynamic";
+import dynamic from 'next/dynamic';
 
-export default dynamic(() => import("./MainPage"), { ssr: false });
+export default dynamic(() => import('./MainPage'), { ssr: false });

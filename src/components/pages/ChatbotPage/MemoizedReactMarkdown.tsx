@@ -1,15 +1,22 @@
-import ReactMarkdown from "react-markdown";
-import classNames from "classnames";
-import remarkGfm from "remark-gfm";
-import rehypeRaw from "rehype-raw";
-import { addTypingSymbol, convertToSupportLang, detectProgramLang, Node, postprocessAnswer } from "@/utility/utility";
-import { memo, RefObject, useEffect, useMemo, useRef, useState } from "react";
-import { Prism } from "@mantine/prism";
-import { Button, ScrollArea } from "@mantine/core";
-import useStyles from "@/components/pages/ChatbotPage/Message.style";
-import { IconMenuOrder } from "@tabler/icons-react";
-import MermaidDraw from "@/components/pages/ChatbotPage/MermaidDraw";
-import { useElementSize } from "@mantine/hooks";
+import { Button, ScrollArea } from '@mantine/core';
+import { useElementSize } from '@mantine/hooks';
+import { Prism } from '@mantine/prism';
+import { IconMenuOrder } from '@tabler/icons-react';
+import classNames from 'classnames';
+import { RefObject, memo, useEffect, useMemo, useRef, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
+import remarkGfm from 'remark-gfm';
+
+import MermaidDraw from '@/components/pages/ChatbotPage/MermaidDraw';
+import useStyles from '@/components/pages/ChatbotPage/Message.style';
+import {
+  Node,
+  addTypingSymbol,
+  convertToSupportLang,
+  detectProgramLang,
+  postprocessAnswer,
+} from '@/utility/utility';
 
 type MemoizedReactMarkdownProps = {
   content: string;
@@ -54,7 +61,11 @@ const MemoizedReactMarkdown = memo<MemoizedReactMarkdownProps>(
             return (
               <p>
                 {children}
-                {isTyping && nodeLine >= currentNodeLine.current && !children?.toString().includes("█") ? "█" : ""}
+                {isTyping &&
+                nodeLine >= currentNodeLine.current &&
+                !children?.toString().includes('█')
+                  ? '█'
+                  : ''}
               </p>
             );
           },
@@ -69,7 +80,11 @@ const MemoizedReactMarkdown = memo<MemoizedReactMarkdownProps>(
             return (
               <h1>
                 {children}
-                {isTyping && nodeLine >= currentNodeLine.current && !children?.toString().includes("█") ? "█" : ""}
+                {isTyping &&
+                nodeLine >= currentNodeLine.current &&
+                !children?.toString().includes('█')
+                  ? '█'
+                  : ''}
               </h1>
             );
           },
@@ -84,7 +99,11 @@ const MemoizedReactMarkdown = memo<MemoizedReactMarkdownProps>(
             return (
               <h2>
                 {children}
-                {isTyping && nodeLine >= currentNodeLine.current && !children?.toString().includes("█") ? "█" : ""}
+                {isTyping &&
+                nodeLine >= currentNodeLine.current &&
+                !children?.toString().includes('█')
+                  ? '█'
+                  : ''}
               </h2>
             );
           },
@@ -99,7 +118,11 @@ const MemoizedReactMarkdown = memo<MemoizedReactMarkdownProps>(
             return (
               <h3>
                 {children}
-                {isTyping && nodeLine >= currentNodeLine.current && !children?.toString().includes("█") ? "█" : ""}
+                {isTyping &&
+                nodeLine >= currentNodeLine.current &&
+                !children?.toString().includes('█')
+                  ? '█'
+                  : ''}
               </h3>
             );
           },
@@ -114,7 +137,11 @@ const MemoizedReactMarkdown = memo<MemoizedReactMarkdownProps>(
             return (
               <h4>
                 {children}
-                {isTyping && nodeLine >= currentNodeLine.current && !children?.toString().includes("█") ? "█" : ""}
+                {isTyping &&
+                nodeLine >= currentNodeLine.current &&
+                !children?.toString().includes('█')
+                  ? '█'
+                  : ''}
               </h4>
             );
           },
@@ -129,7 +156,11 @@ const MemoizedReactMarkdown = memo<MemoizedReactMarkdownProps>(
             return (
               <strong>
                 {children}
-                {isTyping && nodeLine >= currentNodeLine.current && !children?.toString().includes("█") ? "█" : ""}
+                {isTyping &&
+                nodeLine >= currentNodeLine.current &&
+                !children?.toString().includes('█')
+                  ? '█'
+                  : ''}
               </strong>
             );
           },
@@ -144,7 +175,11 @@ const MemoizedReactMarkdown = memo<MemoizedReactMarkdownProps>(
             return (
               <li>
                 {children}
-                {isTyping && nodeLine >= currentNodeLine.current && !children?.toString().includes("█") ? "█" : ""}
+                {isTyping &&
+                nodeLine >= currentNodeLine.current &&
+                !children?.toString().includes('█')
+                  ? '█'
+                  : ''}
               </li>
             );
           },
@@ -157,16 +192,19 @@ const MemoizedReactMarkdown = memo<MemoizedReactMarkdownProps>(
             }
 
             const rawContent = String(children);
-            let codeContent = postprocessAnswer(rawContent.replace(/\n$/, ""), true);
+            let codeContent = postprocessAnswer(rawContent.replace(/\n$/, ''), true);
 
-            if (inline && !content.includes("```" + rawContent + "```")) {
-              if (node.position && node.position.end.offset - rawContent.length - node.position.start.offset === 2) {
+            if (inline && !content.includes('```' + rawContent + '```')) {
+              if (
+                node.position &&
+                node.position.end.offset - rawContent.length - node.position.start.offset === 2
+              ) {
                 return <code className={classes.inlineCode}>{codeContent}</code>;
               }
             }
 
-            const match = /language-(\w+)/.exec(className || "");
-            let lang = "javascript";
+            const match = /language-(\w+)/.exec(className || '');
+            let lang = 'javascript';
 
             if (!match) {
               try {
@@ -176,16 +214,19 @@ const MemoizedReactMarkdown = memo<MemoizedReactMarkdownProps>(
               lang = match[1];
             }
 
-            if (!inline && lang === "mermaid" && !isTyping) {
+            if (!inline && lang === 'mermaid' && !isTyping) {
               return <MermaidDraw messagePageScroll={messagePageScroll} content={codeContent} />;
             }
 
             return (
               <Prism
-                children={addTypingSymbol(codeContent, isTyping && nodeLine >= currentNodeLine.current && !inline)}
+                children={addTypingSymbol(
+                  codeContent,
+                  isTyping && nodeLine >= currentNodeLine.current && !inline,
+                )}
                 language={convertToSupportLang(lang)}
                 scrollAreaComponent={ScrollArea}
-                className={classNames("mb-1", classes.codeWrap)}
+                className={classNames('mb-1', classes.codeWrap)}
               />
             );
           },
@@ -202,7 +243,7 @@ const MemoizedReactMarkdown = memo<MemoizedReactMarkdownProps>(
 
     if (smallText) {
       if (!containerWidth) {
-        return <div ref={ref} className={"w-full h-[2rem]"} />;
+        return <div ref={ref} className={'w-full h-[2rem]'} />;
       }
 
       return (
@@ -211,7 +252,7 @@ const MemoizedReactMarkdown = memo<MemoizedReactMarkdownProps>(
             style={{
               maxWidth: containerWidth,
             }}
-            className={classNames("text-xs", classes.pBreakAll)}
+            className={classNames('text-xs', classes.pBreakAll)}
           >
             {md()}
           </div>
@@ -221,35 +262,35 @@ const MemoizedReactMarkdown = memo<MemoizedReactMarkdownProps>(
 
     return (
       <>
-        <div className={"max-w-full"}>
+        <div className={'max-w-full'}>
           <div
             className={classNames(classes.messageContent, classes.imgBg, {
-              "px-2 sm:px-0": isFirst,
+              'px-2 sm:px-0': isFirst,
             })}
           >
             {md()}
           </div>
           {isFirst && _content.length > MAX_TEXT && (
             <Button
-              leftIcon={<IconMenuOrder size={"1.3rem"} />}
-              size={"xs"}
+              leftIcon={<IconMenuOrder size={'1.3rem'} />}
+              size={'xs'}
               fullWidth={true}
               className={classNames(classes.expandBox, {
-                "mt-3": showAll,
+                'mt-3': showAll,
               })}
               onClick={() => {
                 setShowAll(!showAll);
               }}
             >
-              <div className={"text-xs italic font-bold"} style={{ fontSize: 10 }}>
-                {showAll ? "Collapse" : "Expand"}
+              <div className={'text-xs italic font-bold'} style={{ fontSize: 10 }}>
+                {showAll ? 'Collapse' : 'Expand'}
               </div>
             </Button>
           )}
         </div>
       </>
     );
-  }
+  },
 );
 
 export default MemoizedReactMarkdown;

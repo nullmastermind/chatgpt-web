@@ -1,5 +1,5 @@
-import dynamic from "next/dynamic";
+import dynamic from 'next/dynamic';
 
-export default dynamic(() => import("./MainLayout"), {
+export default dynamic(() => import('./MainLayout'), {
   ssr: false,
 });

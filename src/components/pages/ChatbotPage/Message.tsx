@@ -1,17 +1,37 @@
-"use client";
+'use client';
 
-import { useDebounce, useList, useMap, useMeasure, useUnmount } from "react-use";
-import { Container, ScrollArea, Transition } from "@mantine/core";
-import React, { memo, useEffect, useMemo, useRef, useState } from "react";
-import { clone, cloneDeep, findIndex, findLastIndex, forEach, map, throttle, uniqBy, uniqueId } from "lodash";
-import useStyles from "@/components/pages/ChatbotPage/Message.style";
-import classNames from "classnames";
-import { requestChatStream } from "@/components/pages/ChatbotPage/Message.api";
-import { useModel, useOpenaiAPIKey } from "@/states/states";
+import { Container, ScrollArea, Transition } from '@mantine/core';
+import { useIdle } from '@mantine/hooks';
+import axios from 'axios';
+import classNames from 'classnames';
 import {
+  clone,
+  cloneDeep,
+  findIndex,
+  findLastIndex,
+  forEach,
+  map,
+  throttle,
+  uniqBy,
+  uniqueId,
+} from 'lodash';
+import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { useDebounce, useList, useMap, useMeasure, useUnmount } from 'react-use';
+
+import { AttachItem, TMessageItem } from '@/components/misc/types';
+import { PromptSaveData } from '@/components/pages/ChatbotPage/AddPrompt';
+import { requestChatStream } from '@/components/pages/ChatbotPage/Message.api';
+import useStyles from '@/components/pages/ChatbotPage/Message.style';
+import MessageItem from '@/components/pages/ChatbotPage/MessageItem';
+import ReplyItem from '@/components/pages/ChatbotPage/ReplyItem';
+import { TypeBox } from '@/components/pages/ChatbotPage/TypeBox';
+import { indexerHost } from '@/config';
+import { useModel, useOpenaiAPIKey } from '@/states/states';
+import store, { attachKey, messagesKey } from '@/utility/store';
+import {
+  Docs,
   countTokens,
   doc2ChatContent,
-  Docs,
   filterDocs,
   htmlEncode,
   isCDocumentCode,
@@ -20,16 +40,7 @@ import {
   trimDocumentContent,
   unWrapRawContent,
   wrapRawContent,
-} from "@/utility/utility";
-import ReplyItem from "@/components/pages/ChatbotPage/ReplyItem";
-import { TypeBox } from "@/components/pages/ChatbotPage/TypeBox";
-import { useIdle } from "@mantine/hooks";
-import axios from "axios";
-import { indexerHost } from "@/config";
-import { PromptSaveData } from "@/components/pages/ChatbotPage/AddPrompt";
-import store, { attachKey, messagesKey } from "@/utility/store";
-import { AttachItem, TMessageItem } from "@/components/misc/types";
-import MessageItem from "@/components/pages/ChatbotPage/MessageItem";
+} from '@/utility/utility';
 
 export type MessageProps = {
   collection: any;
@@ -40,7 +51,7 @@ export type MessageProps = {
 };
 
 export type MessageItemType = {
-  source: "assistant" | "user";
+  source: 'assistant' | 'user';
   content: string;
   checked: boolean;
   id: any;
@@ -54,23 +65,24 @@ export type MessageItemType = {
 };
 
 const disableBodyScroll = () => {
-  document.body.style.overflowY = "hidden";
+  document.body.style.overflowY = 'hidden';
 };
 
 const enableBodyScroll = () => {
-  document.body.style.overflow = "";
+  document.body.style.overflow = '';
 };
 
 const Message = memo<MessageProps>(({ collection, prompt }) => {
   const { classes } = useStyles();
   const [containerRef, { height: containerHeight }] = useMeasure();
   const [openaiAPIKey] = useOpenaiAPIKey();
-  const [messages, { push: pushMessage, set: setMessages, insertAt: insertMessage }] = useList<MessageItemType>([]);
+  const [messages, { push: pushMessage, set: setMessages, insertAt: insertMessage }] =
+    useList<MessageItemType>([]);
   const [isDone, { set: setIsDone, setAll: setAllIsDone }] = useMap<{
     [key: string]: boolean;
   }>({});
   const checkedMessages = useMemo(() => {
-    return messages.filter(v => v.checked);
+    return messages.filter((v) => v.checked);
   }, [messages]);
   const boxRef = useRef<any>(null);
   const [doScroll, setDoScroll] = useState(false);
@@ -83,7 +95,7 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
     let replyMessages0: any[] = [];
     forEach(messages, (message, index) => {
       let isChild = false;
-      if ((index > 0 && message.source === "assistant") || message.isChild) {
+      if ((index > 0 && message.source === 'assistant') || message.isChild) {
         isChild = true;
       }
       const showReplyBox = !isChild && index > 0;
@@ -129,13 +141,13 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
     index?: number,
     includeMessages?: MessageItemType[],
     tokens?: number,
-    docId?: string
+    docId?: string,
   ) => {
     if (content.length === 0) return;
-    if (docId === "Choose document" || docId === "") docId = undefined;
+    if (docId === 'Choose document' || docId === '') docId = undefined;
 
     if (!docId) {
-      const disabledDocId = localStorage.getItem(":docId");
+      const disabledDocId = localStorage.getItem(':docId');
       const docQueries: string[] = [];
 
       if (disabledDocId) {
@@ -162,7 +174,7 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
     }
 
     const userMessage: MessageItemType = {
-      source: "user",
+      source: 'user',
       content: content,
       checked: checkedMessages.length > 0,
       id: userMessageId,
@@ -173,8 +185,8 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
       docId: docId,
     };
     const assistantMessage: MessageItemType = {
-      source: "assistant",
-      content: "...",
+      source: 'assistant',
+      content: '...',
       checked: checkedMessages.length > 0,
       id: Date.now(),
       date: new Date(),
@@ -216,14 +228,14 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
     doneMessages.current = {};
 
     let canSave = true;
-    forEach(isDone, value => {
+    forEach(isDone, (value) => {
       if (!value) {
         canSave = false;
         return false;
       }
     });
     if (canSave) {
-      const maxMessages = parseInt(localStorage.getItem(":maxMessages") || "10");
+      const maxMessages = parseInt(localStorage.getItem(':maxMessages') || '10');
       const saveMessages = messages.splice(-maxMessages);
       await store.setItem(messagesKey(collection), saveMessages);
       setMessages(saveMessages);
@@ -239,14 +251,14 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
     if (collection) {
       store
         .getItem(messagesKey(collection))
-        .then(value => {
+        .then((value) => {
           if (Array.isArray(value) && value.length > 0) {
             setMessages(value);
           } else {
             setMessages([
               {
-                source: "assistant",
-                content: "Hello! How can I assist you today?",
+                source: 'assistant',
+                content: 'Hello! How can I assist you today?',
                 id: Date.now(),
               } as MessageItemType,
             ]);
@@ -255,8 +267,8 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
         .catch(() => {
           setMessages([
             {
-              source: "assistant",
-              content: "Hello! How can I assist you today?",
+              source: 'assistant',
+              content: 'Hello! How can I assist you today?',
               id: Date.now(),
             } as MessageItemType,
           ]);
@@ -278,7 +290,11 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
         streamIndex = messages.length;
       }
 
-      if (messages[streamIndex - 1].content !== "..." || messages[streamIndex - 1].source !== "assistant") return;
+      if (
+        messages[streamIndex - 1].content !== '...' ||
+        messages[streamIndex - 1].source !== 'assistant'
+      )
+        return;
 
       const userMessage = messages[streamIndex - 2];
       const assistantPreMessage: MessageItemType = messages[streamIndex - 1];
@@ -287,7 +303,7 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
         try {
           const ignoreHashes: string[] = [];
 
-          forEach(includes, m => {
+          forEach(includes, (m) => {
             if (Array.isArray(m.docHashes)) {
               ignoreHashes.push(...m.docHashes);
             }
@@ -298,7 +314,7 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
           if (userMessage.isChild) {
             lastAssistantMessage =
               messages[
-                findIndex(messages, value => {
+                findIndex(messages, (value) => {
                   return value.id === userMessage.id;
                 }) - 1
               ];
@@ -311,13 +327,13 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
           } = await axios.post(`${indexerHost}/api/query`, {
             doc_id: userMessage.docId,
             query: [
-              ...includes.filter(v => v.source === "user").map(v => v.content),
+              ...includes.filter((v) => v.source === 'user').map((v) => v.content),
               lastAssistantMessage?.content,
               userMessage.content,
             ]
-              .filter(v => typeof v === "string" && v.length > 0)
-              .join("\n"),
-            apiKey: openaiAPIKey.split(",")[0], // maxScore: includes.length > 0 ? 0.4 : 0.45,
+              .filter((v) => typeof v === 'string' && v.length > 0)
+              .join('\n'),
+            apiKey: openaiAPIKey.split(',')[0], // maxScore: includes.length > 0 ? 0.4 : 0.45,
             maxScore: 0.6,
             k: includes.length > 0 ? 1 : 5,
             includeAllIfKLessThanScore: 0.3,
@@ -326,8 +342,8 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
 
           const filteredDocs = filterDocs(query.data, 0.06);
 
-          messages[streamIndex - 2].docHashes = filteredDocs.map(v => v[0].metadata.hash);
-          messages[streamIndex - 2].docs = map(filteredDocs, value => {
+          messages[streamIndex - 2].docHashes = filteredDocs.map((v) => v[0].metadata.hash);
+          messages[streamIndex - 2].docs = map(filteredDocs, (value) => {
             return doc2ChatContent(value[0], 1.0 - value[1]);
           });
           userMessage.docHashes = messages[streamIndex - 2].docHashes;
@@ -351,16 +367,16 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
       const requestMessages: TMessageItem[] = [];
       const allDocs = [];
 
-      forEach(includes, includedMessage => {
+      forEach(includes, (includedMessage) => {
         allDocs.push(...(includedMessage.docs || []));
       });
 
       allDocs.push(...(userMessage.docs || []));
 
-      forEach(clone(prompt.prompts), prompt => {
-        if (prompt === "your") {
+      forEach(clone(prompt.prompts), (prompt) => {
+        if (prompt === 'your') {
           const userMessages = [
-            ...map(includes, v => {
+            ...map(includes, (v) => {
               return [
                 {
                   role: v.source,
@@ -369,7 +385,7 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
                 },
               ] as any[];
             }).flat(),
-            ...checkedMessages.map(v => ({
+            ...checkedMessages.map((v) => ({
               role: v.source,
               content: v.content,
               id: v.id,
@@ -384,12 +400,12 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
 
           if (!messages[streamIndex - 2].checked) {
             userMessages.push({
-              role: "user",
+              role: 'user',
               content: userMessage.content,
               id: userMessage.id,
             });
           }
-          forEach(userMessages, uMessage => {
+          forEach(userMessages, (uMessage) => {
             requestMessages.push({
               role: uMessage.role,
               content: uMessage.content,
@@ -407,14 +423,14 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
 
       for (let i = 0; i < requestMessages.length; i++) {
         const messageItem = requestMessages[i];
-        if (messageItem.role === "user" && !messageItem.name) {
-          requestMessages[i].name = "User";
+        if (messageItem.role === 'user' && !messageItem.name) {
+          requestMessages[i].name = 'User';
         }
         const attachItems = await store.getItem(attachKey(collection, messageItem.id));
         if (attachItems) {
           const attachMessages: TMessageItem[] = [];
           forEach(attachItems, (item: AttachItem) => {
-            forEach(item.data, value => {
+            forEach(item.data, (value) => {
               value = cloneDeep(value);
 
               if (!value.disabled) {
@@ -428,14 +444,14 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
                   header = `# Reference: ${value.name}`;
                   const isCode = isCDocumentCode(value.content);
                   value.content = trimDocumentContent(value.content);
-                  value.content = isCode ? "```\n" + value.content + "\n```" : value.content;
+                  value.content = isCode ? '```\n' + value.content + '\n```' : value.content;
                 } else {
-                  header = "# Text data";
+                  header = '# Text data';
                 }
                 attachMessages.push({
-                  role: "user",
+                  role: 'user',
                   content: `${header}\n\n---\n\n${value.content}`,
-                  name: value.isDocument ? "Documentation" : "Attachment",
+                  name: value.isDocument ? 'Documentation' : 'Attachment',
                 });
               }
             });
@@ -459,11 +475,11 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
       }, 1000);
 
       const apiMessages = requestMessages
-        .filter(v => {
-          return !(v.role === "assistant" && v.content === "...");
+        .filter((v) => {
+          return !(v.role === 'assistant' && v.content === '...');
         })
-        .map(v => {
-          if (v.role === "user" && !userMessage.isChild) {
+        .map((v) => {
+          if (v.role === 'user' && !userMessage.isChild) {
             // if (prompt.wrapSingleLine && !content.includes("\n")) {
             if (prompt.wrapSingleLine) {
               // if (!/^".*?"$/.test(v.content) && !/^'.*?'$/.test(v.content)) {
@@ -484,17 +500,17 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
           return apiData;
         });
 
-      const finalMessages = uniqBy(apiMessages, v => {
-        const b = v.role === "system" ? v.role : uniqueId("apiMessages");
-        return [v.content, b].join(":");
+      const finalMessages = uniqBy(apiMessages, (v) => {
+        const b = v.role === 'system' ? v.role : uniqueId('apiMessages');
+        return [v.content, b].join(':');
       });
 
       if (allDocs.length > 0) {
-        const insertToIndex = findLastIndex(finalMessages, v => {
-          return v.role === "system";
+        const insertToIndex = findLastIndex(finalMessages, (v) => {
+          return v.role === 'system';
         });
-        const docMessages: any[] = allDocs.map(doc => ({
-          role: "user",
+        const docMessages: any[] = allDocs.map((doc) => ({
+          role: 'user',
           content: doc,
         }));
         // docMessages.push({
@@ -502,9 +518,9 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
         //   content: "PRIORITIZE PROVIDING ANSWERS BASED ON THE PROVIDED REFERENCE SOURCES.",
         // });
         docMessages.push({
-          role: "assistant",
+          role: 'assistant',
           content:
-            "I have received the documents you provided. I understand that I will be penalized if my answers deviate from your documents. Please state your request, and I will provide the best answer based on my knowledge and the documents you provide.",
+            'I have received the documents you provided. I understand that I will be penalized if my answers deviate from your documents. Please state your request, and I will provide the best answer based on my knowledge and the documents you provide.',
         });
 
         if (insertToIndex !== -1) {
@@ -514,9 +530,9 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
 
       // choose model
       let autoModel = model;
-      if (autoModel.startsWith("auto")) {
-        const countedTokens = await countTokens(finalMessages.map(v => v.content).join(""));
-        const [, model1, model2, switchValue] = autoModel.split("|");
+      if (autoModel.startsWith('auto')) {
+        const countedTokens = await countTokens(finalMessages.map((v) => v.content).join(''));
+        const [, model1, model2, switchValue] = autoModel.split('|');
 
         if (countedTokens > +switchValue) {
           autoModel = model2;
@@ -525,7 +541,7 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
         }
       }
 
-      requestChatStream("v1/chat/completions", finalMessages, {
+      requestChatStream('v1/chat/completions', finalMessages, {
         onMessage(message: string, done: boolean): void {
           if (done) {
             message = postprocessAnswer(message, done);
@@ -556,13 +572,13 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
         },
         onController(): void {},
         onError(error: Error): void {
-          console.log("error", error);
+          console.log('error', error);
           setMessages(clone(messages));
         },
       }).finally();
     },
     42,
-    [messages, checkedMessages, collection, streamMessageIndex, includes, model]
+    [messages, checkedMessages, collection, streamMessageIndex, includes, model],
   );
   useDebounce(
     () => {
@@ -571,7 +587,7 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
       }
     },
     42,
-    [messages]
+    [messages],
   );
   useEffect(() => {
     scrollToBottom();
@@ -582,7 +598,7 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
       void saveSplitMessages();
     },
     60000,
-    [isDone, messages, isIdle]
+    [isDone, messages, isIdle],
   );
   useEffect(() => {
     boxRef.current?.focus();
@@ -609,7 +625,7 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
               {map(messagesList, (messages, i0) => {
                 const position = messagesList
                   .filter((_, i) => i <= i0)
-                  .map(v => v.length)
+                  .map((v) => v.length)
                   .reduce((accumulator, currentValue) => {
                     return accumulator + currentValue;
                   }, 0);
@@ -621,16 +637,16 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
 
                       return (
                         <Transition
-                          key={[message.id, message.checked].join(":")}
-                          transition={"fade"}
+                          key={[message.id, message.checked].join(':')}
+                          transition={'fade'}
                           mounted={true}
                           timingFunction="ease"
                         >
-                          {styles => (
+                          {(styles) => (
                             <MessageItem
                               isFirst={index === 0 && i0 === 0}
                               isLast={i0 === messagesList.length - 1}
-                              ref={instance => {
+                              ref={(instance) => {
                                 if (instance) messageRefs.current[message.id] = instance;
                               }}
                               messages={messages}
@@ -656,7 +672,7 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
                       includeMessages={messages}
                       viewport={messagePageScroll}
                       messages={messages}
-                      key={[JSON.stringify(messages), i0].join(":")}
+                      key={[JSON.stringify(messages), i0].join(':')}
                       position={position}
                       onSend={onSend}
                       exId={i0}
@@ -669,7 +685,7 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
         )}
       </div>
       <div className={classes.divider1}>
-        <Container size="md" className={classNames("flex flex-col gap-3 p-3 px-0 m-auto w-full")}>
+        <Container size="md" className={classNames('flex flex-col gap-3 p-3 px-0 m-auto w-full')}>
           <TypeBox
             ref={boxRef}
             collection={collection}

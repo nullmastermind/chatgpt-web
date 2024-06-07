@@ -1,5 +1,5 @@
-import { ChatCompletionResponseMessage } from "openai";
-import { findIndex } from "lodash";
+import { findIndex } from 'lodash';
+import { ChatCompletionResponseMessage } from 'openai';
 
 const TIME_OUT_MS = 30000;
 let TOKEN_TIMEOUT: any = -1;
@@ -17,25 +17,25 @@ const makeRequestParam = (
   options?: {
     filterBot?: boolean;
     stream?: boolean;
-  }
+  },
 ): any => {
-  if (path === "v1/completions") {
+  if (path === 'v1/completions') {
     return {
       prompt: messages
-        .map(v => v.content)
-        .join("\n\n")
+        .map((v) => v.content)
+        .join('\n\n')
         .trim(),
       stream: options?.stream,
     };
   }
-  let sendMessages = messages.map(v => ({
+  let sendMessages = messages.map((v) => ({
     role: v.role,
     content: v.content,
     name: v.name || undefined,
   }));
 
   if (options?.filterBot) {
-    sendMessages = sendMessages.filter(m => m.role !== "assistant");
+    sendMessages = sendMessages.filter((m) => m.role !== 'assistant');
   }
 
   return {
@@ -52,7 +52,7 @@ export type Message = ChatCompletionResponseMessage & {
   name?: string;
 };
 
-export type APIPath = "v1/chat/completions" | "v1/completions";
+export type APIPath = 'v1/chat/completions' | 'v1/completions';
 
 export async function requestChatStream(
   path: APIPath,
@@ -64,15 +64,15 @@ export async function requestChatStream(
     onMessage: (message: string, done: boolean) => void;
     onError: (error: Error, statusCode?: number) => void;
     onController?: (controller: AbortController) => void;
-  }
+  },
 ) {
   if (!Array.isArray(messages)) {
     messages = [messages];
   }
-  messages = messages.map(message => {
-    if (typeof message === "string") {
+  messages = messages.map((message) => {
+    if (typeof message === 'string') {
       return {
-        role: "system",
+        role: 'system',
         content: message,
       } as Message;
     }
@@ -86,37 +86,37 @@ export async function requestChatStream(
     ...(options?.modelConfig || {}),
   };
 
-  console.log("[Request] ", req);
+  console.log('[Request] ', req);
 
   const controller = new AbortController();
   const reqTimeoutId = setTimeout(() => controller.abort(), TIME_OUT_MS);
-  const tokens = (options?.token || "").split(",");
-  let lastToken = localStorage.getItem(":latestToken");
-  let lastTokenIndex = findIndex(tokens, v => v === lastToken);
+  const tokens = (options?.token || '').split(',');
+  let lastToken = localStorage.getItem(':latestToken');
+  let lastTokenIndex = findIndex(tokens, (v) => v === lastToken);
   let currentToken = tokens[lastTokenIndex + 1];
 
   if (!currentToken) {
     currentToken = tokens[0];
   }
 
-  localStorage.setItem(":latestToken", currentToken || "");
+  localStorage.setItem(':latestToken', currentToken || '');
   clearTimeout(TOKEN_TIMEOUT);
-  TOKEN_TIMEOUT = setTimeout(() => localStorage.removeItem(":latestToken"), 1000 * 60);
+  TOKEN_TIMEOUT = setTimeout(() => localStorage.removeItem(':latestToken'), 1000 * 60);
 
   try {
-    const res = await fetch("/api/chat-stream", {
-      method: "POST",
+    const res = await fetch('/api/chat-stream', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        path: path || "v1/chat/completions",
-        token: currentToken,
+        'Content-Type': 'application/json',
+        'path': path || 'v1/chat/completions',
+        'token': currentToken,
       },
       body: JSON.stringify(req),
       signal: controller.signal,
     });
     clearTimeout(reqTimeoutId);
 
-    let responseText = "";
+    let responseText = '';
 
     const finish = () => {
       options?.onMessage(responseText, true);
@@ -147,14 +147,14 @@ export async function requestChatStream(
 
       finish();
     } else if (res.status === 401) {
-      console.error("Anauthorized");
-      options?.onError(new Error("Anauthorized"), res.status);
+      console.error('Anauthorized');
+      options?.onError(new Error('Anauthorized'), res.status);
     } else {
-      console.error("Stream Error", res.body);
-      options?.onError(new Error("Stream Error"), res.status);
+      console.error('Stream Error', res.body);
+      options?.onError(new Error('Stream Error'), res.status);
     }
   } catch (err) {
-    console.error("NetWork Error", err);
+    console.error('NetWork Error', err);
     options?.onError(err as Error);
   }
 }

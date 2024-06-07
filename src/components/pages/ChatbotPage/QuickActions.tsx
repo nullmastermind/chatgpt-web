@@ -1,7 +1,8 @@
-import { IconSearch } from "@tabler/icons-react";
-import React from "react";
-import { SpotlightProvider } from "@mantine/spotlight";
-import { useQuickActions, useQuickActionsQuery } from "@/states/states";
+import { SpotlightProvider } from '@mantine/spotlight';
+import { IconSearch } from '@tabler/icons-react';
+import React from 'react';
+
+import { useQuickActions, useQuickActionsQuery } from '@/states/states';
 
 const QuickActions = () => {
   const [quickActions] = useQuickActions();

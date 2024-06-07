@@ -1,31 +1,43 @@
+import {
+  ActionIcon,
+  Badge,
+  Container,
+  Loader,
+  Modal,
+  ScrollArea,
+  Text,
+  Tooltip,
+  Transition,
+  px,
+} from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import { IconCopy, IconMoodPuzzled } from '@tabler/icons-react';
+import classNames from 'classnames';
+import { cloneDeep, find, findIndex, map } from 'lodash';
 import React, {
-  forwardRef,
   MutableRefObject,
   RefObject,
+  forwardRef,
   useEffect,
   useImperativeHandle,
   useMemo,
   useRef,
   useState,
-} from "react";
-import { KeyValue } from "@/utility/utility";
-import { useCollections, useCurrentCollection } from "@/states/states";
-import { cloneDeep, find, findIndex, map } from "lodash";
-import { useDisclosure } from "@mantine/hooks";
-import { AttachItem } from "@/components/misc/types";
-import store, { attachKey, messagesKey } from "@/utility/store";
-import { useMount, useUnmount } from "react-use";
-import { ActionIcon, Badge, Container, Loader, Modal, px, ScrollArea, Text, Tooltip, Transition } from "@mantine/core";
-import PreviewAttach from "@/components/misc/PreviewAttach";
-import classNames from "classnames";
-import MemoizedReactMarkdown from "@/components/pages/ChatbotPage/MemoizedReactMarkdown";
-import { IconCopy, IconMoodPuzzled } from "@tabler/icons-react";
-import FunnyEmoji from "@/components/misc/FunnyEmoji";
-import DateInfo from "@/components/pages/ChatbotPage/DateInfo";
-import { isMobile } from "react-device-detect";
-import TypingBlinkCursor from "@/components/misc/TypingBlinkCursor";
-import AttachName from "@/components/pages/ChatbotPage/Attach/AttachName";
-import { MessageItemType } from "@/components/pages/ChatbotPage/Message";
+} from 'react';
+import { isMobile } from 'react-device-detect';
+import { useMount, useUnmount } from 'react-use';
+
+import FunnyEmoji from '@/components/misc/FunnyEmoji';
+import PreviewAttach from '@/components/misc/PreviewAttach';
+import TypingBlinkCursor from '@/components/misc/TypingBlinkCursor';
+import { AttachItem } from '@/components/misc/types';
+import AttachName from '@/components/pages/ChatbotPage/Attach/AttachName';
+import DateInfo from '@/components/pages/ChatbotPage/DateInfo';
+import MemoizedReactMarkdown from '@/components/pages/ChatbotPage/MemoizedReactMarkdown';
+import { MessageItemType } from '@/components/pages/ChatbotPage/Message';
+import { useCollections, useCurrentCollection } from '@/states/states';
+import store, { attachKey, messagesKey } from '@/utility/store';
+import { KeyValue } from '@/utility/utility';
 
 const MessageItem = forwardRef(
   (
@@ -62,7 +74,7 @@ const MessageItem = forwardRef(
       needRefreshMessageIds: MutableRefObject<Record<any, any>>;
       messagePageScroll: RefObject<HTMLDivElement>;
     },
-    ref
+    ref,
   ) => {
     const [message, setMessage] = useState<MessageItemType>(inputMessage);
     const [isTyping, setIsTyping] = useState(false);
@@ -82,7 +94,7 @@ const MessageItem = forwardRef(
     const [collectionId] = useCurrentCollection();
     const [collections] = useCollections();
     const collection = useMemo(() => {
-      return find(collections, v => v.key === collectionId);
+      return find(collections, (v) => v.key === collectionId);
     }, [collectionId, collections]);
     const scrollElementRef = useRef<HTMLDivElement>(null);
     const hasDocs = useMemo(() => {
@@ -92,13 +104,15 @@ const MessageItem = forwardRef(
     const [isShowDocs, { open: showDocs, close: closeDocs }] = useDisclosure(false);
     const smoothContent = useRef<string[]>([]);
     const smoothIntervalId = useRef<any>(-1);
-    const smoothCurrentContent = useRef<string>("");
+    const smoothCurrentContent = useRef<string>('');
     const smoothCurrentIndex = useRef<number>(-1);
     const [attachItems, setAttachItems] = useState<AttachItem[]>([]);
     const [previewAttachItem, setPreviewAttachItem] = useState<AttachItem | null>(null);
 
     const updateAttachInfo = async () => {
-      const attachItems: AttachItem[] | null = await store.getItem(attachKey(collectionId, inputMessage.id));
+      const attachItems: AttachItem[] | null = await store.getItem(
+        attachKey(collectionId, inputMessage.id),
+      );
       if (Array.isArray(attachItems) && attachItems.length > 0) {
         setAttachItems(attachItems);
       }
@@ -120,7 +134,11 @@ const MessageItem = forwardRef(
             clearInterval(smoothIntervalId.current);
             setDoScrollToBottom(true);
             if (!isBottom()) {
-              scrollElementRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "start" });
+              scrollElementRef.current?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'end',
+                inline: 'start',
+              });
             }
           } else {
             if (!isBottom()) {
@@ -132,11 +150,11 @@ const MessageItem = forwardRef(
           return;
         }
 
-        smoothContent.current = newMessage.split("");
+        smoothContent.current = newMessage.split('');
 
         smoothIntervalId.current = setInterval(() => {
           if (smoothContent.current.length > smoothCurrentIndex.current + 1 && !isDone) {
-            let nextChars = "";
+            let nextChars = '';
             let smoothSize = 1;
 
             for (let i = 0; i < smoothSize; i++) {
@@ -149,7 +167,7 @@ const MessageItem = forwardRef(
 
             smoothCurrentContent.current += nextChars;
 
-            setMessage(prevState => ({
+            setMessage((prevState) => ({
               ...prevState,
               content: smoothCurrentContent.current,
             }));
@@ -187,7 +205,7 @@ const MessageItem = forwardRef(
       }
     }, [doScrollToBottom, message.content, isTyping]);
     useMount(() => {
-      if (message.source === "user" && !autoScrollIds.current[message.id]) {
+      if (message.source === 'user' && !autoScrollIds.current[message.id]) {
         if (message.scrollToBottom) {
           scrollToBottom();
         }
@@ -247,7 +265,7 @@ const MessageItem = forwardRef(
       if (attachItems.length > 0) {
         requestAnimationFrame(() => {
           messagePageScroll.current?.scrollBy({
-            top: 16 + px("0.5rem"),
+            top: 16 + px('0.5rem'),
           });
         });
       }
@@ -256,7 +274,10 @@ const MessageItem = forwardRef(
     return (
       <>
         {previewAttachItem && (
-          <PreviewAttach attachItem={previewAttachItem} onClose={() => setPreviewAttachItem(null)} />
+          <PreviewAttach
+            attachItem={previewAttachItem}
+            onClose={() => setPreviewAttachItem(null)}
+          />
         )}
         <Modal
           opened={isShowDocs}
@@ -264,13 +285,16 @@ const MessageItem = forwardRef(
           title="Documents"
           centered
           scrollAreaComponent={ScrollArea.Autosize}
-          size={"auto"}
+          size={'auto'}
         >
-          <Container p={0} size={"sm"}>
+          <Container p={0} size={'sm'}>
             {isShowDocs &&
               map(message.docs, (doc, index) => {
                 return (
-                  <div key={index} className={classNames("text-xs", classes.pBreakAll, classes.imgBg)}>
+                  <div
+                    key={index}
+                    className={classNames('text-xs', classes.pBreakAll, classes.imgBg)}
+                  >
                     <MemoizedReactMarkdown
                       id={message.id}
                       content={doc}
@@ -282,28 +306,28 @@ const MessageItem = forwardRef(
               })}
           </Container>
         </Modal>
-        {!isChild && !isFirst && <div className={"h-5"} />}
+        {!isChild && !isFirst && <div className={'h-5'} />}
         <div style={style}>
           <div
             className={classNames(
-              "flex gap-2 items-start relative py-2",
+              'flex gap-2 items-start relative py-2',
               {
                 [classes.messageBotBg]: !isChild,
                 [classes.rootBorders]: !isChild,
                 [classes.childBorders]: isChild,
-                "flex-col": !isChild,
-                "flex-row": isChild,
+                'flex-col': !isChild,
+                'flex-row': isChild,
                 [classes.streamDone]: doneMessages.current[message.id],
               },
               classes.messageBotContainer,
               {
-                [classes.userQuestionBg]: isChild && message.source !== "assistant",
-              }
+                [classes.userQuestionBg]: isChild && message.source !== 'assistant',
+              },
             )}
           >
             <div
               ref={scrollElementRef}
-              className={"absolute"}
+              className={'absolute'}
               style={{
                 left: 0,
                 bottom: 0,
@@ -322,16 +346,16 @@ const MessageItem = forwardRef(
                   variant="subtle"
                   onClick={async () => {
                     try {
-                      const textBlob = new Blob([message.content], { type: "text/plain" });
+                      const textBlob = new Blob([message.content], { type: 'text/plain' });
                       // const htmlBlob = new Blob([message.content], { type: "text/html" });
 
                       const clipboardItem = new ClipboardItem({
-                        "text/plain": textBlob, // "text/html": htmlBlob,
+                        'text/plain': textBlob, // "text/html": htmlBlob,
                       });
 
                       await navigator.clipboard.write([clipboardItem]);
                     } catch (error) {
-                      console.error("Failed to write to clipboard: ", error);
+                      console.error('Failed to write to clipboard: ', error);
                     }
                     updateIsCopied();
                   }}
@@ -341,52 +365,60 @@ const MessageItem = forwardRef(
                 </ActionIcon>
               </div>
             </Tooltip>
-            <div style={{ position: isChild ? "sticky" : undefined }} className="top-3 mx-2">
-              <div className={"flex flex-row items-center gap-2"}>
-                <div className={"relative"}>
+            <div style={{ position: isChild ? 'sticky' : undefined }} className="top-3 mx-2">
+              <div className={'flex flex-row items-center gap-2'}>
+                <div className={'relative'}>
                   {!isChild && (
-                    <div className={"flex flex-row gap-1 items-center"}>
-                      <div className={"text-3xl relative"}>
-                        <div className={"absolute top-0 left-0 w-full h-full flex items-center justify-center"}>
+                    <div className={'flex flex-row gap-1 items-center'}>
+                      <div className={'text-3xl relative'}>
+                        <div
+                          className={
+                            'absolute top-0 left-0 w-full h-full flex items-center justify-center'
+                          }
+                        >
                           <div
-                            className={"rounded-full w-[34px] h-[34px]"}
+                            className={'rounded-full w-[34px] h-[34px]'}
                             style={{
-                              background: "rgba(255, 255, 255, 0.1)",
-                              border: "1px solid rgba(255, 255, 255, 1)",
+                              background: 'rgba(255, 255, 255, 0.1)',
+                              border: '1px solid rgba(255, 255, 255, 1)',
                             }}
                           />
                         </div>
-                        <div className={"relative inline-block"}>
-                          <FunnyEmoji emoji={collection?.emoji || "🥸"} emojiType={isLast ? "anim" : "3d"} size={38} />
+                        <div className={'relative inline-block'}>
+                          <FunnyEmoji
+                            emoji={collection?.emoji || '🥸'}
+                            emojiType={isLast ? 'anim' : '3d'}
+                            size={38}
+                          />
                         </div>
                       </div>
-                      <div className={"text-xl"}>{collection?.label}</div>
+                      <div className={'text-xl'}>{collection?.label}</div>
                     </div>
                   )}
                   {isChild && (
-                    <div className={"w-3 relative"}>
-                      {isChild && message.source !== "assistant" && (
-                        <div className={"absolute"}>
-                          <IconMoodPuzzled size={"1.5rem"} />
+                    <div className={'w-3 relative'}>
+                      {isChild && message.source !== 'assistant' && (
+                        <div className={'absolute'}>
+                          <IconMoodPuzzled size={'1.5rem'} />
                         </div>
                       )}
                     </div>
                   )}
                 </div>
                 {!isChild && (
-                  <div className={"flex flex-row gap-2 items-center"}>
+                  <div className={'flex flex-row gap-2 items-center'}>
                     <DateInfo message={message} />
                   </div>
                 )}
               </div>
             </div>
-            <div className={classNames("flex-grow w-full")}>
+            <div className={classNames('flex-grow w-full')}>
               <div
                 className={classNames(classes.messageContent, classes.imgBg, {
-                  "px-2": !isMobile,
+                  'px-2': !isMobile,
                 })}
               >
-                {message.content !== "..." && (
+                {message.content !== '...' && (
                   <MemoizedReactMarkdown
                     isTyping={isTyping}
                     isFirst={!isChild}
@@ -395,23 +427,31 @@ const MessageItem = forwardRef(
                     messagePageScroll={messagePageScroll}
                   />
                 )}
-                {message.content === "..." && <TypingBlinkCursor />}
+                {message.content === '...' && <TypingBlinkCursor />}
               </div>
               {hasDocs && (
                 <div className="mx-2">
                   <Badge
                     onClick={showDocs}
-                    className={classNames("cursor-pointer", classes.fadeIn)}
-                    size={"xs"}
+                    className={classNames('cursor-pointer', classes.fadeIn)}
+                    size={'xs'}
                     leftSection={
-                      <div className={"flex items-center relative w-3.5 justify-center"}>
-                        <div className={"absolute top-0 left-0 w-full"} style={{ height: 16 }}>
+                      <div className={'flex items-center relative w-3.5 justify-center'}>
+                        <div className={'absolute top-0 left-0 w-full'} style={{ height: 16 }}>
                           {Array.isArray(message.docs) ? (
-                            <Text size={"sm"} className={"text-center w-full"} style={{ lineHeight: 0 }}>
+                            <Text
+                              size={'sm'}
+                              className={'text-center w-full'}
+                              style={{ lineHeight: 0 }}
+                            >
                               {message.docs?.length}
                             </Text>
                           ) : (
-                            <Loader size={"xs"} className={"relative -top-2 -left-1"} variant="dots" />
+                            <Loader
+                              size={'xs'}
+                              className={'relative -top-2 -left-1'}
+                              variant="dots"
+                            />
                           )}
                         </div>
                       </div>
@@ -421,17 +461,22 @@ const MessageItem = forwardRef(
                   </Badge>
                 </div>
               )}
-              <Transition transition={"slide-up"} mounted={attachItems.length > 0} duration={200} timingFunction="ease">
-                {styles => (
-                  <div style={styles} className={"flex flex-row relative px-2 mt-2"}>
-                    <div className={"flex-grow"}>
-                      <div className={"flex flex-row w-full gap-1 items-center flex-wrap"}>
-                        {map(attachItems, item => {
+              <Transition
+                transition={'slide-up'}
+                mounted={attachItems.length > 0}
+                duration={200}
+                timingFunction="ease"
+              >
+                {(styles) => (
+                  <div style={styles} className={'flex flex-row relative px-2 mt-2'}>
+                    <div className={'flex-grow'}>
+                      <div className={'flex flex-row w-full gap-1 items-center flex-wrap'}>
+                        {map(attachItems, (item) => {
                           return (
                             <div
                               key={item.id}
-                              className={"flex items-center cursor-pointer"}
-                              title={"Preview"}
+                              className={'flex items-center cursor-pointer'}
+                              title={'Preview'}
                               onClick={() => {
                                 setPreviewAttachItem(item);
                               }}
@@ -450,7 +495,7 @@ const MessageItem = forwardRef(
         </div>
       </>
     );
-  }
+  },
 );
 
 export default MessageItem;

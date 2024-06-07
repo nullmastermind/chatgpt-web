@@ -12,12 +12,14 @@ import {
   MediaQuery,
   Menu,
   Navbar,
-  rem,
   ScrollArea,
   Text,
   UnstyledButton,
+  rem,
   useMantineTheme,
-} from "@mantine/core";
+} from '@mantine/core';
+import { useHotkeys } from '@mantine/hooks';
+import { Notifications, notifications } from '@mantine/notifications';
 import {
   IconAlertCircle,
   IconArrowDown,
@@ -29,10 +31,15 @@ import {
   IconPlus,
   IconSettings,
   IconTrash,
-} from "@tabler/icons-react";
-import React, { useEffect, useMemo, useState } from "react";
-import { useStyles } from "@/components/pages/MainPage/MainPage.style";
-import { useDebounce, useLocalStorage, useMount } from "react-use";
+} from '@tabler/icons-react';
+import classNames from 'classnames';
+import { disable as disableDarkMode, enable as enableDarkMode } from 'darkreader';
+import { find, range } from 'lodash';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useDebounce, useLocalStorage, useMount } from 'react-use';
+
+import FunnyEmoji from '@/components/misc/FunnyEmoji';
+import { useStyles } from '@/components/pages/MainPage/MainPage.style';
 import {
   useAddCollectionAction,
   useCollections,
@@ -42,14 +49,8 @@ import {
   useCurrentCollectionRemoveId,
   useCurrentCollectionUpId,
   useCurrentTool,
-} from "@/states/states";
-import { notifications, Notifications } from "@mantine/notifications";
-import { find, range } from "lodash";
-import classNames from "classnames";
-import { useHotkeys } from "@mantine/hooks";
-import { exportLocalStorageToJSON, importLocalStorageFromFile } from "@/utility/utility";
-import { disable as disableDarkMode, enable as enableDarkMode } from "darkreader";
-import FunnyEmoji from "@/components/misc/FunnyEmoji";
+} from '@/states/states';
+import { exportLocalStorageToJSON, importLocalStorageFromFile } from '@/utility/utility';
 
 export type CollectionItem = {
   emoji: string;
@@ -67,12 +68,18 @@ const links: Array<{
 }> = [
   {
     icon: IconMessage,
-    label: "Chatbots",
-    key: "nullgpt",
+    label: 'Chatbots',
+    key: 'nullgpt',
     canAddCollections: true,
-    collectionsLabel: "Agents",
+    collectionsLabel: 'Agents',
   },
-  { icon: IconSettings, label: "Settings", key: "settings", canAddCollections: false, collectionsLabel: "Settings" },
+  {
+    icon: IconSettings,
+    label: 'Settings',
+    key: 'settings',
+    canAddCollections: false,
+    collectionsLabel: 'Settings',
+  },
 ];
 
 export type MainLayoutProps = {
@@ -83,9 +90,9 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const { classes } = useStyles();
   const [collections] = useCollections();
   const [globalCurrentTool, setGlobalCurrentTool] = useCurrentTool();
-  const [currentTool, setCurrentTool] = useLocalStorage(":currentTool", globalCurrentTool);
+  const [currentTool, setCurrentTool] = useLocalStorage(':currentTool', globalCurrentTool);
   const currentLink = useMemo(() => {
-    return links.find(v => v.key === currentTool);
+    return links.find((v) => v.key === currentTool);
   }, [currentTool]);
   const [addAction] = useAddCollectionAction();
   const [currentCollection, setCurrentCollection] = useCurrentCollection();
@@ -95,9 +102,9 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const [, setCollectionDownId] = useCurrentCollectionDownId();
   const theme = useMantineTheme();
   const [opened, setOpened] = useState(false);
-  const [highContrast, setHighContrast] = useLocalStorage("highContrast", "0");
+  const [highContrast, setHighContrast] = useLocalStorage('highContrast', '0');
   const logoText = useMemo(() => {
-    return localStorage.getItem(":logoText") || "Oggy GPT";
+    return localStorage.getItem(':logoText') || 'Oggy GPT';
   }, []);
 
   const hotkeySwitchCollection = (index: number) => {
@@ -106,16 +113,16 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     }
   };
 
-  useHotkeys(range(0, 9).map(i => [`mod+${i + 1}`, () => hotkeySwitchCollection(i)]) as any);
+  useHotkeys(range(0, 9).map((i) => [`mod+${i + 1}`, () => hotkeySwitchCollection(i)]) as any);
   useEffect(() => {
     setGlobalCurrentTool(currentTool);
   }, [currentTool]);
   useDebounce(
     () => {
       if (!currentTool) return;
-      if (collections.length > 0 && !find(collections, v => v.key === currentCollection)) {
+      if (collections.length > 0 && !find(collections, (v) => v.key === currentCollection)) {
         const dbCurrentCollection = localStorage.getItem(`:currentCollection:${currentTool}`);
-        const tempCollection = find(collections, v => v.key.toString() === dbCurrentCollection);
+        const tempCollection = find(collections, (v) => v.key.toString() === dbCurrentCollection);
         if (tempCollection) {
           setCurrentCollection(tempCollection.key);
         } else {
@@ -127,7 +134,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       }
     },
     42,
-    [collections, currentCollection, currentTool]
+    [collections, currentCollection, currentTool],
   );
   useEffect(() => {
     if (currentTool && currentCollection) {
@@ -143,14 +150,14 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     //
     // collectCSS().then(console.log);
 
-    if (sessionStorage.getItem(":importLocalStorageFromFile")) {
-      sessionStorage.removeItem(":importLocalStorageFromFile");
+    if (sessionStorage.getItem(':importLocalStorageFromFile')) {
+      sessionStorage.removeItem(':importLocalStorageFromFile');
       notifications.show({
-        title: "Success",
-        message: "Data import successful.",
-        radius: "lg",
+        title: 'Success',
+        message: 'Data import successful.',
+        radius: 'lg',
         withCloseButton: true,
-        color: "green",
+        color: 'green',
         icon: <IconCircleCheckFilled />,
       });
     }
@@ -158,7 +165,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 
   useDebounce(
     () => {
-      if (highContrast === "1") {
+      if (highContrast === '1') {
         enableDarkMode({
           // brightness: 100,
           // contrast: 100,
@@ -169,16 +176,16 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       }
     },
     500,
-    [highContrast]
+    [highContrast],
   );
   useEffect(() => {
-    const collection = collections.find(v => v.key === currentCollection);
+    const collection = collections.find((v) => v.key === currentCollection);
     if (collection) {
       document.title = `${collection.emoji} ${collection.label}`;
     }
   }, [currentCollection, collections]);
 
-  const mainLinks = links.map(link => (
+  const mainLinks = links.map((link) => (
     <UnstyledButton
       key={link.label}
       className={classes.mainLink}
@@ -188,12 +195,12 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       }}
     >
       <Text
-        color={currentTool === link.key ? "white" : "dimmed"}
+        color={currentTool === link.key ? 'white' : 'dimmed'}
         className={classNames(classes.mainLinkInner, {
-          "opacity-80": currentTool !== link.key,
+          'opacity-80': currentTool !== link.key,
         })}
       >
-        <link.icon size={"1.3rem"} className={classes.mainLinkIcon} stroke={1.5} />
+        <link.icon size={'1.3rem'} className={classes.mainLinkIcon} stroke={1.5} />
         <span>{link.label}</span>
       </Text>
       {link.notifications && (
@@ -210,29 +217,29 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         setOpened(false);
       }}
       key={collection.key}
-      color={collection.key === currentCollection ? "white" : undefined}
-      className={classNames(classes.collectionLink, "pr-1 h-[1.5rem] flex items-center", {
-        "opacity-80": collection.key !== currentCollection,
-        "font-bold": collection.key === currentCollection,
+      color={collection.key === currentCollection ? 'white' : undefined}
+      className={classNames(classes.collectionLink, 'pr-1 h-[1.5rem] flex items-center', {
+        'opacity-80': collection.key !== currentCollection,
+        'font-bold': collection.key === currentCollection,
         [classes.selectedCollectionLink]: collection.key === currentCollection,
-        shadow: collection.key === currentCollection,
+        'shadow': collection.key === currentCollection,
       })}
     >
       <div className="flex flex-row gap-3 items-center relative flex-grow">
         <div className="flex-grow flex gap-1 items-center text-center">
-          <div className={"w-5 justify-center flex items-center relative z-10"}>
-            <span style={{ marginRight: rem(8), fontSize: "1rem" }}>
+          <div className={'w-5 justify-center flex items-center relative z-10'}>
+            <span style={{ marginRight: rem(8), fontSize: '1rem' }}>
               <FunnyEmoji
                 emoji={collection.emoji}
-                emojiType={collection.key === currentCollection ? "anim" : "3d"}
+                emojiType={collection.key === currentCollection ? 'anim' : '3d'}
                 size={collection.key === currentCollection ? 34 : 20}
               />
             </span>
           </div>
-          <div className={"whitespace-nowrap"}>{collection.label}</div>
+          <div className={'whitespace-nowrap'}>{collection.label}</div>
           {index < 9 && (
             <div
-              className={classNames("flex-grow flex items-center justify-end", {})}
+              className={classNames('flex-grow flex items-center justify-end', {})}
               style={{
                 marginTop: -6,
               }}
@@ -245,18 +252,18 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         </div>
         <div
           className={classNames(
-            "absolute right-[-5px] flex flex-row gap-1 collection-action px-2 py-1 rounded shadow-xl",
+            'absolute right-[-5px] flex flex-row gap-1 collection-action px-2 py-1 rounded shadow-xl',
             {
-              "collection-action-disabled": !currentLink?.canAddCollections,
+              'collection-action-disabled': !currentLink?.canAddCollections,
             },
-            classes.listActions
+            classes.listActions,
           )}
         >
           <ActionIcon
             variant="light"
             color="blue"
             size="xs"
-            onClick={e => {
+            onClick={(e) => {
               e.stopPropagation();
               setCollectionUpId(collection.key);
             }}
@@ -267,7 +274,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             variant="light"
             color="blue"
             size="xs"
-            onClick={e => {
+            onClick={(e) => {
               e.stopPropagation();
               setCollectionDownId(collection.key);
             }}
@@ -278,7 +285,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             variant="light"
             color="blue"
             size="xs"
-            onClick={e => {
+            onClick={(e) => {
               e.stopPropagation();
               setCollectionEditId(collection.key);
             }}
@@ -289,7 +296,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             variant="light"
             color="red"
             size="xs"
-            onClick={e => {
+            onClick={(e) => {
               e.stopPropagation();
               setCollectionRemoveId(collection.key);
             }}
@@ -316,7 +323,13 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       <div className={classes.collections}>{collectionLinks}</div>
       {currentLink?.canAddCollections && (
         <div className="px-2">
-          <Button fullWidth={true} variant="default" size="xs" leftIcon={<IconPlus />} onClick={addAction}>
+          <Button
+            fullWidth={true}
+            variant="default"
+            size="xs"
+            leftIcon={<IconPlus />}
+            onClick={addAction}
+          >
             New agent
           </Button>
         </div>
@@ -335,8 +348,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           <Navbar
             hidden={!opened}
             width={{ sm: 256 }}
-            p={"md"}
-            className={classNames("flex flex-col z-50", classes.navbar, {})}
+            p={'md'}
+            className={classNames('flex flex-col z-50', classes.navbar, {})}
           >
             <Navbar.Section className={classes.section}>
               <div className={classes.mainLinks}>{mainLinks}</div>
@@ -345,25 +358,25 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               {renderedScrollContent}
             </Navbar.Section>
             <Navbar.Section>
-              <div className={"flex items-center"}>
-                <div className={"flex-grow"}>
-                  <Menu shadow="md" width={"100%"}>
+              <div className={'flex items-center'}>
+                <div className={'flex-grow'}>
+                  <Menu shadow="md" width={'100%'}>
                     <Menu.Target>
-                      <Button size={"xs"} variant={"default"} leftIcon={<IconDatabaseCog />}>
+                      <Button size={'xs'} variant={'default'} leftIcon={<IconDatabaseCog />}>
                         Backup
                       </Button>
                     </Menu.Target>
                     <Menu.Dropdown>
-                      <Text size={"xs"} color={"yellow"} className={"p-2"}>
-                        <IconAlertCircle size={"1rem"} className={"mr-2"} />
-                        After importing new data, all existing data will be overwritten, so please consider using it
-                        carefully!
+                      <Text size={'xs'} color={'yellow'} className={'p-2'}>
+                        <IconAlertCircle size={'1rem'} className={'mr-2'} />
+                        After importing new data, all existing data will be overwritten, so please
+                        consider using it carefully!
                       </Text>
                       <Divider />
                       <Menu.Item
                         onClick={() =>
                           importLocalStorageFromFile(() => {
-                            sessionStorage.setItem(":importLocalStorageFromFile", "OK");
+                            sessionStorage.setItem(':importLocalStorageFromFile', 'OK');
                             location.reload();
                           })
                         }
@@ -375,12 +388,12 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                   </Menu>
                 </div>
                 <Checkbox
-                  size={"xs"}
+                  size={'xs'}
                   label="high contrast"
-                  onChange={e => {
-                    setHighContrast(e.target.checked ? "1" : "0");
+                  onChange={(e) => {
+                    setHighContrast(e.target.checked ? '1' : '0');
                   }}
-                  checked={highContrast === "1"}
+                  checked={highContrast === '1'}
                 />
               </div>
             </Navbar.Section>
@@ -388,29 +401,29 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         }
         header={
           <Header height={{ base: 33 }} p="md">
-            <div style={{ display: "flex", alignItems: "center", height: "100%" }}>
-              <MediaQuery largerThan="md" styles={{ display: "none" }}>
+            <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+              <MediaQuery largerThan="md" styles={{ display: 'none' }}>
                 <Burger
                   opened={opened}
-                  onClick={() => setOpened(o => !o)}
+                  onClick={() => setOpened((o) => !o)}
                   size="sm"
                   color={theme.colors.gray[6]}
                   mr="xl"
                 />
               </MediaQuery>
-              <div className={"flex items-center justify-center"}>
+              <div className={'flex items-center justify-center'}>
                 <Text
                   style={{
                     fontWeight: 800,
                     lineHeight: 0,
                     fontSize: 20,
-                    color: "white",
+                    color: 'white',
                     letterSpacing: 0.1,
                   }}
                 >
                   {logoText}
                 </Text>
-                <div className={"-ml-2 -mb-2"}>{/*<TypingBlinkCursor />*/}</div>
+                <div className={'-ml-2 -mb-2'}>{/*<TypingBlinkCursor />*/}</div>
               </div>
             </div>
           </Header>
@@ -418,7 +431,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       >
         {children}
       </AppShell>
-      <input id="import_config_input" type="file" accept="application/json" className={"hidden"} />
+      <input id="import_config_input" type="file" accept="application/json" className={'hidden'} />
     </>
   );
 };

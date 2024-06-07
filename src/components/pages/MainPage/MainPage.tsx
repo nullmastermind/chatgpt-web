@@ -1,7 +1,7 @@
-import MainLayout from "@/components/layouts/MainLayout";
-import { useCurrentTool } from "@/states/states";
-import SettingsPage from "@/components/pages/SettingsPage/SettingsPage";
-import ChatbotPage from "@/components/pages/ChatbotPage/ChatbotPage";
+import MainLayout from '@/components/layouts/MainLayout';
+import ChatbotPage from '@/components/pages/ChatbotPage/ChatbotPage';
+import SettingsPage from '@/components/pages/SettingsPage/SettingsPage';
+import { useCurrentTool } from '@/states/states';
 
 const MainPage = () => {
   const [currentTool] = useCurrentTool();
@@ -9,8 +9,8 @@ const MainPage = () => {
   return (
     <>
       <MainLayout>
-        {currentTool === "settings" && <SettingsPage />}
-        {currentTool === "nullgpt" && <ChatbotPage />}
+        {currentTool === 'settings' && <SettingsPage />}
+        {currentTool === 'nullgpt' && <ChatbotPage />}
       </MainLayout>
     </>
   );

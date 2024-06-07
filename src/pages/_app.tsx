@@ -1,10 +1,11 @@
-import "@/styles/globals.scss";
-import type { AppProps } from "next/app";
-import dayjs from "dayjs";
-import { Analytics } from "@vercel/analytics/react";
-import Head from "next/head";
+import { Analytics } from '@vercel/analytics/react';
+import dayjs from 'dayjs';
+import type { AppProps } from 'next/app';
+import Head from 'next/head';
 
-dayjs.extend(require("dayjs/plugin/relativeTime"));
+import '@/styles/globals.scss';
+
+dayjs.extend(require('dayjs/plugin/relativeTime'));
 
 export default function App({ Component, pageProps }: AppProps) {
   return (

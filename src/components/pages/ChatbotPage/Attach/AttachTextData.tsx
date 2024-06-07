@@ -1,9 +1,10 @@
-import React, { memo, useEffect, useState } from "react";
-import { Button, Modal, ScrollArea, Title } from "@mantine/core";
-import { IconBlockquote } from "@tabler/icons-react";
-import UserInput from "@/components/misc/UserInput";
-import { AttachItem, AttachItemType } from "@/components/misc/types";
-import { v4 } from "uuid";
+import { Button, Modal, ScrollArea, Title } from '@mantine/core';
+import { IconBlockquote } from '@tabler/icons-react';
+import React, { memo, useEffect, useState } from 'react';
+import { v4 } from 'uuid';
+
+import UserInput from '@/components/misc/UserInput';
+import { AttachItem, AttachItemType } from '@/components/misc/types';
 
 const AttachTextData = memo<{
   opened: boolean;
@@ -17,12 +18,12 @@ const AttachTextData = memo<{
     if (opened) {
       setAttachItem(
         value || {
-          name: "Text data",
+          name: 'Text data',
           data: [],
           createdAt: Date.now(),
           type: AttachItemType.TextData,
           id: v4(),
-        }
+        },
       );
     }
   }, [value, opened]);
@@ -34,7 +35,7 @@ const AttachTextData = memo<{
       <Modal
         opened={Boolean(opened)}
         onClose={() => onClose()}
-        transitionProps={{ transition: "slide-up" }}
+        transitionProps={{ transition: 'slide-up' }}
         centered
         size="lg"
         title={
@@ -44,34 +45,36 @@ const AttachTextData = memo<{
               <Title size="md" className="line-clamp-1">
                 Attach - Text data
               </Title>
-              <div className="line-clamp-1 text-xs">Include your text data to improve your agent's context</div>
+              <div className="line-clamp-1 text-xs">
+                Include your text data to improve your agent's context
+              </div>
             </div>
           </div>
         }
         scrollAreaComponent={ScrollArea.Autosize}
         className="relative"
       >
-        <div className={"flex flex-col gap-2"}>
+        <div className={'flex flex-col gap-2'}>
           <UserInput
             isReplyBox={true}
             placeholder="Content..."
             required={true}
-            defaultValue={value?.data?.[0]?.content || ""}
-            onChange={value => {
+            defaultValue={value?.data?.[0]?.content || ''}
+            onChange={(value) => {
               value = value as string;
               setAttachItem({
                 ...attachItem!,
-                name: "Text data",
+                name: 'Text data',
                 data: [
                   {
                     content: value,
-                    name: "",
+                    name: '',
                   },
                 ],
               });
             }}
           />
-          <div className={"sticky bottom-0 flex flex-row items-center justify-end gap-2"}>
+          <div className={'sticky bottom-0 flex flex-row items-center justify-end gap-2'}>
             <Button variant="default" onClick={() => onClose()}>
               Close
             </Button>

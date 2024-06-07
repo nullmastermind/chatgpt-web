@@ -1,4 +1,14 @@
-import { useMount, useUnmount } from "react-use";
+import { useDisclosure } from '@mantine/hooks';
+import { modals } from '@mantine/modals';
+import { notifications } from '@mantine/notifications';
+import { IconCircleCheckFilled } from '@tabler/icons-react';
+import { clone, cloneDeep, find, findIndex } from 'lodash';
+import React, { useEffect, useState } from 'react';
+import { useMount, useUnmount } from 'react-use';
+
+import AddPrompt, { PromptSaveData } from '@/components/pages/ChatbotPage/AddPrompt';
+import Message from '@/components/pages/ChatbotPage/Message';
+import QuickActions from '@/components/pages/ChatbotPage/QuickActions';
 import {
   useAddCollectionAction,
   useCollections,
@@ -8,18 +18,9 @@ import {
   useCurrentCollectionRemoveId,
   useCurrentCollectionUpId,
   usePrompts,
-} from "@/states/states";
-import { useDisclosure } from "@mantine/hooks";
-import React, { useEffect, useState } from "react";
-import { clone, cloneDeep, find, findIndex } from "lodash";
-import { IconCircleCheckFilled } from "@tabler/icons-react";
-import { notifications } from "@mantine/notifications";
-import AddPrompt, { PromptSaveData } from "@/components/pages/ChatbotPage/AddPrompt";
-import Message from "@/components/pages/ChatbotPage/Message";
-import { ignorePromptId } from "@/utility/utility";
-import QuickActions from "@/components/pages/ChatbotPage/QuickActions";
-import { modals } from "@mantine/modals";
-import store, { messagesKey } from "@/utility/store";
+} from '@/states/states';
+import store, { messagesKey } from '@/utility/store';
+import { ignorePromptId } from '@/utility/utility';
 
 const ChatbotPage = () => {
   const [, setAddCollectionAction] = useAddCollectionAction();
@@ -47,9 +48,9 @@ const ChatbotPage = () => {
     customXmlTag,
     emoji,
   }: PromptSaveData) => {
-    const dbPrompts: any[] = JSON.parse(localStorage.getItem(":prompts") || "[]");
+    const dbPrompts: any[] = JSON.parse(localStorage.getItem(':prompts') || '[]');
     if (id) {
-      const index = findIndex(dbPrompts, v => v.id === id);
+      const index = findIndex(dbPrompts, (v) => v.id === id);
       if (index >= 0) {
         dbPrompts[index] = {
           ...dbPrompts[index],
@@ -79,46 +80,46 @@ const ChatbotPage = () => {
         sort: sort,
       });
     }
-    localStorage.setItem(":prompts", JSON.stringify(dbPrompts));
+    localStorage.setItem(':prompts', JSON.stringify(dbPrompts));
     setEditCollection(undefined);
     setCurrentCollectionEditId(undefined);
     close();
     getCollections();
     notifications.show({
-      title: "Success",
-      message: "Template saved",
-      radius: "lg",
+      title: 'Success',
+      message: 'Template saved',
+      radius: 'lg',
       withCloseButton: true,
-      color: "green",
+      color: 'green',
       icon: <IconCircleCheckFilled />,
     });
   };
   const getCollections = () => {
-    const prompts: any[] = JSON.parse(localStorage.getItem(":prompts") || "[]");
+    const prompts: any[] = JSON.parse(localStorage.getItem(':prompts') || '[]');
 
     setCollections(
-      prompts.map(prompt => {
+      prompts.map((prompt) => {
         if (!prompt.emoji) {
-          const data: string[] = prompt.name.split(" ");
+          const data: string[] = prompt.name.split(' ');
           let emoji = data.shift() as string;
           if (data.length === 0) {
             data.unshift(emoji);
-            emoji = prompt.name.split("")[0];
+            emoji = prompt.name.split('')[0];
           }
           return {
             emoji,
-            label: data.join(" ").trim(),
-            parent: "nullgpt",
+            label: data.join(' ').trim(),
+            parent: 'nullgpt',
             key: prompt.id,
           };
         }
         return {
           emoji: prompt.emoji,
           label: prompt.name,
-          parent: "nullgpt",
+          parent: 'nullgpt',
           key: prompt.id,
         };
-      })
+      }),
     );
     setPrompts(prompts);
   };
@@ -134,27 +135,30 @@ const ChatbotPage = () => {
     if (currentCollectionRemoveId) {
       let deleteId = currentCollectionRemoveId;
       let force = false;
-      if (typeof deleteId === "string" && deleteId.startsWith("force:")) {
+      if (typeof deleteId === 'string' && deleteId.startsWith('force:')) {
         force = true;
-        deleteId = +deleteId.replace("force:", "");
+        deleteId = +deleteId.replace('force:', '');
       }
-      const collection = find(collections, v => v.key === deleteId);
+      const collection = find(collections, (v) => v.key === deleteId);
       if (collection) {
         const doRemove = async () => {
-          const dbPrompts: any[] = JSON.parse(localStorage.getItem(":prompts") || "[]");
-          localStorage.setItem(":prompts", JSON.stringify(dbPrompts.filter(v => v.id !== deleteId)));
+          const dbPrompts: any[] = JSON.parse(localStorage.getItem(':prompts') || '[]');
+          localStorage.setItem(
+            ':prompts',
+            JSON.stringify(dbPrompts.filter((v) => v.id !== deleteId)),
+          );
           await store.removeItem(messagesKey(collection.key));
           ignorePromptId(deleteId);
           getCollections();
         };
         if (!force) {
           modals.openConfirmModal({
-            title: "Confirmation",
+            title: 'Confirmation',
             children: `Remove ${collection.label}?`,
             centered: true,
             labels: {
-              cancel: "Cancel",
-              confirm: "Confirm",
+              cancel: 'Cancel',
+              confirm: 'Confirm',
             },
             onConfirm() {
               void doRemove();
@@ -170,7 +174,7 @@ const ChatbotPage = () => {
   useEffect(() => {
     if (!currentCollectionEditId) return;
 
-    const prompt = find(prompts, v => v.id === currentCollectionEditId);
+    const prompt = find(prompts, (v) => v.id === currentCollectionEditId);
     if (!prompt) return;
 
     setEditCollection(clone(prompt));
@@ -178,10 +182,10 @@ const ChatbotPage = () => {
   }, [currentCollectionEditId, prompts]);
   useEffect(() => {
     if (currentCollectionUpId) {
-      const collection = find(collections, v => v.key === currentCollectionUpId);
+      const collection = find(collections, (v) => v.key === currentCollectionUpId);
       if (collection) {
-        const dbPrompts: any[] = JSON.parse(localStorage.getItem(":prompts") || "[]");
-        const savePrompts = dbPrompts.map(v => {
+        const dbPrompts: any[] = JSON.parse(localStorage.getItem(':prompts') || '[]');
+        const savePrompts = dbPrompts.map((v) => {
           if (v.id === currentCollectionUpId) {
             v.sort = (v.sort || 0) - 1.1;
           }
@@ -191,13 +195,13 @@ const ChatbotPage = () => {
           return (a.sort || 0) - (b.sort || 0);
         });
         localStorage.setItem(
-          ":prompts",
+          ':prompts',
           JSON.stringify(
             savePrompts.map((v, i) => {
               v.sort = i;
               return v;
-            })
-          )
+            }),
+          ),
         );
         getCollections();
       }
@@ -206,10 +210,10 @@ const ChatbotPage = () => {
   }, [currentCollectionUpId, collections]);
   useEffect(() => {
     if (currentCollectionDownId) {
-      const collection = find(collections, v => v.key === currentCollectionDownId);
+      const collection = find(collections, (v) => v.key === currentCollectionDownId);
       if (collection) {
-        const dbPrompts: any[] = JSON.parse(localStorage.getItem(":prompts") || "[]");
-        const savePrompts = dbPrompts.map(v => {
+        const dbPrompts: any[] = JSON.parse(localStorage.getItem(':prompts') || '[]');
+        const savePrompts = dbPrompts.map((v) => {
           if (v.id === currentCollectionDownId) {
             v.sort = (v.sort || 0) + 1.1;
           }
@@ -219,13 +223,13 @@ const ChatbotPage = () => {
           return (a.sort || 0) - (b.sort || 0);
         });
         localStorage.setItem(
-          ":prompts",
+          ':prompts',
           JSON.stringify(
             savePrompts.map((v, i) => {
               v.sort = i;
               return v;
-            })
-          )
+            }),
+          ),
         );
         getCollections();
       }
@@ -245,11 +249,11 @@ const ChatbotPage = () => {
             close();
           }}
           opened={opened}
-          onSave={data => {
+          onSave={(data) => {
             onAddPrompt(data);
           }}
           editData={editCollection ? cloneDeep(editCollection) : editCollection}
-          deleteFn={id => {
+          deleteFn={(id) => {
             setCurrentCollectionRemoveId(id);
             close();
           }}
@@ -257,7 +261,7 @@ const ChatbotPage = () => {
       )}
       {![undefined, null, NaN].includes(currentCollection) && (
         <Message
-          prompt={find(prompts, v => typeof v === "object" && v.id === currentCollection)}
+          prompt={find(prompts, (v) => typeof v === 'object' && v.id === currentCollection)}
           collection={currentCollection}
           key={currentCollection}
         />

@@ -1,26 +1,26 @@
-import { createStyles, rem } from "@mantine/core";
+import { createStyles, rem } from '@mantine/core';
 
-export const useStyles = createStyles(theme => ({
+export const useStyles = createStyles((theme) => ({
   navbar: {
     paddingTop: 0,
     zIndex: 1,
   },
 
   section: {
-    marginLeft: `calc(${theme.spacing.md} * -1)`,
-    marginRight: `calc(${theme.spacing.md} * -1)`,
-    marginBottom: theme.spacing.md,
+    'marginLeft': `calc(${theme.spacing.md} * -1)`,
+    'marginRight': `calc(${theme.spacing.md} * -1)`,
+    'marginBottom': theme.spacing.md,
 
-    "&:not(:last-of-type)": {
-      borderBottom: `${rem(1)} solid ${theme.colorScheme === "dark" ? theme.colors.dark[4] : theme.colors.gray[3]}`,
+    '&:not(:last-of-type)': {
+      borderBottom: `${rem(1)} solid ${theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3]}`,
     },
   },
 
   searchCode: {
     fontWeight: 700,
     fontSize: rem(10),
-    backgroundColor: theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.colors.gray[0],
-    border: `${rem(1)} solid ${theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.colors.gray[2]}`,
+    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.gray[0],
+    border: `${rem(1)} solid ${theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.gray[2]}`,
   },
 
   mainLinks: {
@@ -30,24 +30,24 @@ export const useStyles = createStyles(theme => ({
   },
 
   mainLink: {
-    display: "flex",
-    alignItems: "center",
-    width: "100%",
-    fontSize: theme.fontSizes.sm,
-    padding: `${rem(1)} ${theme.spacing.xs}`,
-    borderRadius: theme.radius.sm,
-    fontWeight: 500,
-    color: theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.colors.gray[7],
+    'display': 'flex',
+    'alignItems': 'center',
+    'width': '100%',
+    'fontSize': theme.fontSizes.sm,
+    'padding': `${rem(1)} ${theme.spacing.xs}`,
+    'borderRadius': theme.radius.sm,
+    'fontWeight': 500,
+    'color': theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.colors.gray[7],
 
-    "&:hover": {
-      backgroundColor: theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[0],
-      color: theme.colorScheme === "dark" ? theme.white : theme.black,
+    '&:hover': {
+      backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
+      color: theme.colorScheme === 'dark' ? theme.white : theme.black,
     },
   },
 
   mainLinkInner: {
-    display: "flex",
-    alignItems: "center",
+    display: 'flex',
+    alignItems: 'center',
     flex: 1,
   },
 
@@ -60,7 +60,7 @@ export const useStyles = createStyles(theme => ({
     padding: 0,
     width: rem(20),
     height: rem(20),
-    pointerEvents: "none",
+    pointerEvents: 'none',
   },
 
   collections: {
@@ -76,36 +76,36 @@ export const useStyles = createStyles(theme => ({
   },
 
   selectedCollectionLink: {
-    background: theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[0],
+    background: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
   },
 
   collectionLink: {
-    display: "block",
-    padding: `${rem(1)} ${theme.spacing.xs}`,
-    textDecoration: "none",
-    borderRadius: theme.radius.sm,
-    fontSize: theme.fontSizes.sm,
+    'display': 'block',
+    'padding': `${rem(1)} ${theme.spacing.xs}`,
+    'textDecoration': 'none',
+    'borderRadius': theme.radius.sm,
+    'fontSize': theme.fontSizes.sm,
     // lineHeight: 1,
     // fontWeight: 500,
-    cursor: "pointer",
-    ".collection-action": {
+    'cursor': 'pointer',
+    '.collection-action': {
       opacity: 0,
-      pointerEvents: "none",
+      pointerEvents: 'none',
     },
-    "&:hover": {
-      backgroundColor: theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[0],
-      ".collection-action": {
+    '&:hover': {
+      'backgroundColor': theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
+      '.collection-action': {
         opacity: 1,
-        pointerEvents: "auto",
+        pointerEvents: 'auto',
       },
     },
-    ".collection-action-disabled": {
-      opacity: "0!important" as any,
-      pointerEvents: "none!important" as any,
+    '.collection-action-disabled': {
+      opacity: '0!important' as any,
+      pointerEvents: 'none!important' as any,
     },
   },
   listActions: {
-    background: theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[0],
-    border: "1px solid #373A40",
+    background: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
+    border: '1px solid #373A40',
   },
 }));

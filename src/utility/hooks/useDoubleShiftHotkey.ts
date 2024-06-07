@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 function useDoubleShiftHotkey(callback: () => any) {
   const [shiftPressed, setShiftPressed] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (event: { key: string }) => {
-      if (event.key === "Shift") {
+      if (event.key === 'Shift') {
         if (shiftPressed) {
           callback();
         } else {
@@ -15,9 +15,9 @@ function useDoubleShiftHotkey(callback: () => any) {
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [shiftPressed, callback]);
 }

@@ -1,8 +1,9 @@
-import React, { memo, ReactNode } from "react";
-import { Button, Card, Divider, ScrollArea } from "@mantine/core";
-import { TIndexedDocumentItem } from "@/components/misc/types";
-import { isCDocumentCode, trimDocumentContent } from "@/utility/utility";
-import MemoizedReactMarkdown from "@/components/pages/ChatbotPage/MemoizedReactMarkdown";
+import { Button, Card, Divider, ScrollArea } from '@mantine/core';
+import React, { ReactNode, memo } from 'react';
+
+import { TIndexedDocumentItem } from '@/components/misc/types';
+import MemoizedReactMarkdown from '@/components/pages/ChatbotPage/MemoizedReactMarkdown';
+import { isCDocumentCode, trimDocumentContent } from '@/utility/utility';
 
 const AttachDocumentItem = memo<{
   item: TIndexedDocumentItem;
@@ -14,18 +15,18 @@ const AttachDocumentItem = memo<{
       <Card>
         <Card.Section>
           <div
-            className={"px-2 text-xs font-bold line-clamp-1"}
+            className={'px-2 text-xs font-bold line-clamp-1'}
             style={{
-              color: "rgb(77, 171, 247)",
+              color: 'rgb(77, 171, 247)',
             }}
           >
             {`${item[0].metadata.source}:${item[0].metadata?.loc?.lines?.from}:${item[0].metadata?.loc?.lines?.to}`}
           </div>
           <Divider />
         </Card.Section>
-        <Card.Section className={"px-3"}>
-          <div className={"flex flex-col sm:flex-row gap-2"}>
-            <ScrollArea.Autosize mah={256} maw={500} className={"flex-grow"}>
+        <Card.Section className={'px-3'}>
+          <div className={'flex flex-col sm:flex-row gap-2'}>
+            <ScrollArea.Autosize mah={256} maw={500} className={'flex-grow'}>
               <MemoizedReactMarkdown
                 smallText={true}
                 content={
@@ -35,8 +36,8 @@ const AttachDocumentItem = memo<{
                 }
               />
             </ScrollArea.Autosize>
-            <div className={"py-3"}>
-              <Button size={"xs"} variant={"default"} onClick={() => onClickButton()}>
+            <div className={'py-3'}>
+              <Button size={'xs'} variant={'default'} onClick={() => onClickButton()}>
                 {buttonLabel}
               </Button>
             </div>

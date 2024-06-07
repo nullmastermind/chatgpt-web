@@ -1,5 +1,6 @@
-import { Html, Head, Main, NextScript } from "next/document";
-import GoogleTagManager from "@/components/GoogleTagManager";
+import { Head, Html, Main, NextScript } from 'next/document';
+
+import GoogleTagManager from '@/components/GoogleTagManager';
 
 export default function Document() {
   return (
@@ -16,7 +17,7 @@ export default function Document() {
             src="https://www.googletagmanager.com/ns.html?id=GTM-TNT2FGS"
             height="0"
             width="0"
-            style={{ display: "none", visibility: "hidden" }}
+            style={{ display: 'none', visibility: 'hidden' }}
           ></iframe>
         </noscript>
         <Main />
