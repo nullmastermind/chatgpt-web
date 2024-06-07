@@ -293,7 +293,11 @@ export const TypeBox = forwardRef(
       [includeMessages]
     );
     useEffect(() => {
-      localStorage.setItem(":docId", docId);
+      // localStorage.setItem(":docId", docId);
+      if (docId) {
+        localStorage.removeItem(":docId");
+        setDocId("");
+      }
     }, [docId]);
     useEffect(() => {
       if (docId && docId !== "Choose document" && sessionStorage.getItem(":indexerVersion") !== indexerVersion) {
