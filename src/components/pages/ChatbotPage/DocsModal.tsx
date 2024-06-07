@@ -134,7 +134,7 @@ const DocsModal = ({ opened, close, initSearchValue, initDocId }: DocsModalProps
         doc_id: docId,
       })
       .then(() => {
-        updateDocs();
+        void updateDocs();
       })
       .finally(() => {
         setRemoveIndexLoadings({
