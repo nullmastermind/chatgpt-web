@@ -1,49 +1,41 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 
-function useDoubleShiftHotkey(callback: () => any) {
-  const [shiftPressed, setShiftPressed] = useState(false);
-  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
+const useDoubleShiftHotkey = (callback: () => void, debounceTime: number = 300) => {
+  const lastShiftPress = useRef<number | null>(null);
+  const shiftHeld = useRef<boolean>(false);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Shift") {
-        if (shiftPressed) {
+        if (shiftHeld.current) return; // Ignore if Shift is being held down
+
+        const now = Date.now();
+        if (lastShiftPress.current && now - lastShiftPress.current < debounceTime) {
           callback();
-          setShiftPressed(false);
-          if (timeoutId) {
-            clearTimeout(timeoutId);
-            setTimeoutId(null);
-          }
+          lastShiftPress.current = null;
         } else {
-          setShiftPressed(true);
-          const id = setTimeout(() => {
-            setShiftPressed(false);
-            setTimeoutId(null);
-          }, 300); // 300ms window for double press
-          setTimeoutId(id);
+          lastShiftPress.current = now;
         }
+        shiftHeld.current = true;
       }
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
       if (event.key === "Shift") {
-        setShiftPressed(false);
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-          setTimeoutId(null);
-        }
+        shiftHeld.current = false;
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
+
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [shiftPressed, callback, timeoutId]);
+  }, [callback, debounceTime]);
 
   return null;
-}
+};
 
 export default useDoubleShiftHotkey;
