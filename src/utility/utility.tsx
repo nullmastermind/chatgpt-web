@@ -109,7 +109,7 @@ export function processTaggedMessage(tagName: string, message: string, done: boo
       isTagged.current = true;
     }
   } else {
-    const prefixChecker = { current: '', parts: prefix.split('') };
+    const prefixChecker = { current: '', parts: [...prefix] };
     for (let i = 0; i < prefixChecker.parts.length; i++) {
       prefixChecker.current = prefixChecker.parts.join('');
 
@@ -130,7 +130,7 @@ export function processTaggedMessage(tagName: string, message: string, done: boo
       isTagged.current = true;
     }
   } else {
-    const suffixChecker = { current: '', parts: suffix.split('') };
+    const suffixChecker = { current: '', parts: [...suffix] };
     for (let i = 0; i < suffixChecker.parts.length; i++) {
       suffixChecker.current += suffixChecker.parts[i];
       if (message.endsWith(suffixChecker.current)) {
@@ -443,7 +443,7 @@ export function postprocessAnswer(answer: string, isDone = false): string {
   }
 
   if (answer.startsWith('`') && answer.endsWith('`') && !answer.includes('```')) {
-    const answerArr = answer.split('');
+    const answerArr = [...answer];
     answerArr.shift();
     answerArr.pop();
     answer = preprocessMessageContent('```\n' + answerArr.join('') + '\n```');
@@ -456,7 +456,7 @@ export function postprocessAnswer(answer: string, isDone = false): string {
   } catch (ignoredError) {}
 
   if (isDone && answer.startsWith('"') && answer.endsWith('"')) {
-    const answerArr = answer.split('');
+    const answerArr = [...answer];
     answerArr.shift();
     answerArr.pop();
     answer = answerArr.join('').replace(/\\"/g, '"').replace(/\\n/g, '\n');

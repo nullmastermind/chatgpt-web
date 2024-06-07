@@ -104,7 +104,7 @@ const ChatbotPage = () => {
           let emoji = data.shift() as string;
           if (data.length === 0) {
             data.unshift(emoji);
-            emoji = prompt.name.split('')[0];
+            emoji = [...prompt.name][0];
           }
           return {
             emoji,

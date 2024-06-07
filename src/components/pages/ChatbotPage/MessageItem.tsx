@@ -150,7 +150,7 @@ const MessageItem = forwardRef(
           return;
         }
 
-        smoothContent.current = newMessage.split('');
+        smoothContent.current = [...newMessage];
 
         smoothIntervalId.current = setInterval(() => {
           if (smoothContent.current.length > smoothCurrentIndex.current + 1 && !isDone) {
