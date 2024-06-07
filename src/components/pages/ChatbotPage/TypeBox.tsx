@@ -4,9 +4,6 @@ import {
   useCollections,
   useCurrentCollection,
   useCurrentTypeBoxId,
-  useDocId,
-  useEnableDocument,
-  useIndexedDocs,
   useOpenaiAPIKey,
   useQuickActions,
   useQuickActionsQuery,
@@ -15,25 +12,12 @@ import { useDisclosure, useHotkeys } from "@mantine/hooks";
 import {
   findHighlight,
   formatString,
-  IndexedDocument,
   notifyIndexerVersionError,
   processTaggedMessage,
   removeHTMLTags,
   searchArray,
 } from "@/utility/utility";
-import {
-  ActionIcon,
-  Button,
-  Divider,
-  Highlight,
-  Modal,
-  NativeSelect,
-  ScrollArea,
-  Switch,
-  Textarea,
-  TextInput,
-  Tooltip,
-} from "@mantine/core";
+import { Button, Divider, Highlight, Modal, ScrollArea, Textarea, TextInput, Tooltip } from "@mantine/core";
 import { spotlight, SpotlightAction } from "@mantine/spotlight";
 import { useForm } from "@mantine/form";
 import { cloneDeep, findIndex, uniqueId } from "lodash";
@@ -42,9 +26,7 @@ import ModelSelect from "@/components/pages/ChatbotPage/ModelSelect";
 import { MessageItemType } from "@/components/pages/ChatbotPage/Message";
 import CountTokens from "@/components/pages/ChatbotPage/CountTokens";
 import { getImprovePrompt } from "@/utility/warmup";
-import axios from "axios";
-import { indexerHost, indexerVersion } from "@/config";
-import { IconFileStack, IconSearch, IconSettings } from "@tabler/icons-react";
+import { IconFileStack, IconSearch } from "@tabler/icons-react";
 import DocsModal from "@/components/pages/ChatbotPage/DocsModal";
 import { isMobile } from "react-device-detect";
 import UserInput, { EditorCommands } from "@/components/misc/UserInput";
@@ -63,7 +45,7 @@ export const TypeBox = forwardRef(
       includeMessages,
     }: {
       collection: any;
-      onSubmit: (content: string, tokens: number, docId: string, attachItems: AttachItem[]) => any;
+      onSubmit: (content: string, tokens: number, attachItems: AttachItem[]) => any;
       messages: any[];
       onCancel?: () => any;
       isReplyBox?: boolean;
@@ -157,14 +139,11 @@ export const TypeBox = forwardRef(
     const [, setQuickActions] = useQuickActions();
     const [currentTypeBoxId, setCurrentTypeBoxId] = useCurrentTypeBoxId();
     const countTokenRef = createRef<any>();
-    const [docs, setDocs] = useIndexedDocs();
-    const [docId, setDocId] = useDocId();
     const [docModalOpened, { open: openDocModal, close: closeDocModal }] = useDisclosure(false);
     const [docModalOpenSettings, setDocModalOpenSettings] = useSetState({
       initSearchValue: "",
       initDocId: "",
     });
-    const [enableDocument, setEnableDocument] = useEnableDocument();
     const [attachItems, setAttachItems] = useState<AttachItem[]>([]);
 
     const handleImprove = () => {
@@ -236,12 +215,7 @@ export const TypeBox = forwardRef(
     }, [quickCommandList, currentTypeBoxId, id]);
 
     const onSend = (c?: string) => {
-      onSubmit(
-        c || editorRef.current?.getValue() || "",
-        countTokenRef.current?.getTokens(),
-        enableDocument ? docId : "",
-        cloneDeep(attachItems)
-      );
+      onSubmit(c || editorRef.current?.getValue() || "", countTokenRef.current?.getTokens(), cloneDeep(attachItems));
       setAttachItems([]);
       editorRef.current?.setValue("");
       setMessageContentStore("");
@@ -275,44 +249,6 @@ export const TypeBox = forwardRef(
       100,
       [nextFocus]
     );
-    useDebounce(
-      () => {
-        // if (includeMessages.length === 0) {
-        axios
-          .get(`${indexerHost}/api/docs`)
-          .then(({ data: { data: docs } }) => {
-            setDocs((docs as IndexedDocument[]).filter(v => v.isIndexed).map(v => v.doc_id));
-          })
-          .catch(() => {
-            setDocId("");
-            setEnableDocument(false);
-          });
-        // }
-      },
-      300,
-      [includeMessages]
-    );
-    useEffect(() => {
-      localStorage.setItem(":docId", docId);
-    }, [docId]);
-    useEffect(() => {
-      if (docId && docId !== "Choose document" && sessionStorage.getItem(":indexerVersion") !== indexerVersion) {
-        const currentIndexerVersion = { value: "1.0.0" };
-        axios
-          .get(`${indexerHost}/api/get-version`)
-          .then(({ data }) => {
-            currentIndexerVersion.value = data.data;
-          })
-          .finally(() => {
-            if (currentIndexerVersion.value !== indexerVersion) {
-              sessionStorage.setItem(":indexerVersionError", "1");
-            } else {
-              sessionStorage.removeItem(":indexerVersionError");
-              sessionStorage.setItem(":indexerVersion", currentIndexerVersion.value);
-            }
-          });
-      }
-    }, [docId]);
 
     return (
       <>
@@ -557,27 +493,12 @@ export const TypeBox = forwardRef(
           {!isMobile && (
             <div className="flex flex-row items-center border border-blue-500">
               <Tooltip label={"Private Document Management"}>
-                {/*<ActionIcon*/}
-                {/*  onClick={() => {*/}
-                {/*    notifyIndexerVersionError();*/}
-                {/*    setDocModalOpenSettings({*/}
-                {/*      initDocId: docId,*/}
-                {/*      initSearchValue: docId,*/}
-                {/*    });*/}
-                {/*    openDocModal();*/}
-                {/*  }}*/}
-                {/*>*/}
-                {/*  <IconSettings size={"1.25rem"} />*/}
-                {/*</ActionIcon>*/}
                 <Button
                   variant={"default"}
                   size={"xs"}
                   onClick={() => {
                     notifyIndexerVersionError();
-                    setDocModalOpenSettings({
-                      initDocId: docId,
-                      initSearchValue: docId,
-                    });
+                    setDocModalOpenSettings({});
                     openDocModal();
                   }}
                   leftIcon={<IconFileStack size={"1.3rem"} />}
@@ -585,30 +506,6 @@ export const TypeBox = forwardRef(
                   Private document
                 </Button>
               </Tooltip>
-              {/*<NativeSelect*/}
-              {/*  value={docId}*/}
-              {/*  size={"xs"}*/}
-              {/*  data={[*/}
-              {/*    {*/}
-              {/*      label: "Choose document",*/}
-              {/*      value: "",*/}
-              {/*    },*/}
-              {/*    ...docs,*/}
-              {/*  ]}*/}
-              {/*  onChange={e => {*/}
-              {/*    setDocId(e.target.value);*/}
-              {/*    setEnableDocument(!!e.target.value);*/}
-              {/*  }}*/}
-              {/*  disabled={!enableDocument}*/}
-              {/*/>*/}
-              {/*<div className="ml-2">*/}
-              {/*  <Switch*/}
-              {/*    onLabel="ON"*/}
-              {/*    offLabel="OFF"*/}
-              {/*    checked={enableDocument}*/}
-              {/*    onChange={e => setEnableDocument(e.target.checked)}*/}
-              {/*  />*/}
-              {/*</div>*/}
               <Divider orientation={"vertical"} className={"ml-2"} />
             </div>
           )}

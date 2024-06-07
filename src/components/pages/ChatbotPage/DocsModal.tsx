@@ -19,7 +19,6 @@ import { IndexedDocument } from "@/utility/utility";
 import { forEach, map } from "lodash";
 import { useSetState } from "react-use";
 import DateInfo from "@/components/pages/ChatbotPage/DateInfo";
-import { useIndexedDocs } from "@/states/states";
 import { IconArrowDown, IconArrowUp, IconSearch, IconTrash, IconX } from "@tabler/icons-react";
 import DocUpdate from "@/components/pages/ChatbotPage/DocUpdate";
 import classNames from "classnames";
@@ -39,7 +38,6 @@ const DocsModal = ({ opened, close, initSearchValue, initDocId }: DocsModalProps
   const [fileExtensions, setFileExtensions] = useSetState<Record<string, string>>({});
   const [loadings, setLoadings] = useSetState<Record<string, boolean>>({});
   const [removeIndexLoadings, setRemoveIndexLoadings] = useSetState<Record<string, boolean>>({});
-  const [, setIndexedDocs] = useIndexedDocs();
   const [currentDocId, setCurrentDocId] = useState<string>(initDocId || "");
   const [newDocName, setNewDocName] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -56,24 +54,21 @@ const DocsModal = ({ opened, close, initSearchValue, initDocId }: DocsModalProps
     }
   };
 
-  const updateDocs = (first?: boolean) => {
-    return axios
-      .get(`${indexerHost}/api/docs`)
-      .then(({ data }) => {
-        const docs = data.data as IndexedDocument[];
+  const updateDocs = async (first?: boolean) => {
+    try {
+      const { data } = await axios.get(`${indexerHost}/api/docs`);
+      const docs = data.data as IndexedDocument[];
 
-        setDocs(docs);
-        setIndexedDocs(docs.filter(v => v.isIndexed).map(v => v.doc_id));
+      setDocs(docs);
 
-        if (first) {
-          forEach(docs, doc => {
-            setFileExtensions({
-              [doc.doc_id]: doc.extensions.join(","),
-            });
+      if (first) {
+        forEach(docs, doc => {
+          setFileExtensions({
+            [doc.doc_id]: doc.extensions.join(","),
           });
-        }
-      })
-      .catch(() => {});
+        });
+      }
+    } catch {}
   };
   const startTrain = (docId: string) => {
     if (!fileExtensions[docId] || fileExtensions[docId].trim() === "") {

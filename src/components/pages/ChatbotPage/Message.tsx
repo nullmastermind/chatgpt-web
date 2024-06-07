@@ -2,16 +2,7 @@
 
 import { useDebounce, useList, useMap, useMeasure, useMount, useUnmount } from "react-use";
 import { ActionIcon, Badge, Container, Loader, Modal, px, ScrollArea, Text, Tooltip, Transition } from "@mantine/core";
-import React, {
-  forwardRef,
-  Fragment,
-  MutableRefObject,
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { forwardRef, MutableRefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { clone, cloneDeep, find, findIndex, findLastIndex, forEach, map, throttle, uniqBy, uniqueId } from "lodash";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import classNames from "classnames";
@@ -439,7 +430,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
               value = cloneDeep(value);
 
               if (!value.disabled) {
-                let header = "";
+                let header: string;
                 if (item.isFile) {
                   header = `# File: ${item.name}`;
                   if (value.name) {
@@ -631,7 +622,7 @@ const Message = ({ collection, prompt }: MessageProps) => {
             <Container size="md" className="mb-5 mt-5 p-0">
               {map(messagesList, (messages, i0) => {
                 const position = messagesList
-                  .filter((v, i) => i <= i0)
+                  .filter((_, i) => i <= i0)
                   .map(v => v.length)
                   .reduce((accumulator, currentValue) => {
                     return accumulator + currentValue;
@@ -693,8 +684,8 @@ const Message = ({ collection, prompt }: MessageProps) => {
           <TypeBox
             ref={boxRef}
             collection={collection}
-            onSubmit={(content, tokens, docId, attachItems) => {
-              void onSend(content, attachItems, undefined, [], tokens, docId);
+            onSubmit={(content, tokens, attachItems) => {
+              void onSend(content, attachItems, undefined, [], tokens);
             }}
             messages={messages}
             includeMessages={[]}

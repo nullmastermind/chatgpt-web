@@ -11,14 +11,7 @@ type ReplyItemProps = {
   viewport: RefObject<HTMLDivElement>;
   includeMessages: any[];
   position: number;
-  onSend: (
-    content: string,
-    attachItems: AttachItem[],
-    index?: number,
-    includeMessages?: any[],
-    tokens?: number,
-    docId?: string
-  ) => any;
+  onSend: (content: string, attachItems: AttachItem[], index?: number, includeMessages?: any[], tokens?: number) => any;
   exId: any;
 };
 
@@ -58,8 +51,8 @@ const ReplyItem = memo<ReplyItemProps>(({ messages, includeMessages, position, o
               exId={exId}
               ref={boxRef}
               collection={collection}
-              onSubmit={(content, tokens, docId, attachItems) => {
-                onSend(content, attachItems, position, includeMessages, tokens, docId);
+              onSubmit={(content, tokens, attachItems) => {
+                onSend(content, attachItems, position, includeMessages, tokens);
               }}
               messages={messages}
               onCancel={() => setShowFullEdit(false)}
