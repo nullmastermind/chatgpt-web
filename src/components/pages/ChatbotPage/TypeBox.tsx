@@ -140,6 +140,19 @@ export const TypeBox = forwardRef(
             }, 16);
             setTimeout(() => clearInterval(focusInterval), 100);
           },
+          onEdit(action: SpotlightAction) {
+            const intervalId = setInterval(() => {
+              spotlight.close();
+            }, 50);
+            setTimeout(() => {
+              clearInterval(intervalId);
+              commandForm.setFieldValue('content', action.content);
+              commandForm.setFieldValue('name', action.name);
+              commandForm.setFieldValue('category', action.category);
+              commandForm.setFieldValue('id', +action.id!);
+              openCommand();
+            }, 100);
+          },
           ...v,
         } as SpotlightAction;
       });
