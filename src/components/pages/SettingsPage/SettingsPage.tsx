@@ -6,7 +6,7 @@ import React from 'react';
 import { useMount, useSetState, useUnmount } from 'react-use';
 
 import CenterCard from '@/components/CenterCard';
-import { indexerHost } from '@/config';
+import { appName, indexerHost } from '@/config';
 import { useCollections, useOpenaiAPIKey } from '@/states/states';
 
 const SettingsPage = () => {
@@ -18,7 +18,7 @@ const SettingsPage = () => {
       maxMessagesPerBox: parseInt(localStorage.getItem(':maxMessages') || '10'),
       indexerHost: indexerHost,
       enterToSend: localStorage.getItem(':enterToSend') === '1',
-      logoText: localStorage.getItem(':logoText') || 'Oggy GPT',
+      logoText: localStorage.getItem(':logoText') || appName,
     },
     validate: {
       openaiKey: (v) => (['', null, undefined, 'null'].includes(v) ? 'Invalid' : null),
@@ -36,7 +36,7 @@ const SettingsPage = () => {
       localStorage.setItem(':openaiKey', settingsForm.values.openaiKey as string);
       localStorage.setItem(':indexerHost', settingsForm.values.indexerHost);
       localStorage.setItem(':enterToSend', settingsForm.values.enterToSend ? '1' : '0');
-      localStorage.setItem(':logoText', settingsForm.values.logoText || 'Oggy GPT');
+      localStorage.setItem(':logoText', settingsForm.values.logoText || appName);
       setOpenaiAPIKey(settingsForm.values.openaiKey as string);
       sessionStorage.setItem(':settingSaved', '1');
       if (settingsForm.values.openaiKey) {
@@ -101,7 +101,7 @@ const SettingsPage = () => {
         />
         <TextInput
           label="Logo text"
-          placeholder="Oggy GPT"
+          placeholder={appName}
           {...settingsForm.getInputProps('logoText')}
         />
         <Switch

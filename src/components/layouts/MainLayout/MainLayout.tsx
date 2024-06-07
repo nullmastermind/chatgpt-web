@@ -40,6 +40,7 @@ import { useDebounce, useLocalStorage, useMount } from 'react-use';
 
 import FunnyEmoji from '@/components/misc/FunnyEmoji';
 import { useStyles } from '@/components/pages/MainPage/MainPage.style';
+import { appName } from '@/config';
 import {
   useAddCollectionAction,
   useCollections,
@@ -104,7 +105,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const [opened, setOpened] = useState(false);
   const [highContrast, setHighContrast] = useLocalStorage('highContrast', '0');
   const logoText = useMemo(() => {
-    return localStorage.getItem(':logoText') || 'Oggy GPT';
+    return localStorage.getItem(':logoText') || appName;
   }, []);
 
   const hotkeySwitchCollection = (index: number) => {
