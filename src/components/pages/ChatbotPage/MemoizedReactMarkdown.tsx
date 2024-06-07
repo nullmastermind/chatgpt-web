@@ -3,9 +3,9 @@ import classNames from "classnames";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { addTypingSymbol, convertToSupportLang, detectProgramLang, Node, postprocessAnswer } from "@/utility/utility";
-import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { memo, RefObject, useEffect, useMemo, useRef, useState } from "react";
 import { Prism } from "@mantine/prism";
-import { Button, px, ScrollArea } from "@mantine/core";
+import { Button, ScrollArea } from "@mantine/core";
 import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import { IconMenuOrder } from "@tabler/icons-react";
 import MermaidDraw from "@/components/pages/ChatbotPage/MermaidDraw";
@@ -17,12 +17,13 @@ type MemoizedReactMarkdownProps = {
   smallText?: boolean;
   isFirst?: boolean;
   isTyping?: boolean;
+  messagePageScroll?: RefObject<HTMLDivElement>;
 };
 
 const MAX_TEXT = 512;
 
-const MemoizedReactMarkdown = memo(
-  ({ content: _content, id, smallText, isFirst, isTyping }: MemoizedReactMarkdownProps) => {
+const MemoizedReactMarkdown = memo<MemoizedReactMarkdownProps>(
+  ({ content: _content, smallText, isFirst, isTyping, messagePageScroll }) => {
     const { classes } = useStyles();
     const [showAll, setShowAll] = useState(false);
     const content = useMemo(() => {
@@ -42,7 +43,7 @@ const MemoizedReactMarkdown = memo(
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw]}
         components={{
-          p({ node: rawNode, className, children }) {
+          p({ node: rawNode, children }) {
             const node = rawNode as Node;
             const nodeLine = node.position?.end.offset || 0;
 
@@ -57,7 +58,7 @@ const MemoizedReactMarkdown = memo(
               </p>
             );
           },
-          h1({ node: rawNode, className, children }) {
+          h1({ node: rawNode, children }) {
             const node = rawNode as Node;
             const nodeLine = node.position?.end.offset || 0;
 
@@ -72,7 +73,7 @@ const MemoizedReactMarkdown = memo(
               </h1>
             );
           },
-          h2({ node: rawNode, className, children }) {
+          h2({ node: rawNode, children }) {
             const node = rawNode as Node;
             const nodeLine = node.position?.end.offset || 0;
 
@@ -176,7 +177,7 @@ const MemoizedReactMarkdown = memo(
             }
 
             if (!inline && lang === "mermaid" && !isTyping) {
-              return <MermaidDraw content={codeContent} />;
+              return <MermaidDraw messagePageScroll={messagePageScroll} content={codeContent} />;
             }
 
             return (

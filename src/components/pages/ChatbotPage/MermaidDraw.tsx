@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, RefObject, useEffect, useRef, useState } from "react";
 import { convertToSupportLang } from "@/utility/utility";
 import { Card, ScrollArea, Switch, Tabs } from "@mantine/core";
 import classNames from "classnames";
@@ -7,13 +7,13 @@ import useStyles from "@/components/pages/ChatbotPage/Message.style";
 import mermaid from "mermaid";
 import panzoom, { PanZoom } from "panzoom";
 import { v4 } from "uuid";
-import { messagePageScroll } from "@/components/pages/ChatbotPage/Message";
 
 mermaid.initialize({ startOnLoad: false, theme: "dark" });
 
 const MermaidDraw = memo<{
   content: string;
-}>(({ content }) => {
+  messagePageScroll?: RefObject<HTMLDivElement>;
+}>(({ content, messagePageScroll }) => {
   const { classes } = useStyles();
   const [loading, setLoading] = useState(true);
   const mermaidDockBlock = useRef<HTMLDivElement>(null);
@@ -32,7 +32,7 @@ const MermaidDraw = memo<{
         // handle offset height
         const offsetHeight = mermaidDockBlock.current!.getBoundingClientRect().height - prevHeight;
         if (offsetHeight !== 0) {
-          messagePageScroll.current?.scrollBy({
+          messagePageScroll?.current?.scrollBy({
             top: offsetHeight,
           });
         }
