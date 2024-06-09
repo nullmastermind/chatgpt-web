@@ -63,6 +63,7 @@ const SettingsPage = () => {
         label: 'API',
         parent: 'settings',
         key: 0,
+        description: 'App settings',
       },
     ]);
     if (sessionStorage.getItem(':settingSaved')) {

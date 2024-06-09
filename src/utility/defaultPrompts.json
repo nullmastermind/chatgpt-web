@@ -1,17 +1,26 @@
 [
   {
-    "name": "🥸 Just Chat",
+    "name": "Just Chat",
+    "emoji": "🗿",
+    "description": "Helpful assistant for engaging conversations and providing support.",
     "temperature": 0.5,
-    "prompts": [{ "role": "system", "prompt": "You are a helpful assistant." }, "your"],
+    "prompts": [
+      {
+        "role": "system",
+        "prompt": "You are a helpful assistant."
+      },
+      "your"
+    ],
     "wrapSingleLine": false,
     "wrapCustomXmlTag": false,
     "customXmlTag": "document",
-    "id": 1717084674347,
+    "id": 1717084674348,
     "sort": 0
   },
   {
-    "emoji": "\uD83E\uDDD9\u200D♂\uFE0F",
+    "emoji": "🧙‍♂️",
     "name": "Coding Wizard",
+    "description": "Expert coding assistance",
     "temperature": 0,
     "prompts": [
       {
@@ -23,12 +32,14 @@
     "wrapSingleLine": false,
     "wrapCustomXmlTag": false,
     "customXmlTag": "document",
-    "id": 1717088796183,
+    "id": 1717088796184,
     "sort": 1
   },
   {
-    "name": "🐞 QA / Tester",
+    "name": "QA / Tester",
+    "emoji": "🐞",
     "temperature": 0.5,
+    "description": "Ensures quality and functionality",
     "prompts": [
       {
         "role": "system",
@@ -39,11 +50,13 @@
     "wrapSingleLine": false,
     "wrapCustomXmlTag": false,
     "customXmlTag": "document",
-    "id": 1717090983861,
+    "id": 1717090983862,
     "sort": 2
   },
   {
-    "name": "🧪 Business Analyst",
+    "name": "Business Analyst",
+    "emoji": "🧪",
+    "description": "Gather, analyze, and document requirements for website applications, backend, and frontend.",
     "temperature": 0,
     "prompts": [
       {
@@ -55,11 +68,13 @@
     "wrapSingleLine": false,
     "wrapCustomXmlTag": false,
     "customXmlTag": "document",
-    "id": 1717088939001,
+    "id": 1717088939002,
     "sort": 3
   },
   {
-    "name": "💼 Project Manager",
+    "name": "Project Manager",
+    "emoji": "💼",
+    "description": "Assisting in managing software projects effectively.",
     "temperature": 0.5,
     "prompts": [
       {
@@ -71,11 +86,13 @@
     "wrapSingleLine": false,
     "wrapCustomXmlTag": false,
     "customXmlTag": "document",
-    "id": 1717089338274,
+    "id": 1717089338275,
     "sort": 4
   },
   {
-    "name": "🗣 ️Communicator",
+    "name": "Communicator",
+    "emoji": "\uD83E\uDD2C",
+    "description": "Ensuring clear, concise, and effective communication.",
     "temperature": 0.5,
     "prompts": [
       {
@@ -87,11 +104,13 @@
     "wrapSingleLine": false,
     "wrapCustomXmlTag": false,
     "customXmlTag": "document",
-    "id": 1717091234855,
+    "id": 1717091234856,
     "sort": 5
   },
   {
-    "name": "📝 Task Estimator",
+    "name": "Task Estimator",
+    "emoji": "📝",
+    "description": "AI task estimator for programming/design tasks.",
     "temperature": 0,
     "prompts": [
       {
@@ -103,11 +122,13 @@
     "wrapSingleLine": false,
     "wrapCustomXmlTag": false,
     "customXmlTag": "document",
-    "id": 1717089016175,
+    "id": 1717089016176,
     "sort": 6
   },
   {
-    "name": "🔍 Github Finder",
+    "name": "Github Finder",
+    "emoji": "🔍",
+    "description": "Suggest Github repositories based on user's request.",
     "temperature": 0,
     "prompts": [
       {
@@ -119,11 +140,13 @@
     "wrapSingleLine": false,
     "wrapCustomXmlTag": false,
     "customXmlTag": "document",
-    "id": 1717093883550,
+    "id": 1717093883551,
     "sort": 7
   },
   {
-    "name": "💡 Agent generator",
+    "name": "Agent generator",
+    "emoji": "💡",
+    "description": "Define prompt roles based on user requests.",
     "temperature": 0.5,
     "prompts": [
       {
@@ -147,7 +170,7 @@
     "wrapSingleLine": false,
     "wrapCustomXmlTag": false,
     "customXmlTag": "document",
-    "id": 1717089883637,
+    "id": 1717089883638,
     "sort": 8
   }
 ]

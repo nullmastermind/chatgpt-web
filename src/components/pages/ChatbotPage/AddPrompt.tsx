@@ -28,6 +28,7 @@ import useStyles from '@/components/pages/ChatbotPage/Message.style';
 export type PromptSaveData = {
   emoji?: string;
   name: string;
+  description: string;
   temperature: number;
   wrapSingleLine: boolean;
   wrapCustomXmlTag?: boolean;
@@ -71,6 +72,7 @@ const AddPrompt = ({
   const addForm = useForm({
     initialValues: {
       name: editData?.name || '',
+      description: editData?.description || 'Agent description',
       temperature: editData && editData.temperature >= 0 ? editData?.temperature : 0.0,
       wrapSingleLine: Boolean(editData?.wrapSingleLine),
       wrapCustomXmlTag: Boolean(editData?.wrapCustomXmlTag),
@@ -179,6 +181,12 @@ const AddPrompt = ({
             required
             placeholder={'Your agent name...'}
             {...addForm.getInputProps('name')}
+          />
+          <TextInput
+            className={'flex-grow'}
+            label={'Description'}
+            placeholder={'Your agent description...'}
+            {...addForm.getInputProps('description')}
           />
           <div className={'mt-2'}>
             <div
@@ -427,6 +435,7 @@ const AddPrompt = ({
                         ...addForm.values,
                         name: addForm.values.name,
                         emoji: addForm.values.emoji,
+                        description: addForm.values.description,
                         temperature: +addForm.values.temperature,
                         wrapSingleLine: Boolean(addForm.values.wrapSingleLine),
                         prompts: prompts.filter((v) => {
@@ -453,6 +462,7 @@ const AddPrompt = ({
                     ...addForm.values,
                     name: addForm.values.name,
                     emoji: addForm.values.emoji,
+                    description: addForm.values.description,
                     temperature: +addForm.values.temperature,
                     wrapSingleLine: Boolean(addForm.values.wrapSingleLine),
                     prompts: prompts.filter((v) => {

@@ -523,7 +523,7 @@ export const ignorePromptId = (id: any) => {
 
 export const defaultPrompts = require('./defaultPrompts.json');
 
-const promptVer = 'v5';
+const promptVer = 'v7';
 if (localStorage.getItem(':prompts-ver') !== promptVer) {
   localStorage.setItem(':prompts-ver', promptVer);
 
@@ -531,7 +531,8 @@ if (localStorage.getItem(':prompts-ver') !== promptVer) {
   const ignorePromptIds: any[] = JSON.parse(localStorage.getItem(':ignorePromptIds') || '[]');
   const removeIds = new Set([
     1681154076333, 1681141278150, 1681141260062, 1682105996395, 1681144732539, 1682628402742,
-    1681154310099,
+    1681154310099, 1717084674347, 1717088796183, 1717090983861, 1717088939001, 1717089338274,
+    1717091234855, 1717089016175, 1717093883550, 1717089883637,
   ]);
 
   forEach(defaultPrompts, (prompt) => {

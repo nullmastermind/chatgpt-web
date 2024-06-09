@@ -6,6 +6,7 @@ import { clone, cloneDeep, find, findIndex } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { useMount, useUnmount } from 'react-use';
 
+import { CollectionItem } from '@/components/layouts/MainLayout/MainLayout';
 import AddPrompt, { PromptSaveData } from '@/components/pages/ChatbotPage/AddPrompt';
 import Message from '@/components/pages/ChatbotPage/Message';
 import QuickActions from '@/components/pages/ChatbotPage/QuickActions';
@@ -41,6 +42,7 @@ const ChatbotPage = () => {
   const onAddPrompt = ({
     name,
     temperature,
+    description,
     prompts,
     id,
     wrapSingleLine,
@@ -57,6 +59,7 @@ const ChatbotPage = () => {
           ...{
             name,
             temperature,
+            description,
             prompts,
             wrapSingleLine,
             wrapCustomXmlTag,
@@ -71,6 +74,7 @@ const ChatbotPage = () => {
       dbPrompts.push({
         name,
         temperature,
+        description,
         prompts,
         wrapSingleLine,
         wrapCustomXmlTag,
@@ -111,14 +115,16 @@ const ChatbotPage = () => {
             label: data.join(' ').trim(),
             parent: 'nullgpt',
             key: prompt.id,
-          };
+            description: prompt.description || '',
+          } as CollectionItem;
         }
         return {
           emoji: prompt.emoji,
           label: prompt.name,
           parent: 'nullgpt',
           key: prompt.id,
-        };
+          description: prompt.description || '',
+        } as CollectionItem;
       }),
     );
     setPrompts(prompts);

@@ -58,6 +58,7 @@ export type CollectionItem = {
   label: string;
   key: any;
   parent: string;
+  description: string;
 };
 const links: Array<{
   icon?: any;
@@ -212,14 +213,13 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     </UnstyledButton>
   ));
   const collectionLinks = collections.map((collection: CollectionItem, index) => (
-    <Text
+    <div
       onClick={() => {
         setCurrentCollection(collection.key);
         setOpened(false);
       }}
       key={collection.key}
-      color={collection.key === currentCollection ? 'white' : undefined}
-      className={classNames(classes.collectionLink, 'pr-1 h-[1.5rem] flex items-center', {
+      className={classNames(classes.collectionLink, 'pr-2', {
         'opacity-80': collection.key !== currentCollection,
         'font-bold': collection.key === currentCollection,
         [classes.selectedCollectionLink]: collection.key === currentCollection,
@@ -228,16 +228,32 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     >
       <div className="flex flex-row gap-3 items-center relative flex-grow">
         <div className="flex-grow flex gap-1 items-center text-center">
-          <div className={'w-5 justify-center flex items-center relative z-10'}>
+          <div className={'w-[40px] justify-center flex items-center relative z-10'}>
             <span style={{ marginRight: rem(8), fontSize: '1rem' }}>
               <FunnyEmoji
                 emoji={collection.emoji}
                 emojiType={collection.key === currentCollection ? 'anim' : '3d'}
-                size={collection.key === currentCollection ? 34 : 20}
+                size={32}
               />
             </span>
           </div>
-          <div className={'whitespace-nowrap'}>{collection.label}</div>
+          <div className="flex flex-col items-start justify-center h-[65px] pb-1">
+            <Text
+              color={collection.key === currentCollection ? 'white' : undefined}
+              className="whitespace-nowrap text-[1rem] font-bold"
+            >
+              {collection.label}
+            </Text>
+            {!!collection.description && (
+              <Text
+                color={collection.key === currentCollection ? 'white' : undefined}
+                className="font-normal text-xs text-left line-clamp-2 min-h-[20px]"
+                title={collection.description}
+              >
+                {collection.description}
+              </Text>
+            )}
+          </div>
           {index < 9 && (
             <div
               className={classNames('flex-grow flex items-center justify-end', {})}
@@ -306,11 +322,11 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           </ActionIcon>
         </div>
       </div>
-    </Text>
+    </div>
   ));
 
   const renderedScrollContent = (
-    <div>
+    <div className={'pb-5'}>
       <Group className={classes.collectionsHeader} position="apart">
         <Text size="xs" weight={500} color="dimmed">
           {currentLink?.collectionsLabel}
@@ -321,9 +337,11 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           </ActionIcon>
         )}
       </Group>
-      <div className={classes.collections}>{collectionLinks}</div>
+      <div className={classNames(classes.collections, 'flex flex-col gap-0.5 mt-3')}>
+        {collectionLinks}
+      </div>
       {currentLink?.canAddCollections && (
-        <div className="px-2">
+        <div className="px-4">
           <Button
             fullWidth={true}
             variant="default"
@@ -348,7 +366,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         navbar={
           <Navbar
             hidden={!opened}
-            width={{ sm: 256 }}
+            width={{ sm: 300 }}
             p={'md'}
             className={classNames('flex flex-col z-50', classes.navbar, {})}
           >
