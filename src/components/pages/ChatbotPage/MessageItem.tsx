@@ -380,7 +380,7 @@ const MessageItem = forwardRef(
                             className={'rounded-full w-[34px] h-[34px]'}
                             style={{
                               background: 'rgba(255, 255, 255, 0.1)',
-                              border: '1px solid rgba(255, 255, 255, 1)',
+                              border: '1px solid rgba(255, 255, 255, 0.1)',
                             }}
                           />
                         </div>
