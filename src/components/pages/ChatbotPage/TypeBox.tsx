@@ -171,8 +171,8 @@ export const TypeBox = forwardRef(
       },
     });
     const isEditCommand = useMemo(() => {
-      return findIndex(quickCommands, (v) => v.content === editorRef.current?.getValue()) !== -1;
-    }, [quickCommands, messageContentStore, editorRef.current?.getValue()]);
+      return +commandForm.values.id > 0 && openedCommand;
+    }, [commandForm, openedCommand]);
     const [, setQuickActions] = useQuickActions();
     const [currentTypeBoxId, setCurrentTypeBoxId] = useCurrentTypeBoxId();
     const countTokenRef = createRef<any>();
@@ -296,6 +296,7 @@ export const TypeBox = forwardRef(
         <Modal
           opened={openedCommand}
           onClose={() => {
+            commandForm.setFieldValue('id', 0);
             closeCommand();
           }}
           centered={true}
