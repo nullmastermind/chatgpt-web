@@ -37,6 +37,7 @@ import classNames from 'classnames';
 import { disable as disableDarkMode, enable as enableDarkMode } from 'darkreader';
 import { find, range } from 'lodash';
 import React, { useEffect, useMemo, useState } from 'react';
+import { isMobile } from 'react-device-detect';
 import { useDebounce, useLocalStorage, useMount } from 'react-use';
 
 import FunnyEmoji from '@/components/misc/FunnyEmoji';
@@ -279,19 +280,23 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             classes.listActions,
           )}
         >
-          <ActionIcon
-            variant="light"
-            color="blue"
-            size="md"
-            onClick={(e) => {
-              e.stopPropagation();
-              setSubCollectionId(collection.key);
-            }}
-            title={'Open in a dialog'}
-          >
-            <IconArrowsMaximize size="2rem" />
-          </ActionIcon>
-          <Divider orientation={'vertical'} />
+          {!isMobile && (
+            <>
+              <ActionIcon
+                variant="light"
+                color="blue"
+                size="md"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSubCollectionId(collection.key);
+                }}
+                title={'Open in a dialog'}
+              >
+                <IconArrowsMaximize size="2rem" />
+              </ActionIcon>
+              <Divider orientation={'vertical'} />
+            </>
+          )}
           <div className={'flex flex-col gap-1'}>
             <div className={'flex flex-row gap-1'}>
               <ActionIcon

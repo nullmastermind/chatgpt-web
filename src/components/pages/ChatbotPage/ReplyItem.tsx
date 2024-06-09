@@ -58,7 +58,7 @@ const ReplyItem = memo<ReplyItemProps>(
               <TypeBox
                 exId={exId}
                 ref={boxRef}
-                collection={collection}
+                collectionId={collection?.key}
                 onSubmit={(content, tokens, attachItems) => {
                   onSend(content, attachItems, position, includeMessages, tokens);
                 }}

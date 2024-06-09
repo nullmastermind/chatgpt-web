@@ -4,10 +4,12 @@ import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { IconCircleCheckFilled } from '@tabler/icons-react';
 import { clone, cloneDeep, find, findIndex } from 'lodash';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { isMobile } from 'react-device-detect';
 import { useMount, useUnmount } from 'react-use';
 
 import { CollectionItem } from '@/components/layouts/MainLayout/MainLayout';
+import FunnyEmoji from '@/components/misc/FunnyEmoji';
 import AddPrompt, { PromptSaveData } from '@/components/pages/ChatbotPage/AddPrompt';
 import Message from '@/components/pages/ChatbotPage/Message';
 import QuickActions from '@/components/pages/ChatbotPage/QuickActions';
@@ -38,6 +40,9 @@ const ChatbotPage = () => {
   const [editCollection, setEditCollection] = useState<any | undefined>();
   const [prompts, setPrompts] = usePrompts();
   const [subCollectionId, setSubCollectionId] = useSubCollectionId();
+  const subCollectionInfo = useMemo<any | undefined>(() => {
+    return find(prompts, (v) => typeof v === 'object' && v.id === subCollectionId);
+  }, [prompts, subCollectionId]);
 
   const onAddCollection = () => {
     open();
@@ -271,7 +276,7 @@ const ChatbotPage = () => {
       {![undefined, null, NaN].includes(currentCollection) && (
         <Message
           prompt={find(prompts, (v) => typeof v === 'object' && v.id === currentCollection)}
-          collection={currentCollection}
+          collectionId={currentCollection}
           key={currentCollection}
         />
       )}
@@ -281,16 +286,31 @@ const ChatbotPage = () => {
           onClose={() => {
             setSubCollectionId(null);
           }}
-          size={'xl'}
+          size={isMobile ? undefined : 'xl'}
           centered={true}
           scrollAreaComponent={ScrollArea.Autosize}
-          title={find(prompts, (v) => typeof v === 'object' && v.id === subCollectionId).name}
+          fullScreen={isMobile}
+          title={
+            <div className={'flex flex-row gap-2 items-center'}>
+              <FunnyEmoji emoji={subCollectionInfo.emoji} emojiType={'anim'} size={36} />
+              <div>
+                <div className={'text-lg font-bold line-clamp-1'}>{subCollectionInfo?.name}</div>
+                <div className={'text-xs line-clamp-1'}>{subCollectionInfo?.description}</div>
+              </div>
+            </div>
+          }
         >
-          <Message
-            prompt={find(prompts, (v) => typeof v === 'object' && v.id === subCollectionId)}
-            collection={subCollectionId}
-            key={subCollectionId}
-          />
+          <div
+            style={{
+              height: isMobile ? '100vh' : 'calc(100vh - 200px)',
+            }}
+          >
+            <Message
+              prompt={find(prompts, (v) => typeof v === 'object' && v.id === subCollectionId)}
+              collectionId={subCollectionId}
+              key={subCollectionId}
+            />
+          </div>
         </Modal>
       )}
       <QuickActions />

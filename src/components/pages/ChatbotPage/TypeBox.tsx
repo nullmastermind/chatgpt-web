@@ -61,14 +61,14 @@ import { getImprovePrompt } from '@/utility/warmup';
 export const TypeBox = forwardRef(
   (
     {
-      collection,
+      collectionId,
       onSubmit,
       onCancel,
       isReplyBox,
       exId,
       includeMessages,
     }: {
-      collection: any;
+      collectionId: any;
       onSubmit: (content: string, tokens: number, attachItems: AttachItem[]) => any;
       messages: any[];
       onCancel?: () => any;
@@ -81,7 +81,7 @@ export const TypeBox = forwardRef(
     const [id] = useState(uniqueId('TypeBox'));
     const editorRef = useRef<EditorCommands>(null);
     const [messageContentStore, setMessageContentStore] = useSessionStorage<string>(
-      `:messageBox:${collection}:${exId}`,
+      `:messageBox:${collectionId}:${exId}`,
       '',
     );
     const inputImproveRef = useRef<HTMLTextAreaElement>(null);
@@ -162,7 +162,7 @@ export const TypeBox = forwardRef(
       initialValues: {
         name: '',
         content: '',
-        category: `${collection}`,
+        category: `${collectionId}`,
         id: 0,
       },
       validate: {
@@ -533,7 +533,8 @@ export const TypeBox = forwardRef(
                 ref={countTokenRef}
                 content={editorRef.current?.getValue() || ''}
                 includeMessages={includeMessages}
-               collectionKey={collection}/>
+                collectionKey={collectionId}
+              />
             </div>
           )}
           {!isMobile && (
@@ -578,11 +579,11 @@ export const TypeBox = forwardRef(
                       commandForm.setFieldValue('id', quickCommands![index].id);
                     } else {
                       commandForm.setFieldValue('name', '');
-                      commandForm.setFieldValue('category', `${collection}`);
+                      commandForm.setFieldValue('category', `${collectionId}`);
                     }
                   } else {
                     commandForm.setFieldValue('name', '');
-                    commandForm.setFieldValue('category', `${collection}`);
+                    commandForm.setFieldValue('category', `${collectionId}`);
                   }
                   openCommand();
                 }}

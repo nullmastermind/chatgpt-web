@@ -43,7 +43,7 @@ import {
 } from '@/utility/utility';
 
 export type MessageProps = {
-  collection: any;
+  collectionId: any;
   prompt: {
     id: number;
     prompts: any[];
@@ -72,7 +72,7 @@ const enableBodyScroll = () => {
   document.body.style.overflow = '';
 };
 
-const Message = memo<MessageProps>(({ collection, prompt }) => {
+const Message = memo<MessageProps>(({ collectionId, prompt }) => {
   const { classes } = useStyles();
   const [containerRef, { height: containerHeight }] = useMeasure();
   const [openaiAPIKey] = useOpenaiAPIKey();
@@ -170,7 +170,7 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
     const userMessageId = Date.now() - 1;
 
     if (attachItems.length) {
-      await store.setItem(attachKey(collection, userMessageId), attachItems);
+      await store.setItem(attachKey(collectionId, userMessageId), attachItems);
     }
 
     const userMessage: MessageItemType = {
@@ -237,7 +237,7 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
     if (canSave) {
       const maxMessages = parseInt(localStorage.getItem(':maxMessages') || '10');
       const saveMessages = messages.splice(-maxMessages);
-      if (saveMessages.length > 0) await store.setItem(messagesKey(collection), saveMessages);
+      if (saveMessages.length > 0) await store.setItem(messagesKey(collectionId), saveMessages);
       setMessages(saveMessages);
       setAllIsDone({});
     }
@@ -248,9 +248,9 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
     return () => enableBodyScroll();
   }, []);
   useEffect(() => {
-    if (collection) {
+    if (collectionId) {
       store
-        .getItem(messagesKey(collection))
+        .getItem(messagesKey(collectionId))
         .then((value) => {
           if (Array.isArray(value) && value.length > 0) {
             setMessages(value);
@@ -274,7 +274,7 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
           ]);
         });
     }
-  }, [collection]);
+  }, [collectionId]);
   useUnmount(() => {
     messageRefs.current = {};
     autoScrollIds.current = {};
@@ -353,7 +353,7 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
         messages[streamIndex - 2].docId = undefined;
         userMessage.docId = undefined;
         needRefreshMessageIds.current[userMessage.id] = userMessage;
-        if (messages.length > 0) await store.setItem(messagesKey(collection), messages);
+        if (messages.length > 0) await store.setItem(messagesKey(collectionId), messages);
         setMessages(clone(messages));
         return;
       }
@@ -426,7 +426,7 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
         if (messageItem.role === 'user' && !messageItem.name) {
           requestMessages[i].name = 'User';
         }
-        const attachItems = await store.getItem(attachKey(collection, messageItem.id));
+        const attachItems = await store.getItem(attachKey(collectionId, messageItem.id));
         if (attachItems) {
           const attachMessages: TMessageItem[] = [];
           forEach(attachItems, (item: AttachItem) => {
@@ -463,11 +463,11 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
       }
 
       const saveMessagesFn = async (message: string) => {
-        const dbMessages: any[] = (await store.getItem(messagesKey(collection))) || [];
+        const dbMessages: any[] = (await store.getItem(messagesKey(collectionId))) || [];
         const dbMsgIndex = findIndex(dbMessages, (v: any) => v.id === assistantPreMessage.id);
         if (dbMsgIndex >= 0) {
           dbMessages[dbMsgIndex].content = message;
-          await store.setItem(messagesKey(collection), dbMessages);
+          await store.setItem(messagesKey(collectionId), dbMessages);
         }
       };
       const saveMessagesThr = throttle((message: string) => {
@@ -578,12 +578,12 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
       }).finally();
     },
     42,
-    [messages, checkedMessages, collection, streamMessageIndex, includes, model],
+    [messages, checkedMessages, collectionId, streamMessageIndex, includes, model],
   );
   useDebounce(
     () => {
       if (messages.length > 0) {
-        void store.setItem(messagesKey(collection), messages);
+        void store.setItem(messagesKey(collectionId), messages);
       }
     },
     42,
@@ -644,7 +644,7 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
                         >
                           {(styles) => (
                             <MessageItem
-                              collectionId={collection.id}
+                              collectionId={collectionId}
                               isFirst={index === 0 && i0 === 0}
                               isLast={i0 === messagesList.length - 1}
                               ref={(instance) => {
@@ -670,7 +670,7 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
                       );
                     })}
                     <ReplyItem
-                      collectionId={collection.id}
+                      collectionId={collectionId}
                       includeMessages={messages}
                       viewport={messagePageScroll}
                       messages={messages}
@@ -690,7 +690,7 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
         <Container size="md" className={classNames('flex flex-col gap-3 p-3 px-0 m-auto w-full')}>
           <TypeBox
             ref={boxRef}
-            collection={collection}
+            collectionId={collectionId}
             onSubmit={(content, tokens, attachItems) => {
               void onSend(content, attachItems, undefined, [], tokens);
             }}
