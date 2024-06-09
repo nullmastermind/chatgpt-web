@@ -24,6 +24,7 @@ import {
   IconAlertCircle,
   IconArrowDown,
   IconArrowUp,
+  IconArrowsMaximize,
   IconCircleCheckFilled,
   IconDatabaseCog,
   IconEdit,
@@ -50,6 +51,7 @@ import {
   useCurrentCollectionRemoveId,
   useCurrentCollectionUpId,
   useCurrentTool,
+  useSubCollectionId,
 } from '@/states/states';
 import { exportLocalStorageToJSON, importLocalStorageFromFile } from '@/utility/utility';
 
@@ -108,6 +110,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const logoText = useMemo(() => {
     return localStorage.getItem(':logoText') || appName;
   }, []);
+  const [, setSubCollectionId] = useSubCollectionId();
 
   const hotkeySwitchCollection = (index: number) => {
     if (index <= collections.length - 1) {
@@ -269,7 +272,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         </div>
         <div
           className={classNames(
-            'absolute right-[-5px] flex flex-row gap-1 collection-action px-2 py-1 rounded shadow-xl',
+            'absolute right-[-5px] flex flex-row gap-1 items-center justify-center collection-action px-2 py-1 rounded shadow-xl',
             {
               'collection-action-disabled': !currentLink?.canAddCollections,
             },
@@ -279,47 +282,66 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           <ActionIcon
             variant="light"
             color="blue"
-            size="xs"
+            size="md"
             onClick={(e) => {
               e.stopPropagation();
-              setCollectionUpId(collection.key);
+              setSubCollectionId(collection.key);
             }}
+            title={'Open in a dialog'}
           >
-            <IconArrowUp size="1rem" />
+            <IconArrowsMaximize size="2rem" />
           </ActionIcon>
-          <ActionIcon
-            variant="light"
-            color="blue"
-            size="xs"
-            onClick={(e) => {
-              e.stopPropagation();
-              setCollectionDownId(collection.key);
-            }}
-          >
-            <IconArrowDown size="1rem" />
-          </ActionIcon>
-          <ActionIcon
-            variant="light"
-            color="blue"
-            size="xs"
-            onClick={(e) => {
-              e.stopPropagation();
-              setCollectionEditId(collection.key);
-            }}
-          >
-            <IconEdit size="1rem" />
-          </ActionIcon>
-          <ActionIcon
-            variant="light"
-            color="red"
-            size="xs"
-            onClick={(e) => {
-              e.stopPropagation();
-              setCollectionRemoveId(collection.key);
-            }}
-          >
-            <IconTrash size="1rem" />
-          </ActionIcon>
+          <Divider orientation={'vertical'} />
+          <div className={'flex flex-col gap-1'}>
+            <div className={'flex flex-row gap-1'}>
+              <ActionIcon
+                variant="light"
+                color="blue"
+                size="xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCollectionUpId(collection.key);
+                }}
+              >
+                <IconArrowUp size="1rem" />
+              </ActionIcon>
+              <ActionIcon
+                variant="light"
+                color="blue"
+                size="xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCollectionDownId(collection.key);
+                }}
+              >
+                <IconArrowDown size="1rem" />
+              </ActionIcon>
+            </div>
+            <div className={'flex flex-row gap-1'}>
+              <ActionIcon
+                variant="light"
+                color="blue"
+                size="xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCollectionEditId(collection.key);
+                }}
+              >
+                <IconEdit size="1rem" />
+              </ActionIcon>
+              <ActionIcon
+                variant="light"
+                color="red"
+                size="xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCollectionRemoveId(collection.key);
+                }}
+              >
+                <IconTrash size="1rem" />
+              </ActionIcon>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -35,7 +35,7 @@ import AttachName from '@/components/pages/ChatbotPage/Attach/AttachName';
 import DateInfo from '@/components/pages/ChatbotPage/DateInfo';
 import MemoizedReactMarkdown from '@/components/pages/ChatbotPage/MemoizedReactMarkdown';
 import { MessageItemType } from '@/components/pages/ChatbotPage/Message';
-import { useCollections, useCurrentCollection } from '@/states/states';
+import { useCollections } from '@/states/states';
 import store, { attachKey, messagesKey } from '@/utility/store';
 import { KeyValue } from '@/utility/utility';
 
@@ -56,6 +56,7 @@ const MessageItem = forwardRef(
       doneMessages,
       needRefreshMessageIds,
       messagePageScroll,
+      collectionId,
     }: {
       classes: any;
       message: any;
@@ -73,6 +74,7 @@ const MessageItem = forwardRef(
       doneMessages: MutableRefObject<Record<any, boolean>>;
       needRefreshMessageIds: MutableRefObject<Record<any, any>>;
       messagePageScroll: RefObject<HTMLDivElement>;
+      collectionId: any;
     },
     ref,
   ) => {
@@ -91,7 +93,6 @@ const MessageItem = forwardRef(
       };
     }, []);
     const [isEffect, setIsEffect] = useState(false);
-    const [collectionId] = useCurrentCollection();
     const [collections] = useCollections();
     const collection = useMemo(() => {
       return find(collections, (v) => v.key === collectionId);

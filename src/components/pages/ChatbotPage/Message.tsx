@@ -644,6 +644,7 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
                         >
                           {(styles) => (
                             <MessageItem
+                              collectionId={collection.id}
                               isFirst={index === 0 && i0 === 0}
                               isLast={i0 === messagesList.length - 1}
                               ref={(instance) => {
@@ -669,6 +670,7 @@ const Message = memo<MessageProps>(({ collection, prompt }) => {
                       );
                     })}
                     <ReplyItem
+                      collectionId={collection.id}
                       includeMessages={messages}
                       viewport={messagePageScroll}
                       messages={messages}

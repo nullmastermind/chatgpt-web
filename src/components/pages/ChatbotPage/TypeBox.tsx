@@ -533,7 +533,7 @@ export const TypeBox = forwardRef(
                 ref={countTokenRef}
                 content={editorRef.current?.getValue() || ''}
                 includeMessages={includeMessages}
-              />
+               collectionKey={collection}/>
             </div>
           )}
           {!isMobile && (

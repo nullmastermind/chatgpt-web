@@ -1,3 +1,4 @@
+import { Modal, ScrollArea } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
@@ -19,6 +20,7 @@ import {
   useCurrentCollectionRemoveId,
   useCurrentCollectionUpId,
   usePrompts,
+  useSubCollectionId,
 } from '@/states/states';
 import store, { messagesKey } from '@/utility/store';
 import { ignorePromptId } from '@/utility/utility';
@@ -35,6 +37,7 @@ const ChatbotPage = () => {
   const [currentCollectionDownId, setCurrentCollectionDownId] = useCurrentCollectionDownId();
   const [editCollection, setEditCollection] = useState<any | undefined>();
   const [prompts, setPrompts] = usePrompts();
+  const [subCollectionId, setSubCollectionId] = useSubCollectionId();
 
   const onAddCollection = () => {
     open();
@@ -271,6 +274,24 @@ const ChatbotPage = () => {
           collection={currentCollection}
           key={currentCollection}
         />
+      )}
+      {!!subCollectionId && (
+        <Modal
+          opened={!!subCollectionId}
+          onClose={() => {
+            setSubCollectionId(null);
+          }}
+          size={'xl'}
+          centered={true}
+          scrollAreaComponent={ScrollArea.Autosize}
+          title={find(prompts, (v) => typeof v === 'object' && v.id === subCollectionId).name}
+        >
+          <Message
+            prompt={find(prompts, (v) => typeof v === 'object' && v.id === subCollectionId)}
+            collection={subCollectionId}
+            key={subCollectionId}
+          />
+        </Modal>
       )}
       <QuickActions />
     </>
