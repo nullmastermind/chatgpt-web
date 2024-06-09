@@ -10,7 +10,14 @@ const HomePage = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <MantineProvider theme={{ colorScheme: 'dark' }} withNormalizeCSS withGlobalStyles>
-        <ModalsProvider>
+        <ModalsProvider
+          modalProps={{
+            transitionProps: {
+              duration: 200,
+              transition: 'slide-up',
+            },
+          }}
+        >
           <MainPage />
         </ModalsProvider>
       </MantineProvider>
