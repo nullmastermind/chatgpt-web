@@ -309,6 +309,7 @@ const ChatbotPage = () => {
               prompt={find(prompts, (v) => typeof v === 'object' && v.id === subCollectionId)}
               collectionId={subCollectionId}
               key={subCollectionId}
+              isDialog={true}
             />
           </div>
         </Modal>

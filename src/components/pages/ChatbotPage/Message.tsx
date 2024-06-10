@@ -48,6 +48,7 @@ export type MessageProps = {
     id: number;
     prompts: any[];
   } & PromptSaveData;
+  isDialog?: boolean;
 };
 
 export type MessageItemType = {
@@ -65,6 +66,7 @@ export type MessageItemType = {
 };
 
 const disableBodyScroll = () => {
+  window.scrollTo(0, 0);
   document.body.style.overflowY = 'hidden';
 };
 
@@ -72,7 +74,7 @@ const enableBodyScroll = () => {
   document.body.style.overflow = '';
 };
 
-const Message = memo<MessageProps>(({ collectionId, prompt }) => {
+const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
   const { classes } = useStyles();
   const [containerRef, { height: containerHeight }] = useMeasure();
   const [openaiAPIKey] = useOpenaiAPIKey();
@@ -244,9 +246,11 @@ const Message = memo<MessageProps>(({ collectionId, prompt }) => {
   };
 
   useEffect(() => {
-    disableBodyScroll();
-    return () => enableBodyScroll();
-  }, []);
+    if (!isDialog) {
+      disableBodyScroll();
+      return () => enableBodyScroll();
+    }
+  }, [isDialog]);
   useEffect(() => {
     if (collectionId) {
       store
