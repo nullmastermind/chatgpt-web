@@ -175,6 +175,7 @@ const UserInput = memo<
                     onText={(text) => {
                       const { from, to } = editor!.state.selection;
                       editor?.commands.insertContentAt({ from: from, to: to }, text);
+                      editor?.commands.focus();
                     }}
                   />
                 </RichTextEditor.ControlsGroup>
