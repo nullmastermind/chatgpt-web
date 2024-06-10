@@ -15,6 +15,7 @@ const Recorder = memo<{
   const shouldConvert = useRef(false);
   const [apiKey] = useOpenaiAPIKey();
   const [loading, setLoading] = useState(false);
+  const streamRef = useRef<MediaStream | null>(null);
 
   const blobToBase64 = (blob: Blob): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -52,6 +53,7 @@ const Recorder = memo<{
     shouldConvert.current = false;
     setIsRecording(true);
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    streamRef.current = stream;
     const mediaRecorder = new MediaRecorder(stream);
     mediaRecorderRef.current = mediaRecorder;
 
@@ -77,6 +79,10 @@ const Recorder = memo<{
       mediaRecorderRef.current.stop();
       mediaRecorderRef.current = null;
     }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
     setIsRecording(false);
   };
 
@@ -86,6 +92,10 @@ const Recorder = memo<{
       if (mediaRecorderRef.current) {
         mediaRecorderRef.current.stop();
         mediaRecorderRef.current = null;
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
       }
       audioChunksRef.current = [];
     };
