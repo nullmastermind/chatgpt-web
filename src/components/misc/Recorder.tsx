@@ -2,7 +2,7 @@ import { Button, Loader, Modal } from '@mantine/core';
 import { RichTextEditor } from '@mantine/tiptap';
 import { IconMicrophone } from '@tabler/icons-react';
 import axios from 'axios';
-import { memo, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 
 import { useOpenaiAPIKey } from '@/states/states';
 
@@ -75,9 +75,21 @@ const Recorder = memo<{
   const stopRecording = () => {
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
+      mediaRecorderRef.current = null;
     }
     setIsRecording(false);
   };
+
+  useEffect(() => {
+    return () => {
+      // Cleanup on component unmount
+      if (mediaRecorderRef.current) {
+        mediaRecorderRef.current.stop();
+        mediaRecorderRef.current = null;
+      }
+      audioChunksRef.current = [];
+    };
+  }, []);
 
   return (
     <>
