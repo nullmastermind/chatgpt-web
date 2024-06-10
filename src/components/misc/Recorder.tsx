@@ -16,6 +16,8 @@ const Recorder = memo<{
   const [apiKey] = useOpenaiAPIKey();
   const [loading, setLoading] = useState(false);
   const streamRef = useRef<MediaStream | null>(null);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const blobToBase64 = (blob: Blob): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -52,6 +54,7 @@ const Recorder = memo<{
     setLoading(false);
     shouldConvert.current = false;
     setIsRecording(true);
+    setElapsedTime(0);
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     streamRef.current = stream;
     const mediaRecorder = new MediaRecorder(stream);
@@ -72,6 +75,11 @@ const Recorder = memo<{
     };
 
     mediaRecorder.start();
+
+    // Start the timer
+    timerRef.current = setInterval(() => {
+      setElapsedTime((prevTime) => prevTime + 1);
+    }, 1000);
   };
 
   const stopRecording = () => {
@@ -84,6 +92,12 @@ const Recorder = memo<{
       streamRef.current = null;
     }
     setIsRecording(false);
+
+    // Stop the timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
   };
 
   useEffect(() => {
@@ -98,8 +112,18 @@ const Recorder = memo<{
         streamRef.current = null;
       }
       audioChunksRef.current = [];
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
     };
   }, []);
+
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  };
 
   return (
     <>
@@ -118,7 +142,7 @@ const Recorder = memo<{
       >
         <div className={'flex flex-row gap-3 items-center'}>
           <Loader />
-          <div>Recording...</div>
+          <div>Recording... {formatTime(elapsedTime)}</div>
         </div>
         <div className={'flex flex-row gap-2 items-center justify-end'}>
           <Button
