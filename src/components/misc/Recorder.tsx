@@ -139,9 +139,10 @@ const Recorder = memo<{
             <div>Recorder</div>
           </div>
         }
+        size={'xs'}
       >
-        <div className={'flex flex-row gap-3 items-center'}>
-          <Loader />
+        <div className={'flex flex-row gap-3 items-center py-2'}>
+          <Loader size={'2rem'} />
           <div>Recording... {formatTime(elapsedTime)}</div>
         </div>
         <div className={'flex flex-row gap-2 items-center justify-end'}>
