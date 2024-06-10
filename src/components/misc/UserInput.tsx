@@ -1,7 +1,7 @@
 import { Transition, createStyles } from '@mantine/core';
 import { useClickOutside } from '@mantine/hooks';
 import { Link, RichTextEditor } from '@mantine/tiptap';
-import { IconPrompt } from '@tabler/icons-react';
+import { IconMicrophone, IconPrompt } from '@tabler/icons-react';
 import { Extension } from '@tiptap/core';
 import { Placeholder } from '@tiptap/extension-placeholder';
 import { TextAlign } from '@tiptap/extension-text-align';
@@ -20,6 +20,7 @@ import {
 import { useDebounce } from 'react-use';
 import { Markdown } from 'tiptap-markdown';
 
+import Recorder from '@/components/misc/Recorder';
 import { fixEditorOutput } from '@/utility/utility';
 
 const useStyles = createStyles(() => ({
@@ -169,6 +170,14 @@ const UserInput = memo<
                 stickyOffset={0}
                 className={'flex-nowrap overflow-auto z-auto'}
               >
+                <RichTextEditor.ControlsGroup>
+                  <Recorder
+                    onText={(text) => {
+                      const { from, to } = editor!.state.selection;
+                      editor?.commands.insertContentAt({ from: from, to: to }, text);
+                    }}
+                  />
+                </RichTextEditor.ControlsGroup>
                 <RichTextEditor.ControlsGroup>
                   <RichTextEditor.Bold />
                   {/*<RichTextEditor.Italic />*/}

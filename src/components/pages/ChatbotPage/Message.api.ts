@@ -1,5 +1,4 @@
 import { findIndex } from 'lodash';
-import { ChatCompletionResponseMessage } from 'openai';
 
 const TIME_OUT_MS = 30000;
 let TOKEN_TIMEOUT: any = -1;
@@ -44,7 +43,7 @@ const makeRequestParam = (
   };
 };
 
-export type Message = ChatCompletionResponseMessage & {
+export type Message = any & {
   date?: string;
   streaming?: boolean;
   isError?: boolean;
@@ -147,8 +146,8 @@ export async function requestChatStream(
 
       finish();
     } else if (res.status === 401) {
-      console.error('Anauthorized');
-      options?.onError(new Error('Anauthorized'), res.status);
+      console.error('Unauthorized');
+      options?.onError(new Error('Unauthorized'), res.status);
     } else {
       console.error('Stream Error', res.body);
       options?.onError(new Error('Stream Error'), res.status);
