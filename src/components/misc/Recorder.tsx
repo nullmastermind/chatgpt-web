@@ -60,9 +60,9 @@ const Recorder = memo<{
     };
 
     mediaRecorder.onstop = () => {
-      const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-      const audioUrl = URL.createObjectURL(audioBlob);
       if (shouldConvert.current) {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        const audioUrl = URL.createObjectURL(audioBlob);
         sendAudio(audioUrl);
         shouldConvert.current = false;
       }
