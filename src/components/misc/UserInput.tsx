@@ -180,7 +180,12 @@ const UserInput = memo<
                       editor?.commands.focus();
                     }}
                   />
-                  <TextToSpeech getText={() => editor?.getText() || ''}>
+                  <TextToSpeech
+                    getText={() => editor?.getText() || ''}
+                    onClick={() => {
+                      editor?.commands.focus();
+                    }}
+                  >
                     {({ isLoading }) => {
                       if (isLoading) {
                         return (

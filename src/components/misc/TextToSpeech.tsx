@@ -7,7 +7,8 @@ import { useOpenaiAPIKey } from '@/states/states';
 const TextToSpeech = memo<{
   children: ({ isLoading }: { isLoading: boolean }) => ReactNode;
   getText: () => string;
-}>(({ children, getText }) => {
+  onClick?: () => any;
+}>(({ children, getText, onClick }) => {
   const [apiKey] = useOpenaiAPIKey();
   const [audioSrc, setAudioSrc] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -16,6 +17,7 @@ const TextToSpeech = memo<{
   const results = useRef<Record<string, string>>({});
 
   const play = (voiceId: string) => {
+    onClick?.();
     const text = getText();
     if (!text) return;
     const key = JSON.stringify([voiceId, text]);
