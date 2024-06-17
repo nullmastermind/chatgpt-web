@@ -1,7 +1,7 @@
-import { Transition, createStyles } from '@mantine/core';
+import { Button, Loader, Transition, createStyles } from '@mantine/core';
 import { useClickOutside } from '@mantine/hooks';
 import { Link, RichTextEditor } from '@mantine/tiptap';
-import { IconMicrophone, IconPrompt } from '@tabler/icons-react';
+import { IconMicrophone, IconPrompt, IconVolume } from '@tabler/icons-react';
 import { Extension } from '@tiptap/core';
 import { Placeholder } from '@tiptap/extension-placeholder';
 import { TextAlign } from '@tiptap/extension-text-align';
@@ -11,6 +11,7 @@ import { StarterKit } from '@tiptap/starter-kit';
 import classNames from 'classnames';
 import {
   ComponentPropsWithRef,
+  cloneElement,
   forwardRef,
   memo,
   useEffect,
@@ -21,6 +22,7 @@ import { useDebounce } from 'react-use';
 import { Markdown } from 'tiptap-markdown';
 
 import Recorder from '@/components/misc/Recorder';
+import TextToSpeech from '@/components/misc/TextToSpeech';
 import { fixEditorOutput } from '@/utility/utility';
 
 const useStyles = createStyles(() => ({
@@ -178,6 +180,26 @@ const UserInput = memo<
                       editor?.commands.focus();
                     }}
                   />
+                  <TextToSpeech getText={() => editor?.getText() || ''}>
+                    {({ isLoading }) => {
+                      if (isLoading) {
+                        return (
+                          <RichTextEditor.ClearFormatting
+                            title="Text to speech"
+                            icon={() => {
+                              return <Loader size={'xs'} variant={'dots'} />;
+                            }}
+                          />
+                        );
+                      }
+                      return (
+                        <RichTextEditor.ClearFormatting
+                          title="Text to speech"
+                          icon={IconVolume as any}
+                        />
+                      );
+                    }}
+                  </TextToSpeech>
                 </RichTextEditor.ControlsGroup>
                 <RichTextEditor.ControlsGroup>
                   <RichTextEditor.Bold />

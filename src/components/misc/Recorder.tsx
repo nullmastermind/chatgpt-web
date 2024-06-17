@@ -142,7 +142,7 @@ const Recorder = memo<{
         size={'xs'}
       >
         <div className={'flex flex-row gap-3 items-center py-2'}>
-          <Loader size={'2rem'} />
+          <Loader size={'2rem'} variant={'bars'} />
           <div>Recording... {formatTime(elapsedTime)}</div>
         </div>
         <div className={'flex flex-row gap-2 items-center justify-end'}>
@@ -158,9 +158,12 @@ const Recorder = memo<{
         </div>
       </Modal>
       {loading && (
-        <div className={'flex flex-row items-center justify-center w-[26px] h-[26px]'}>
-          <Loader size={'xs'} />
-        </div>
+        <RichTextEditor.ClearFormatting
+          title="Recorder"
+          icon={() => {
+            return <Loader size={'xs'} variant={'dots'} />;
+          }}
+        />
       )}
       {!loading && (
         <RichTextEditor.ClearFormatting
