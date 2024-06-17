@@ -159,7 +159,7 @@ const Recorder = memo<{
       </Modal>
       {loading && (
         <RichTextEditor.ClearFormatting
-          title="Recorder"
+          title="Speech to text"
           icon={() => {
             return <Loader size={'xs'} variant={'dots'} />;
           }}
@@ -167,7 +167,7 @@ const Recorder = memo<{
       )}
       {!loading && (
         <RichTextEditor.ClearFormatting
-          title="Recorder"
+          title="Speech to text"
           icon={IconMicrophone as any}
           onClick={(e) => {
             e.preventDefault();
