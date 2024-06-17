@@ -11,7 +11,7 @@ import {
   px,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconCopy, IconMoodPuzzled } from '@tabler/icons-react';
+import { IconCopy, IconMoodPuzzled, IconVolume } from '@tabler/icons-react';
 import classNames from 'classnames';
 import { cloneDeep, find, findIndex, map } from 'lodash';
 import React, {
@@ -29,6 +29,7 @@ import { useMount, useUnmount } from 'react-use';
 
 import FunnyEmoji from '@/components/misc/FunnyEmoji';
 import PreviewAttach from '@/components/misc/PreviewAttach';
+import TextToSpeech from '@/components/misc/TextToSpeech';
 import TypingBlinkCursor from '@/components/misc/TypingBlinkCursor';
 import { AttachItem } from '@/components/misc/types';
 import AttachName from '@/components/pages/ChatbotPage/Attach/AttachName';
@@ -109,6 +110,7 @@ const MessageItem = forwardRef(
     const smoothCurrentIndex = useRef<number>(-1);
     const [attachItems, setAttachItems] = useState<AttachItem[]>([]);
     const [previewAttachItem, setPreviewAttachItem] = useState<AttachItem | null>(null);
+    const messageDivRef = useRef<HTMLDivElement>(null);
 
     const updateAttachInfo = async () => {
       const attachItems: AttachItem[] | null = await store.getItem(
@@ -337,11 +339,30 @@ const MessageItem = forwardRef(
             {isChild && <div className={classes.childLine as string} />}
             <Tooltip label="Copied" opened={isCopied}>
               <div
-                className="absolute right-1 bottom-2 la-copy"
+                className="absolute right-1 bottom-2 la-copy flex flex-row gap-1"
                 onMouseLeave={() => {
                   setTimeout(() => setIsCopied(false), 200);
                 }}
               >
+                <TextToSpeech
+                  getText={() => {
+                    return messageDivRef.current?.innerText || '';
+                  }}
+                >
+                  {({ isLoading }) => {
+                    return (
+                      <ActionIcon
+                        loading={isLoading}
+                        size="xs"
+                        variant="subtle"
+                        onClick={async () => {}}
+                        style={{ zIndex: 100 }}
+                      >
+                        <IconVolume />
+                      </ActionIcon>
+                    );
+                  }}
+                </TextToSpeech>
                 <ActionIcon
                   size="xs"
                   variant="subtle"
@@ -418,6 +439,7 @@ const MessageItem = forwardRef(
                 className={classNames(classes.messageContent, classes.imgBg, {
                   'px-2': !isMobile,
                 })}
+                ref={messageDivRef}
               >
                 {message.content !== '...' && (
                   <MemoizedReactMarkdown
