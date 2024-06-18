@@ -72,7 +72,7 @@ const AddPrompt = ({
   const addForm = useForm({
     initialValues: {
       name: editData?.name || '',
-      description: editData?.description || 'Agent description',
+      description: editData?.description || '',
       temperature: editData && editData.temperature >= 0 ? editData?.temperature : 0.0,
       wrapSingleLine: Boolean(editData?.wrapSingleLine),
       wrapCustomXmlTag: Boolean(editData?.wrapCustomXmlTag),

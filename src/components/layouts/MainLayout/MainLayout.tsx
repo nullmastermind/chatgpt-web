@@ -251,10 +251,10 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             {!!collection.description && (
               <Text
                 color={collection.key === currentCollection ? 'white' : undefined}
-                className="font-normal text-xs text-left line-clamp-2 min-h-[20px]"
+                className="font-normal text-xs text-left line-clamp-1 min-h-[20px]"
                 title={collection.description}
               >
-                {collection.description}
+                {collection.description || collection.label}
               </Text>
             )}
           </div>
