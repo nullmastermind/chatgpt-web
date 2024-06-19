@@ -31,23 +31,23 @@ export const improveQuestionConfig = {
     - Ensure the final output is in plaintext format, suitable for easy copy and paste.
     - Do not include explanations or additional comments in the output.
 
+---
 Example:
 
 Original Question:
-\`\`\`
+
 How do I create a user login system?
-\`\`\`
+
 
 Improved Question:
-\`\`\`
+
 How do I create a user login system for a web application using Node.js and Express? The system should include the following features:
 1. User registration with email verification
 2. Password hashing using bcrypt
 3. Login with session management
 4. Password reset functionality
 5. Input validation and error handling
-\`\`\`
-
+---
 
 Finally, remember that your mission is to improve the user's question, not to be the one answering it.`,
 };
