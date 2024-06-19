@@ -44,6 +44,7 @@ import {
   useCollections,
   useCurrentCollection,
   useCurrentTypeBoxId,
+  useModel,
   useOpenaiAPIKey,
   useQuickActions,
   useQuickActionsQuery,
@@ -53,11 +54,9 @@ import {
   findHighlight,
   formatString,
   notifyIndexerVersionError,
-  processTaggedMessage,
   removeHTMLTags,
   searchArray,
 } from '@/utility/utility';
-import { getImprovePrompt } from '@/utility/warmup';
 
 export const TypeBox = forwardRef(
   (
@@ -183,6 +182,7 @@ export const TypeBox = forwardRef(
       initDocId: '',
     });
     const [attachItems, setAttachItems] = useState<AttachItem[]>([]);
+    const [model] = useModel();
 
     const handleImprove = () => {
       if (!editorRef.current) return;
@@ -217,7 +217,7 @@ export const TypeBox = forwardRef(
         {
           token: openaiAPIKey,
           modelConfig: {
-            model: improveQuestionConfig.model,
+            model: model || improveQuestionConfig.model,
             temperature: 0.0,
           },
           onMessage: (message, done) => {
