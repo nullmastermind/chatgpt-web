@@ -48,6 +48,7 @@ import {
   useQuickActions,
   useQuickActionsQuery,
 } from '@/states/states';
+import { improveQuestionConfig } from '@/utility/improveQuestion';
 import {
   findHighlight,
   formatString,
@@ -200,25 +201,38 @@ export const TypeBox = forwardRef(
       setSelectionStart(editorRef.current.getSelectionStart());
       setSelectionEnd(editorRef.current.getSelectionEnd());
 
-      requestChatStream('v1/completions', getImprovePrompt(selectedText), {
-        token: openaiAPIKey,
-        modelConfig: {
-          model: 'gpt-3.5-turbo-instruct',
-          temperature: 0.0,
-          max_tokens: 2867,
-        },
-        onMessage: (message, done) => {
-          message = processTaggedMessage('document', message, done);
+      requestChatStream(
+        'v1/chat/completions',
+        [
+          {
+            role: 'system',
+            content: improveQuestionConfig.system,
+          },
+          {
+            role: 'user',
+            content: selectedText,
+            name: 'User',
+          },
+        ],
+        {
+          token: openaiAPIKey,
+          modelConfig: {
+            model: improveQuestionConfig.model,
+            temperature: 0.0,
+          },
+          onMessage: (message, done) => {
+            // message = processTaggedMessage('document', message, done);
 
-          setImprovedPrompt(message);
-          if (done) {
-            setCanEdit(true);
-            inputImproveRef.current?.focus();
-          }
+            setImprovedPrompt(message);
+            if (done) {
+              setCanEdit(true);
+              inputImproveRef.current?.focus();
+            }
+          },
+          onController: () => {},
+          onError: () => {},
         },
-        onController: () => {},
-        onError: () => {},
-      }).finally();
+      ).finally();
     };
 
     useHotkeys([
