@@ -1,5 +1,5 @@
 export const improveQuestionConfig = {
-  model: 'gpt-4o',
+  model: 'gpt-3.5-turbo',
   temperature: 0,
   system: `# Your primary goal is to enhance user questions by providing additional context to help the language model understand the question better. Ensure that the output is in plaintext format for easy copy and paste. Do not include explanations. Follow these guidelines:
 
