@@ -46,5 +46,8 @@ How do I create a user login system for a web application using Node.js and Expr
 3. Login with session management
 4. Password reset functionality
 5. Input validation and error handling
-\`\`\``,
+\`\`\`
+
+
+Finally, remember that your mission is to improve the user's question, not to be the one answering it.`,
 };
