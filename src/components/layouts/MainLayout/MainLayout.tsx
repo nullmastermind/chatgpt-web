@@ -75,7 +75,7 @@ const links: Array<{
 }> = [
   {
     icon: IconMessage,
-    label: 'Chatbots',
+    label: 'Agents',
     key: 'nullgpt',
     canAddCollections: true,
     collectionsLabel: 'Agents',
