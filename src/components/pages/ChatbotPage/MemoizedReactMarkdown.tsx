@@ -3,10 +3,13 @@ import { useElementSize } from '@mantine/hooks';
 import { Prism } from '@mantine/prism';
 import { IconMenuOrder } from '@tabler/icons-react';
 import classNames from 'classnames';
+import 'katex/dist/katex.min.css';
 import { RefObject, memo, useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import rehypeKatex from 'rehype-katex';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
 
 import MermaidDraw from '@/components/pages/ChatbotPage/MermaidDraw';
 import useStyles from '@/components/pages/ChatbotPage/Message.style';
@@ -47,8 +50,8 @@ const MemoizedReactMarkdown = memo<MemoizedReactMarkdownProps>(
     const md = () => (
       <ReactMarkdown
         linkTarget="_blank"
-        remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeRaw]}
+        remarkPlugins={[remarkGfm, remarkMath]}
+        rehypePlugins={[rehypeRaw, rehypeKatex as any]}
         components={{
           p({ node: rawNode, children }) {
             const node = rawNode as Node;
