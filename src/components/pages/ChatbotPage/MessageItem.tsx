@@ -408,11 +408,13 @@ const MessageItem = forwardRef(
                             className={'rounded-full w-[32px] h-[32px]'}
                             style={{
                               background: '#333',
-                              border: '1px solid rgba(255, 255, 255, 0.1)',
+                              // border: '1px solid rgba(255, 255, 255, 0.1)',
                             }}
                           />
                         </div>
-                        <div className={'relative inline-block w-[32px] h-[32px]'}>
+                        <div
+                          className={'relative w-[32px] h-[32px] p-1 flex flex-row items-center'}
+                        >
                           <FunnyEmoji
                             emoji={collection?.emoji || '🥸'}
                             emojiType={isLast ? 'anim' : '3d'}
