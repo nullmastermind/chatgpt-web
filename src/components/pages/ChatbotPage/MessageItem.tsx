@@ -11,7 +11,13 @@ import {
   px,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconCopy, IconMoodPuzzled, IconVolume } from '@tabler/icons-react';
+import {
+  IconCopy,
+  IconMoodPuzzled,
+  IconUser,
+  IconUserQuestion,
+  IconVolume,
+} from '@tabler/icons-react';
 import classNames from 'classnames';
 import { cloneDeep, find, findIndex, map } from 'lodash';
 import React, {
@@ -399,29 +405,35 @@ const MessageItem = forwardRef(
                           }
                         >
                           <div
-                            className={'rounded-full w-[34px] h-[34px]'}
+                            className={'rounded-full w-[32px] h-[32px]'}
                             style={{
-                              background: 'rgba(255, 255, 255, 0.1)',
+                              background: '#333',
                               border: '1px solid rgba(255, 255, 255, 0.1)',
                             }}
                           />
                         </div>
-                        <div className={'relative inline-block'}>
+                        <div className={'relative inline-block w-[32px] h-[32px]'}>
                           <FunnyEmoji
                             emoji={collection?.emoji || '🥸'}
                             emojiType={isLast ? 'anim' : '3d'}
-                            size={38}
+                            size={'100%'}
                           />
                         </div>
                       </div>
-                      <div className={'text-xl'}>{collection?.label}</div>
+                      <div className={'text-md'}>{collection?.label}</div>
                     </div>
                   )}
                   {isChild && (
                     <div className={'w-3 relative'}>
                       {isChild && message.source !== 'assistant' && (
-                        <div className={'absolute'}>
-                          <IconMoodPuzzled size={'1.5rem'} />
+                        <div
+                          className={'absolute w-[20px] h-[20px] rounded-full overflow-hidden'}
+                          style={{
+                            background: '#333',
+                          }}
+                        >
+                          {/*<IconMoodPuzzled size={'1.5rem'} />*/}
+                          <IconUser size={'100%'} />
                         </div>
                       )}
                     </div>

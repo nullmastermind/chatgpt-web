@@ -7,7 +7,7 @@ const FunnyEmoji = memo<
   {
     emoji: string;
     emojiType: EmojiType;
-    size: number;
+    size: number | string;
   } & ComponentPropsWithRef<'img'>
 >(({ emojiType, size, emoji, className }) => {
   const [loaded, setLoaded] = useState(false);

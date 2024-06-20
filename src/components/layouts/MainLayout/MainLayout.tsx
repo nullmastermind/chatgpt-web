@@ -207,7 +207,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         })}
       >
         <link.icon size={'1.3rem'} className={classes.mainLinkIcon} stroke={1.5} />
-        <span>{link.label}</span>
+        <span className={'font-normal'}>{link.label}</span>
       </Text>
       {link.notifications && (
         <Badge size="sm" variant="filled" className={classes.mainLinkBadge}>
@@ -225,7 +225,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       key={collection.key}
       className={classNames(classes.collectionLink, 'pr-2', {
         'opacity-80': collection.key !== currentCollection,
-        'font-bold': collection.key === currentCollection,
+        // 'font-bold': collection.key === currentCollection,
         [classes.selectedCollectionLink]: collection.key === currentCollection,
         'shadow': collection.key === currentCollection,
       })}
@@ -234,17 +234,24 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         <div className="flex-grow flex gap-1 items-center text-center">
           <div className={'w-[40px] justify-center flex items-center relative z-10'}>
             <span style={{ marginRight: rem(8), fontSize: '1rem' }}>
-              <FunnyEmoji
-                emoji={collection.emoji}
-                emojiType={collection.key === currentCollection ? 'anim' : '3d'}
-                size={32}
-              />
+              <div
+                className={'rounded-full w-[32px] h-[32px] p-1 overflow-hidden'}
+                style={{
+                  background: '#333333',
+                }}
+              >
+                <FunnyEmoji
+                  emoji={collection.emoji}
+                  emojiType={collection.key === currentCollection ? 'anim' : '3d'}
+                  size={'100%'}
+                />
+              </div>
             </span>
           </div>
-          <div className="flex flex-col items-start justify-center h-[65px] pb-1">
+          <div className="flex flex-col items-start justify-center h-[50px] pb-1">
             <Text
               color={collection.key === currentCollection ? 'white' : undefined}
-              className="whitespace-nowrap text-[1rem] font-bold"
+              className="whitespace-nowrap"
             >
               {collection.label}
             </Text>
@@ -258,18 +265,18 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               </Text>
             )}
           </div>
-          {index < 9 && (
-            <div
-              className={classNames('flex-grow flex items-center justify-end', {})}
-              style={{
-                marginTop: -6,
-              }}
-            >
-              <div className="inline-block whitespace-nowrap ml-2 opacity-50">
-                <Kbd size="xs">⌘+{index + 1}</Kbd>
-              </div>
-            </div>
-          )}
+          {/*{index < 9 && (*/}
+          {/*  <div*/}
+          {/*    className={classNames('flex-grow flex items-center justify-end', {})}*/}
+          {/*    style={{*/}
+          {/*      marginTop: -6,*/}
+          {/*    }}*/}
+          {/*  >*/}
+          {/*    <div className="inline-block whitespace-nowrap ml-2 opacity-50">*/}
+          {/*      <Kbd size="xs">⌘+{index + 1}</Kbd>*/}
+          {/*    </div>*/}
+          {/*  </div>*/}
+          {/*)}*/}
         </div>
         <div
           className={classNames(
@@ -283,7 +290,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           {!isMobile && (
             <>
               <ActionIcon
-                variant="light"
+                variant="outline"
                 color="blue"
                 size="md"
                 onClick={(e) => {
@@ -300,7 +307,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           <div className={'flex flex-col gap-1'}>
             <div className={'flex flex-row gap-1'}>
               <ActionIcon
-                variant="light"
+                variant="default"
                 color="blue"
                 size="xs"
                 onClick={(e) => {
@@ -311,7 +318,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 <IconArrowUp size="1rem" />
               </ActionIcon>
               <ActionIcon
-                variant="light"
+                variant="default"
                 color="blue"
                 size="xs"
                 onClick={(e) => {
@@ -324,7 +331,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             </div>
             <div className={'flex flex-row gap-1'}>
               <ActionIcon
-                variant="light"
+                variant="default"
                 color="blue"
                 size="xs"
                 onClick={(e) => {
@@ -335,7 +342,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 <IconEdit size="1rem" />
               </ActionIcon>
               <ActionIcon
-                variant="light"
+                variant="outline"
                 color="red"
                 size="xs"
                 onClick={(e) => {

@@ -77,6 +77,7 @@ export const useStyles = createStyles((theme) => ({
 
   selectedCollectionLink: {
     background: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
+    border: '1px solid rgba(255,255,255,0.1) !important',
   },
 
   collectionLink: {
@@ -85,6 +86,7 @@ export const useStyles = createStyles((theme) => ({
     'textDecoration': 'none',
     'borderRadius': theme.radius.sm,
     'fontSize': theme.fontSizes.sm,
+    'border': '1px solid transparent',
     // lineHeight: 1,
     // fontWeight: 500,
     'cursor': 'pointer',
@@ -98,6 +100,7 @@ export const useStyles = createStyles((theme) => ({
         opacity: 1,
         pointerEvents: 'auto',
       },
+      'border': '1px solid rgba(255,255,255,0.1)',
     },
     '.collection-action-disabled': {
       opacity: '0!important' as any,
