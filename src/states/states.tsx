@@ -21,3 +21,4 @@ export const useModel = createGlobalState<string>(
   localStorage.getItem(':model') || 'gpt-3.5-turbo',
 );
 export const usePrompts = createGlobalState<any[]>([]);
+export const useLastMessageByCollection = createGlobalState<Record<any, string>>({});

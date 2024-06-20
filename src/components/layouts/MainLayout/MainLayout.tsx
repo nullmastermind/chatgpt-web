@@ -18,7 +18,7 @@ import {
   rem,
   useMantineTheme,
 } from '@mantine/core';
-import { useHotkeys } from '@mantine/hooks';
+import { useHotkeys, useShallowEffect } from '@mantine/hooks';
 import { Notifications, notifications } from '@mantine/notifications';
 import {
   IconAlertCircle,
@@ -35,7 +35,7 @@ import {
 } from '@tabler/icons-react';
 import classNames from 'classnames';
 import { disable as disableDarkMode, enable as enableDarkMode } from 'darkreader';
-import { find, range } from 'lodash';
+import { clone, find, map, range } from 'lodash';
 import React, { useEffect, useMemo, useState } from 'react';
 import { isMobile } from 'react-device-detect';
 import { useDebounce, useLocalStorage, useMount } from 'react-use';
@@ -52,8 +52,10 @@ import {
   useCurrentCollectionRemoveId,
   useCurrentCollectionUpId,
   useCurrentTool,
+  useLastMessageByCollection,
   useSubCollectionId,
 } from '@/states/states';
+import store, { messagesKey } from '@/utility/store';
 import { exportLocalStorageToJSON, importLocalStorageFromFile } from '@/utility/utility';
 
 export type CollectionItem = {
@@ -112,6 +114,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     return localStorage.getItem(':logoText') || appName;
   }, []);
   const [, setSubCollectionId] = useSubCollectionId();
+  const [lastMessageByCollection, setLastMessageByCollection] = useLastMessageByCollection();
 
   const hotkeySwitchCollection = (index: number) => {
     if (index <= collections.length - 1) {
@@ -190,6 +193,27 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       document.title = `${collection.emoji} ${collection.label}`;
     }
   }, [currentCollection, collections]);
+  useShallowEffect(() => {
+    if (collections.length === 0) return;
+    if (Object.keys(lastMessageByCollection).length > 0) return;
+
+    const result: Record<any, string> = {};
+
+    Promise.all(
+      map(collections, async (collection) => {
+        const messages: any[] = (await store.getItem(messagesKey(collection.key))) || [];
+        for (let i = messages.length - 1; i >= 0; i--) {
+          if (messages[i].source === 'user') {
+            result[collection.key] = messages[i].content;
+            break;
+          }
+        }
+      }),
+    ).then(() => {
+      result['ok'] = 'OK';
+      setLastMessageByCollection(result);
+    });
+  }, [collections, lastMessageByCollection]);
 
   const mainLinks = links.map((link) => (
     <UnstyledButton
@@ -261,7 +285,9 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 className="font-normal text-xs text-left line-clamp-1 min-h-[20px]"
                 title={collection.description}
               >
-                {collection.description || collection.label}
+                {lastMessageByCollection[collection.key] ||
+                  collection.description ||
+                  collection.label}
               </Text>
             )}
           </div>

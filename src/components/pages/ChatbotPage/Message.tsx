@@ -26,7 +26,7 @@ import MessageItem from '@/components/pages/ChatbotPage/MessageItem';
 import ReplyItem from '@/components/pages/ChatbotPage/ReplyItem';
 import { TypeBox } from '@/components/pages/ChatbotPage/TypeBox';
 import { indexerHost } from '@/config';
-import { useModel, useOpenaiAPIKey } from '@/states/states';
+import { useLastMessageByCollection, useModel, useOpenaiAPIKey } from '@/states/states';
 import store, { attachKey, messagesKey } from '@/utility/store';
 import {
   Docs,
@@ -129,6 +129,7 @@ const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
   const messageRefs = useRef<Record<any, any>>({});
   const autoScrollIds = useRef<Record<any, any>>({});
   const messagePageScroll = useRef<HTMLDivElement>(null);
+  const [, setLastMessageByCollection] = useLastMessageByCollection();
 
   const scrollToBottom = (offset: number = 0) => {
     const scrollHeight = messagePageScroll.current?.scrollHeight || 0;
@@ -696,6 +697,10 @@ const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
             ref={boxRef}
             collectionId={collectionId}
             onSubmit={(content, tokens, attachItems) => {
+              setLastMessageByCollection((prev) => ({
+                ...prev,
+                [collectionId]: content,
+              }));
               void onSend(content, attachItems, undefined, [], tokens);
             }}
             messages={messages}
