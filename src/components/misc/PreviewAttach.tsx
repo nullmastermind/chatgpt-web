@@ -36,7 +36,7 @@ const PreviewAttach = memo<{
         className="relative"
       >
         <div className={'flex flex-col gap-2'}>
-          {map(attachItem.data, (value, index) => {
+          {map(attachItem.data, (value) => {
             if (value.disabled) return null;
             return (
               <Card key={value.content}>
@@ -64,14 +64,16 @@ const PreviewAttach = memo<{
                     >
                       <MemoizedReactMarkdown
                         smallText={true}
-                        content={(() => {
-                          if (value.isDocument) {
-                            return isCDocumentCode(value.content)
-                              ? `\`\`\`${trimDocumentContent(value.content)}`
-                              : trimDocumentContent(value.content);
-                          }
-                          return value.content;
-                        })()}
+                        content={
+                          (() => {
+                            if (value.isDocument) {
+                              return isCDocumentCode(value.content)
+                                ? `\`\`\`${trimDocumentContent(value.content)}`
+                                : trimDocumentContent(value.content);
+                            }
+                            return value.content;
+                          })() as any
+                        }
                       />
                     </div>
                   </ScrollArea.Autosize>

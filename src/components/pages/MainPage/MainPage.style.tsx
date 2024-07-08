@@ -7,8 +7,8 @@ export const useStyles = createStyles((theme) => ({
   },
 
   section: {
-    'marginLeft': `calc(${theme.spacing.md} * -1)`,
-    'marginRight': `calc(${theme.spacing.md} * -1)`,
+    // 'marginLeft': `calc(${theme.spacing.md} * -1)`,
+    // 'marginRight': `calc(${theme.spacing.md} * -1)`,
     'marginBottom': theme.spacing.md,
 
     '&:not(:last-of-type)': {

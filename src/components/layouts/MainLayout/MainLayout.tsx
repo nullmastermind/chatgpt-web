@@ -389,7 +389,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   ));
 
   const renderedScrollContent = (
-    <div className={'pb-5'}>
+    <div className={'pb-5 w-full'}>
       <Group className={classes.collectionsHeader} position="apart">
         <Text size="xs" weight={500} color="dimmed">
           {currentLink?.collectionsLabel}
@@ -430,16 +430,20 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           <Navbar
             hidden={!opened}
             width={{ sm: 300 }}
-            p={'md'}
+            p={'0'}
             className={classNames('flex flex-col z-50', classes.navbar, {})}
           >
-            <Navbar.Section className={classes.section}>
+            <Navbar.Section className={classNames(classes.section, 'pt-5')}>
               <div className={classes.mainLinks}>{mainLinks}</div>
             </Navbar.Section>
-            <Navbar.Section className={classNames(classes.section)} grow component={ScrollArea}>
+            <Navbar.Section
+              className={classNames(classes.section, 'w-full')}
+              grow
+              component={ScrollArea}
+            >
               {renderedScrollContent}
             </Navbar.Section>
-            <Navbar.Section>
+            <Navbar.Section className={classNames(classes.section, 'px-5')}>
               <div className={'flex items-center'}>
                 <div className={'flex-grow'}>
                   <Menu shadow="md" width={'100%'}>
