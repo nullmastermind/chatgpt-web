@@ -233,7 +233,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         }
       }
     },
-    100,
+    500,
     [viewport.width, viewport.height],
   );
 
