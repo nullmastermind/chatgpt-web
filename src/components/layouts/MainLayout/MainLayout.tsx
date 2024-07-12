@@ -18,7 +18,7 @@ import {
   rem,
   useMantineTheme,
 } from '@mantine/core';
-import { useHotkeys, useShallowEffect } from '@mantine/hooks';
+import { useHotkeys, useShallowEffect, useViewportSize } from '@mantine/hooks';
 import { Notifications, notifications } from '@mantine/notifications';
 import {
   IconAlertCircle,
@@ -115,6 +115,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   }, []);
   const [, setSubCollectionId] = useSubCollectionId();
   const [lastMessageByCollection, setLastMessageByCollection] = useLastMessageByCollection();
+  const viewport = useViewportSize();
+  const [renderKey, setRenderKey] = useState(Date.now());
 
   const hotkeySwitchCollection = (index: number) => {
     if (index <= collections.length - 1) {
@@ -214,6 +216,9 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       setLastMessageByCollection(result);
     });
   }, [collections, lastMessageByCollection]);
+  useShallowEffect(() => {
+    if (viewport.width > 0) setRenderKey(Date.now());
+  }, [viewport]);
 
   const mainLinks = links.map((link) => (
     <UnstyledButton
@@ -423,6 +428,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     <>
       <Notifications />
       <AppShell
+        key={renderKey}
         padding={0}
         pl={12}
         pr={12}
