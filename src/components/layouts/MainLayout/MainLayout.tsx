@@ -36,7 +36,7 @@ import {
 import classNames from 'classnames';
 import { disable as disableDarkMode, enable as enableDarkMode } from 'darkreader';
 import { clone, find, map, range } from 'lodash';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { isMobile } from 'react-device-detect';
 import { useDebounce, useLocalStorage, useMount } from 'react-use';
 
@@ -117,6 +117,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const [lastMessageByCollection, setLastMessageByCollection] = useLastMessageByCollection();
   const viewport = useViewportSize();
   const [renderKey, setRenderKey] = useState(Date.now());
+  const viewportRef = useRef({ width: 0, height: 0 });
 
   const hotkeySwitchCollection = (index: number) => {
     if (index <= collections.length - 1) {
@@ -216,9 +217,25 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       setLastMessageByCollection(result);
     });
   }, [collections, lastMessageByCollection]);
-  useShallowEffect(() => {
-    if (viewport.width > 0) setRenderKey(Date.now());
-  }, [viewport]);
+  useDebounce(
+    () => {
+      if (viewport.width > 0) {
+        if (viewportRef.current.width === 0) {
+          viewportRef.current = viewport;
+        }
+
+        if (
+          viewportRef.current.width !== viewport.width ||
+          viewportRef.current.height !== viewport.height
+        ) {
+          viewportRef.current = viewport;
+          setRenderKey(Date.now());
+        }
+      }
+    },
+    100,
+    [viewport.width, viewport.height],
+  );
 
   const mainLinks = links.map((link) => (
     <UnstyledButton
