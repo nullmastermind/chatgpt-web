@@ -217,25 +217,25 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       setLastMessageByCollection(result);
     });
   }, [collections, lastMessageByCollection]);
-  useDebounce(
-    () => {
-      if (viewport.width > 0) {
-        if (viewportRef.current.width === 0) {
-          viewportRef.current = viewport;
-        }
-
-        if (
-          viewportRef.current.width !== viewport.width ||
-          viewportRef.current.height !== viewport.height
-        ) {
-          viewportRef.current = viewport;
-          setRenderKey(Date.now());
-        }
-      }
-    },
-    500,
-    [viewport.width, viewport.height],
-  );
+  // useDebounce(
+  //   () => {
+  //     if (viewport.width > 0) {
+  //       if (viewportRef.current.width === 0) {
+  //         viewportRef.current = viewport;
+  //       }
+  //
+  //       if (
+  //         viewportRef.current.width !== viewport.width ||
+  //         viewportRef.current.height !== viewport.height
+  //       ) {
+  //         viewportRef.current = viewport;
+  //         setRenderKey(Date.now());
+  //       }
+  //     }
+  //   },
+  //   500,
+  //   [viewport.width, viewport.height],
+  // );
 
   const mainLinks = links.map((link) => (
     <UnstyledButton
