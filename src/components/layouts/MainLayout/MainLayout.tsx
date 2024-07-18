@@ -196,27 +196,27 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       document.title = `${collection.emoji} ${collection.label}`;
     }
   }, [currentCollection, collections]);
-  useShallowEffect(() => {
-    if (collections.length === 0) return;
-    if (Object.keys(lastMessageByCollection).length > 0) return;
-
-    const result: Record<any, string> = {};
-
-    Promise.all(
-      map(collections, async (collection) => {
-        const messages: any[] = (await store.getItem(messagesKey(collection.key))) || [];
-        for (let i = messages.length - 1; i >= 0; i--) {
-          if (messages[i].source === 'user') {
-            result[collection.key] = messages[i].content;
-            break;
-          }
-        }
-      }),
-    ).then(() => {
-      result['ok'] = 'OK';
-      setLastMessageByCollection(result);
-    });
-  }, [collections, lastMessageByCollection]);
+  // useShallowEffect(() => {
+  //   if (collections.length === 0) return;
+  //   if (Object.keys(lastMessageByCollection).length > 0) return;
+  //
+  //   const result: Record<any, string> = {};
+  //
+  //   Promise.all(
+  //     map(collections, async (collection) => {
+  //       const messages: any[] = (await store.getItem(messagesKey(collection.key))) || [];
+  //       for (let i = messages.length - 1; i >= 0; i--) {
+  //         if (messages[i].source === 'user') {
+  //           result[collection.key] = messages[i].content;
+  //           break;
+  //         }
+  //       }
+  //     }),
+  //   ).then(() => {
+  //     result['ok'] = 'OK';
+  //     setLastMessageByCollection(result);
+  //   });
+  // }, [collections, lastMessageByCollection]);
   // useDebounce(
   //   () => {
   //     if (viewport.width > 0) {
