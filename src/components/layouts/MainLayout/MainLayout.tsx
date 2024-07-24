@@ -310,9 +310,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                   lineHeight: '20px',
                 }}
               >
-                {lastMessageByCollection[collection.key] ||
-                  collection.description ||
-                  collection.label}
+                {collection.description}
               </Text>
             )}
           </div>
