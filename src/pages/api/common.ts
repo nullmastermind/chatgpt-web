@@ -1,4 +1,3 @@
-import { filter } from 'lodash';
 import { NextRequest } from 'next/server';
 
 const OPENAI_URL = 'api.openai.com';
@@ -30,12 +29,14 @@ export async function requestOpenai(req: NextRequest) {
         'x-api-key': `${apiKey}`,
         'anthropic-version': '2023-06-01',
       };
-      const messages = reqBody.messages;
-      reqBody.messages = filter(messages, (v) => v.role !== 'system').map((v) => ({
-        role: v.role,
-        content: v.content,
-      }));
-      const systems = filter(messages, (v) => v.role === 'system').map((v) => v.content);
+      const messages: any[] = reqBody.messages || [];
+      reqBody.messages = messages
+        .filter((v) => v.role !== 'system')
+        .map((v) => ({
+          role: v.role,
+          content: v.content,
+        }));
+      const systems = messages.filter((v) => v.role === 'system').map((v) => v.content);
 
       if (systems.length) {
         reqBody.system = systems.join('\n\n');
