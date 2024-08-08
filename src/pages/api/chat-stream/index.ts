@@ -65,6 +65,6 @@ export default async function POST(req: NextRequest) {
 }
 
 export const config = {
-  // runtime: 'edge',
+  runtime: 'edge',
   regions: ['iad1', 'hnd1'],
 };
