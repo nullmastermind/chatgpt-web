@@ -21,14 +21,23 @@ async function createStream(req: NextRequest) {
       function onParse(event: any) {
         if (event.type === 'event') {
           const data = event.data;
+          let json: Record<any, any> = {};
+
+          try {
+            json = JSON.parse(data);
+          } catch {}
+
           // https://beta.openai.com/docs/api-reference/completions/create#completions/create-stream
-          if (data === '[DONE]') {
+          if (data === '[DONE]' || json.type === 'message_stop') {
             controller.close();
             return;
           }
           try {
-            const json = JSON.parse(data);
-            const text = json.choices[0].text || json.choices[0].delta?.content || '';
+            const text =
+              json.choices?.[0]?.text ||
+              json.choices?.[0]?.delta?.content ||
+              json.delta?.text ||
+              '';
             const queue = encoder.encode(text);
             controller.enqueue(queue);
           } catch (e) {
