@@ -30,13 +30,24 @@ export async function requestOpenai(req: NextRequest) {
         'anthropic-version': '2023-06-01',
       };
       const messages: any[] = reqBody.messages || [];
-      reqBody.messages = messages
-        .filter((v) => v.role !== 'system')
-        .map((v) => ({
-          role: v.role,
-          content: v.content,
-        }));
       const systems = messages.filter((v) => v.role === 'system').map((v) => v.content);
+
+      // Process messages to ensure alternating roles
+      const processedMessages = messages
+        .filter((v) => v.role !== 'system')
+        .reduce((acc: any[], message, index) => {
+          if (index === 0 || message.role !== acc[acc.length - 1].role) {
+            acc.push(message);
+          } else {
+            acc[acc.length - 1].content += '\n\n' + message.content;
+          }
+          return acc;
+        }, []);
+
+      reqBody.messages = processedMessages.map((v) => ({
+        role: v.role,
+        content: v.content,
+      }));
 
       if (systems.length) {
         reqBody.system = systems.join('\n\n');
@@ -46,7 +57,9 @@ export async function requestOpenai(req: NextRequest) {
         reqBody.max_tokens = 4096;
       }
     }
-  } catch {}
+  } catch (error) {
+    console.error('Error processing request:', error);
+  }
 
   return fetch(`${PROTOCOL}://${baseUrl}/${openaiPath}`, {
     headers,
