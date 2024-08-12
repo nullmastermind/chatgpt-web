@@ -4,6 +4,12 @@
   { "label": "gpt-3.5-turbo", "value": "gpt-3.5-turbo", "maxTokens": 16385, "price": 0.5 },
   { "label": "gpt-4o-2024-08-06", "value": "gpt-4o-2024-08-06", "maxTokens": 128000, "price": 5 },
   {
+    "label": "gpt-4-turbo-2024-04-09",
+    "value": "gpt-4-turbo-2024-04-09",
+    "maxTokens": 128000,
+    "price": 10
+  },
+  {
     "label": "claude-3-5-sonnet-20240620",
     "value": "claude-3-5-sonnet-20240620",
     "maxTokens": 128000,
