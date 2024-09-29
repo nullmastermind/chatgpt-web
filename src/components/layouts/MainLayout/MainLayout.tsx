@@ -11,19 +11,19 @@ import {
   MediaQuery,
   Menu,
   Navbar,
-  rem,
   ScrollArea,
   Text,
   UnstyledButton,
+  rem,
   useMantineTheme,
 } from '@mantine/core';
-import {useHotkeys, useViewportSize} from '@mantine/hooks';
-import {Notifications, notifications} from '@mantine/notifications';
+import { useHotkeys, useViewportSize } from '@mantine/hooks';
+import { Notifications, notifications } from '@mantine/notifications';
 import {
   IconAlertCircle,
   IconArrowDown,
-  IconArrowsMaximize,
   IconArrowUp,
+  IconArrowsMaximize,
   IconCircleCheckFilled,
   IconDatabaseCog,
   IconEdit,
@@ -33,15 +33,15 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import classNames from 'classnames';
-import {disable as disableDarkMode, enable as enableDarkMode} from 'darkreader';
-import {find, range} from 'lodash';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {isMobile} from 'react-device-detect';
-import {useDebounce, useLocalStorage, useMount} from 'react-use';
+import { disable as disableDarkMode, enable as enableDarkMode } from 'darkreader';
+import { find, range } from 'lodash';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { isMobile } from 'react-device-detect';
+import { useDebounce, useLocalStorage, useMount } from 'react-use';
 
 import FunnyEmoji from '@/components/misc/FunnyEmoji';
-import {useStyles} from '@/components/pages/MainPage/MainPage.style';
-import {appName} from '@/config';
+import { useStyles } from '@/components/pages/MainPage/MainPage.style';
+import { appName } from '@/config';
 import {
   useAddCollectionAction,
   useCollections,
@@ -54,7 +54,7 @@ import {
   useLastMessageByCollection,
   useSubCollectionId,
 } from '@/states/states';
-import {exportLocalStorageToJSON, importLocalStorageFromFile} from '@/utility/utility';
+import { exportLocalStorageToJSON, importLocalStorageFromFile } from '@/utility/utility';
 
 export type CollectionItem = {
   emoji: string;
@@ -295,14 +295,14 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           <div className="flex flex-col items-start justify-center h-[50px] pb-1">
             <Text
               color={collection.key === currentCollection ? 'white' : undefined}
-              className="whitespace-nowrap"
+              className="line-clamp-1 text-[16px]"
             >
               {collection.label}
             </Text>
             {!!collection.description && (
               <Text
                 color={collection.key === currentCollection ? 'white' : undefined}
-                className="font-normal text-xs text-left line-clamp-1 max-w-full"
+                className="font-normal text-sm text-left line-clamp-1 max-w-full"
                 title={collection.description}
                 style={{
                   lineHeight: '20px',

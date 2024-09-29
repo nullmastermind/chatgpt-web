@@ -21,8 +21,12 @@
 body {
   padding: 0;
   margin: 0;
-  font-size: 15px !important;
-  line-height: 1.5 !important;
+  font-size: 16px !important;
+  line-height: 1.4 !important;
+  font-family: 'Source Sans 3', sans-serif !important;
+}
+
+.mantine-Text-root {
   font-family: 'Source Sans 3', sans-serif !important;
 }
 
@@ -31,6 +35,7 @@ li,
 a {
   /*font-size: 14px;*/
   /*line-height: 1.5;*/
+  font-family: 'Source Sans 3', sans-serif;
 }
 
 .fade-in {
