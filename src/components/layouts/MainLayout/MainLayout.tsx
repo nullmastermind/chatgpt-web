@@ -8,23 +8,22 @@ import {
   Divider,
   Group,
   Header,
-  Kbd,
   MediaQuery,
   Menu,
   Navbar,
+  rem,
   ScrollArea,
   Text,
   UnstyledButton,
-  rem,
   useMantineTheme,
 } from '@mantine/core';
-import { useHotkeys, useShallowEffect, useViewportSize } from '@mantine/hooks';
-import { Notifications, notifications } from '@mantine/notifications';
+import {useHotkeys, useViewportSize} from '@mantine/hooks';
+import {Notifications, notifications} from '@mantine/notifications';
 import {
   IconAlertCircle,
   IconArrowDown,
-  IconArrowUp,
   IconArrowsMaximize,
+  IconArrowUp,
   IconCircleCheckFilled,
   IconDatabaseCog,
   IconEdit,
@@ -34,15 +33,15 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import classNames from 'classnames';
-import { disable as disableDarkMode, enable as enableDarkMode } from 'darkreader';
-import { clone, find, map, range } from 'lodash';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { isMobile } from 'react-device-detect';
-import { useDebounce, useLocalStorage, useMount } from 'react-use';
+import {disable as disableDarkMode, enable as enableDarkMode} from 'darkreader';
+import {find, range} from 'lodash';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
+import {isMobile} from 'react-device-detect';
+import {useDebounce, useLocalStorage, useMount} from 'react-use';
 
 import FunnyEmoji from '@/components/misc/FunnyEmoji';
-import { useStyles } from '@/components/pages/MainPage/MainPage.style';
-import { appName } from '@/config';
+import {useStyles} from '@/components/pages/MainPage/MainPage.style';
+import {appName} from '@/config';
 import {
   useAddCollectionAction,
   useCollections,
@@ -55,8 +54,7 @@ import {
   useLastMessageByCollection,
   useSubCollectionId,
 } from '@/states/states';
-import store, { messagesKey } from '@/utility/store';
-import { exportLocalStorageToJSON, importLocalStorageFromFile } from '@/utility/utility';
+import {exportLocalStorageToJSON, importLocalStorageFromFile} from '@/utility/utility';
 
 export type CollectionItem = {
   emoji: string;

@@ -15,6 +15,7 @@ const SettingsPage = () => {
   const settingsForm = useForm({
     initialValues: {
       openaiKey: openaiAPIKey,
+      overrideBaseUrl: localStorage.getItem(':overrideBaseUrl') || '',
       maxMessagesPerBox: parseInt(localStorage.getItem(':maxMessages') || '10'),
       indexerHost: indexerHost,
       enterToSend: localStorage.getItem(':enterToSend') === '1',
@@ -22,6 +23,7 @@ const SettingsPage = () => {
     },
     validate: {
       openaiKey: (v) => (['', null, undefined, 'null'].includes(v) ? 'Invalid' : null),
+      overrideBaseUrl: (v) => (v && !v.startsWith('http') ? 'Must be a valid URL' : null),
       maxMessagesPerBox: (v) => (v <= 0 || v >= 100 ? 'Invalid. Max 100' : null),
     },
   });
@@ -34,6 +36,7 @@ const SettingsPage = () => {
     if (!settingsForm.validate().hasErrors) {
       localStorage.setItem(':maxMessages', `${settingsForm.values.maxMessagesPerBox}`);
       localStorage.setItem(':openaiKey', settingsForm.values.openaiKey as string);
+      localStorage.setItem(':overrideBaseUrl', settingsForm.values.overrideBaseUrl);
       localStorage.setItem(':indexerHost', settingsForm.values.indexerHost);
       localStorage.setItem(':enterToSend', settingsForm.values.enterToSend ? '1' : '0');
       localStorage.setItem(':logoText', settingsForm.values.logoText || appName);
@@ -88,6 +91,11 @@ const SettingsPage = () => {
           label="OpenAI API Key (token1,token2,...)"
           placeholder="OpenAI API Key..."
           {...settingsForm.getInputProps('openaiKey')}
+        />
+        <TextInput
+          label="Override Base URL"
+          placeholder="https://api.openai.com"
+          {...settingsForm.getInputProps('overrideBaseUrl')}
         />
         <NumberInput
           label="Maximum number of messages per box"
