@@ -1,7 +1,7 @@
-import { Button, Loader, Transition, createStyles } from '@mantine/core';
+import { Loader, Transition, createStyles } from '@mantine/core';
 import { useClickOutside } from '@mantine/hooks';
 import { Link, RichTextEditor } from '@mantine/tiptap';
-import { IconMicrophone, IconPrompt, IconVolume } from '@tabler/icons-react';
+import { IconPrompt, IconVolume } from '@tabler/icons-react';
 import { Extension } from '@tiptap/core';
 import { Placeholder } from '@tiptap/extension-placeholder';
 import { TextAlign } from '@tiptap/extension-text-align';
@@ -11,7 +11,6 @@ import { StarterKit } from '@tiptap/starter-kit';
 import classNames from 'classnames';
 import {
   ComponentPropsWithRef,
-  cloneElement,
   forwardRef,
   memo,
   useEffect,
@@ -67,7 +66,9 @@ const UserInput = memo<
         Link,
         TextAlign.configure({ types: ['heading', 'paragraph'] }),
         Placeholder.configure({
-          placeholder: placeholder || 'Enter a message to create a new topic',
+          placeholder:
+            placeholder ||
+            (isReplyBox ? 'Enter a message to reply' : 'Enter a message to create a new topic'),
         }),
         Underline,
         ShiftEnterCreateExtension, // EventHandler,
