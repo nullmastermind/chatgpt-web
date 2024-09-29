@@ -67,7 +67,7 @@ const UserInput = memo<
         Link,
         TextAlign.configure({ types: ['heading', 'paragraph'] }),
         Placeholder.configure({
-          placeholder: placeholder || 'Enter a prompt here',
+          placeholder: placeholder || 'Enter a message to create a new topic',
         }),
         Underline,
         ShiftEnterCreateExtension, // EventHandler,

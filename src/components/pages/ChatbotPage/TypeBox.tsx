@@ -637,7 +637,7 @@ export const TypeBox = forwardRef(
             size={'xs'}
             className={'flex-grow sm:flex-grow-0 min-w-[100px]'}
           >
-            Send
+            {isReplyBox ? 'Reply' : 'New topic'}
           </Button>
         </div>
       </>

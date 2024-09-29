@@ -47,7 +47,7 @@ const ReplyItem = memo<ReplyItemProps>(
             <TextInput
               variant={'filled'}
               size={'sm'}
-              placeholder={'Write a reply'}
+              placeholder={'Click to write a reply in this topic'}
               onFocus={() => {
                 setShowFullEdit(true);
               }}
