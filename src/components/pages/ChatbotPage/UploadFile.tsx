@@ -1,6 +1,6 @@
-import { Button, Kbd, Menu, ScrollArea } from '@mantine/core';
-import { useElementSize } from '@mantine/hooks';
-import { modals } from '@mantine/modals';
+import {Button, Kbd, Menu, ScrollArea} from '@mantine/core';
+import {useElementSize} from '@mantine/hooks';
+import {modals} from '@mantine/modals';
 import {
   IconBlockquote,
   IconBrandShazam,
@@ -12,15 +12,14 @@ import {
   IconPlus,
   IconUnlink,
 } from '@tabler/icons-react';
-import { clone, findIndex, map } from 'lodash';
-import React, { memo, useState } from 'react';
+import {clone, findIndex, map} from 'lodash';
+import React, {memo, useState} from 'react';
 
-import { AttachItem, AttachItemType } from '@/components/misc/types';
+import {AttachItem, AttachItemType} from '@/components/misc/types';
 import AttachDocument from '@/components/pages/ChatbotPage/Attach/AttachDocument';
 import AttachExcel from '@/components/pages/ChatbotPage/Attach/AttachExcel';
 import AttachName from '@/components/pages/ChatbotPage/Attach/AttachName';
 import AttachTextData from '@/components/pages/ChatbotPage/Attach/AttachTextData';
-import useDoubleShiftHotkey from '@/utility/hooks/useDoubleShiftHotkey';
 
 const UploadFile = memo<{
   onChange: (value: AttachItem[]) => any;
@@ -43,9 +42,9 @@ const UploadFile = memo<{
     resetEdit();
   };
 
-  useDoubleShiftHotkey(() => {
-    setShowAttach(AttachItemType.PrivateDocument);
-  });
+  // useDoubleShiftHotkey(() => {
+  //   setShowAttach(AttachItemType.PrivateDocument);
+  // });
 
   return (
     <>
