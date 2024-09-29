@@ -122,9 +122,31 @@ const SettingsPage = () => {
             type: 'checkbox',
           })}
         />
-        <div>
-          <Button loading={loadings.save} onClick={() => saveSettings()}>
+        <div className="flex flex-row gap-3 items-center">
+          <Button
+            variant={'filled'}
+            size={'md'}
+            loading={loadings.save}
+            onClick={() => saveSettings()}
+          >
             Save
+          </Button>
+          <Button
+            variant="outline"
+            color="red"
+            onClick={() => {
+              if (
+                window.confirm(
+                  'Are you sure you want to clear local storage? This will reset all settings.',
+                )
+              ) {
+                localStorage.clear();
+                window.location.reload();
+              }
+            }}
+            size="xs"
+          >
+            Clear Local Storage
           </Button>
         </div>
       </div>
