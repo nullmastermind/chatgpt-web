@@ -420,20 +420,18 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       </Group>
       <div className={classNames(classes.collections, 'flex flex-col gap-0.5 mt-3')}>
         {collectionLinks}
+        {currentLink?.canAddCollections && (
+          <div className="px-4">
+            <UnstyledButton
+              className="flex items-center text-sm text-[#1971c2] hover:underline"
+              onClick={addAction}
+            >
+              <IconPlus size="0.9rem" className="mr-1" />
+              <span>New agent</span>
+            </UnstyledButton>
+          </div>
+        )}
       </div>
-      {currentLink?.canAddCollections && (
-        <div className="px-4">
-          <Button
-            fullWidth={true}
-            variant="default"
-            size="xs"
-            leftIcon={<IconPlus />}
-            onClick={addAction}
-          >
-            New agent
-          </Button>
-        </div>
-      )}
     </div>
   );
 
