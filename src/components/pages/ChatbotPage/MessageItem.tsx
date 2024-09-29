@@ -64,6 +64,7 @@ const MessageItem = forwardRef(
       needRefreshMessageIds,
       messagePageScroll,
       collectionId,
+      topSpacing,
     }: {
       classes: any;
       message: any;
@@ -82,6 +83,7 @@ const MessageItem = forwardRef(
       needRefreshMessageIds: MutableRefObject<Record<any, any>>;
       messagePageScroll: RefObject<HTMLDivElement>;
       collectionId: any;
+      topSpacing?: boolean;
     },
     ref,
   ) => {
@@ -315,7 +317,7 @@ const MessageItem = forwardRef(
               })}
           </Container>
         </Modal>
-        {!isChild && !isFirst && <div className={'h-5'} />}
+        {!isChild && !isFirst && topSpacing && <div className={'h-5'} />}
         <div style={style}>
           <div
             className={classNames(

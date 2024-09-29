@@ -1,9 +1,10 @@
 'use client';
 
-import { Container, ScrollArea, Transition } from '@mantine/core';
+import { Container, Divider, ScrollArea, Transition } from '@mantine/core';
 import { useIdle } from '@mantine/hooks';
 import axios from 'axios';
 import classNames from 'classnames';
+import dayjs from 'dayjs';
 import {
   clone,
   cloneDeep,
@@ -130,6 +131,7 @@ const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
   const autoScrollIds = useRef<Record<any, any>>({});
   const messagePageScroll = useRef<HTMLDivElement>(null);
   const [, setLastMessageByCollection] = useLastMessageByCollection();
+  const refDateKey = useRef('');
 
   const scrollToBottom = (offset: number = 0) => {
     const scrollHeight = messagePageScroll.current?.scrollHeight || 0;
@@ -639,39 +641,54 @@ const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
                   <div key={i0}>
                     {map(messages, (message, index) => {
                       const isChild = message.isChild;
+                      const dateKey = dayjs(new Date(message.id)).format('MMMM D, YYYY');
+                      const showDate = refDateKey.current !== dateKey;
+
+                      refDateKey.current = dateKey;
 
                       return (
-                        <Transition
-                          key={[message.id, message.checked].join(':')}
-                          transition={'fade'}
-                          mounted={true}
-                          timingFunction="ease"
-                        >
-                          {(styles) => (
-                            <MessageItem
-                              collectionId={collectionId}
-                              isFirst={index === 0 && i0 === 0}
-                              isLast={i0 === messagesList.length - 1}
-                              ref={(instance) => {
-                                if (instance) messageRefs.current[message.id] = instance;
-                              }}
-                              messages={messages}
-                              setMessages={setMessages}
-                              message={message}
-                              classes={classes}
-                              index={index}
-                              isBottom={isBottom}
-                              scrollToBottom={scrollToBottom}
-                              autoScrollIds={autoScrollIds}
-                              focusTextBox={focusTextBox}
-                              isChild={isChild}
-                              style={styles}
-                              doneMessages={doneMessages}
-                              needRefreshMessageIds={needRefreshMessageIds}
-                              messagePageScroll={messagePageScroll}
+                        <>
+                          {showDate && (
+                            <Divider
+                              key={dateKey}
+                              label={dateKey}
+                              labelPosition="right"
+                              className="my-5"
                             />
                           )}
-                        </Transition>
+                          <Transition
+                            key={[message.id, message.checked].join(':')}
+                            transition={'fade'}
+                            mounted={true}
+                            timingFunction="ease"
+                          >
+                            {(styles) => (
+                              <MessageItem
+                                topSpacing={!showDate}
+                                collectionId={collectionId}
+                                isFirst={index === 0 && i0 === 0}
+                                isLast={i0 === messagesList.length - 1}
+                                ref={(instance) => {
+                                  if (instance) messageRefs.current[message.id] = instance;
+                                }}
+                                messages={messages}
+                                setMessages={setMessages}
+                                message={message}
+                                classes={classes}
+                                index={index}
+                                isBottom={isBottom}
+                                scrollToBottom={scrollToBottom}
+                                autoScrollIds={autoScrollIds}
+                                focusTextBox={focusTextBox}
+                                isChild={isChild}
+                                style={styles}
+                                doneMessages={doneMessages}
+                                needRefreshMessageIds={needRefreshMessageIds}
+                                messagePageScroll={messagePageScroll}
+                              />
+                            )}
+                          </Transition>
+                        </>
                       );
                     })}
                     <ReplyItem

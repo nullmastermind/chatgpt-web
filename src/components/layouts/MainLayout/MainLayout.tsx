@@ -302,7 +302,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             {!!collection.description && (
               <Text
                 color={collection.key === currentCollection ? 'white' : undefined}
-                className="font-normal text-sm text-left line-clamp-1 max-w-full"
+                className="font-normal text-xs text-left line-clamp-1 max-w-full"
                 title={collection.description}
                 style={{
                   lineHeight: '20px',
