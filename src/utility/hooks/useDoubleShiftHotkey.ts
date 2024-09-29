@@ -1,28 +1,36 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 const useDoubleShiftHotkey = (callback: () => void, debounceTime: number = 300) => {
-  const lastShiftPress = useRef<number | null>(null);
+  const lastShiftPress = useRef<number>(0);
   const shiftHeld = useRef<boolean>(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleShiftPress = useCallback(() => {
+    const now = Date.now();
+    if (now - lastShiftPress.current < debounceTime) {
+      callback();
+      lastShiftPress.current = 0; // Reset after successful double press
+    } else {
+      lastShiftPress.current = now;
+    }
+  }, [callback, debounceTime]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Shift') {
-        if (shiftHeld.current) return; // Ignore if Shift is being held down
-
-        const now = Date.now();
-        if (lastShiftPress.current && now - lastShiftPress.current < debounceTime) {
-          callback();
-          lastShiftPress.current = null;
-        } else {
-          lastShiftPress.current = now;
-        }
+      if (event.key === 'Shift' && !shiftHeld.current) {
         shiftHeld.current = true;
+        handleShiftPress();
       }
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
       if (event.key === 'Shift') {
-        shiftHeld.current = false;
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+        timeoutRef.current = setTimeout(() => {
+          shiftHeld.current = false;
+        }, 50); // Short delay to prevent immediate re-trigger
       }
     };
 
@@ -32,8 +40,11 @@ const useDoubleShiftHotkey = (callback: () => void, debounceTime: number = 300) 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
     };
-  }, [callback, debounceTime]);
+  }, [handleShiftPress]);
 
   return null;
 };
