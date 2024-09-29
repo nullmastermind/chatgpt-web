@@ -68,11 +68,11 @@ export type MessageItemType = {
 
 const disableBodyScroll = () => {
   window.scrollTo(0, 0);
-  document.body.style.overflowY = 'hidden';
+  // document.body.style.overflowY = 'hidden';
 };
 
 const enableBodyScroll = () => {
-  document.body.style.overflow = '';
+  // document.body.style.overflow = '';
 };
 
 const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
@@ -626,9 +626,9 @@ const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
             scrollHideDelay={0}
             scrollbarSize={10}
             viewportRef={messagePageScroll}
-            offsetScrollbars={false}
+            offsetScrollbars={true}
           >
-            <Container size="md" className="mb-5 mt-5 p-0">
+            <div className="mb-5 mt-5 p-0">
               {map(messagesList, (messages, i0) => {
                 const position = messagesList
                   .filter((_, i) => i <= i0)
@@ -706,12 +706,12 @@ const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
                   </div>
                 );
               })}
-            </Container>
+            </div>
           </ScrollArea>
         )}
       </div>
       <div className={classes.divider1}>
-        <Container size="md" className={classNames('flex flex-col gap-3 p-3 px-0 m-auto w-full')}>
+        <div className={classNames('flex flex-col gap-3 p-3 px-0 m-auto w-full')}>
           <TypeBox
             ref={boxRef}
             collectionId={collectionId}
@@ -725,7 +725,7 @@ const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
             messages={messages}
             includeMessages={[]}
           />
-        </Container>
+        </div>
       </div>
     </div>
   );
