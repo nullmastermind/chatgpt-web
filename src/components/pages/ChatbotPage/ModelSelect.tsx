@@ -18,8 +18,15 @@ const ModelSelect = () => {
   useEffect(() => {
     const baseUrl = localStorage.getItem(':overrideBaseUrl');
     if (baseUrl) {
+      const openaiKeys = (localStorage.getItem(':openaiKey') || '').split(',');
+      const openaiKey = openaiKeys[0] || '';
+
       axios
-        .get(`${baseUrl}/models`)
+        .get(`${baseUrl}/models`, {
+          headers: {
+            Authorization: `Bearer ${openaiKey}`,
+          },
+        })
         .then(({ data }) => {
           setModelOptions(
             map(data.data, (item) => {
