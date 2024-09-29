@@ -9,7 +9,10 @@ import models from '../../../utility/models.json';
 
 const ModelSelect = () => {
   const [model, setModel] = useModel();
-  const [modelOptions, setModelOptions] = useState(models);
+  const [modelOptions, setModelOptions] = useState(() => {
+    const storedModels = localStorage.getItem(':storedModels');
+    return storedModels ? JSON.parse(storedModels) : models;
+  });
 
   useEffect(() => {
     localStorage.setItem(':model', model);
@@ -28,13 +31,20 @@ const ModelSelect = () => {
           },
         })
         .then(({ data }) => {
-          setModelOptions(
-            map(data.data, (item) => {
-              return { label: item.id, value: item.id, maxTokens: 100000, price: 0 } as any;
-            }),
-          );
+          const newModelOptions = map(data.data, (item) => ({
+            label: item.id,
+            value: item.id,
+            maxTokens: 100000,
+            price: 0,
+          }));
+          setModelOptions(newModelOptions);
+          // Store the new model options in localStorage
+          localStorage.setItem(':storedModels', JSON.stringify(newModelOptions));
         })
-        .catch(Promise.resolve);
+        .catch(() => {
+          localStorage.removeItem(':storedModels');
+          setModelOptions(models);
+        });
     }
   }, []);
 
@@ -45,6 +55,7 @@ const ModelSelect = () => {
         size={'xs'}
         data={modelOptions}
         onChange={(e) => setModel(e.target.value)}
+        className="w-48" // Added fixed width using Tailwind
       />
     </>
   );
