@@ -642,7 +642,9 @@ const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
                     {map(messages, (message, index) => {
                       const isChild = message.isChild;
                       const dateKey = dayjs(new Date(message.id)).format('MMMM D, YYYY');
-                      const showDate = refDateKey.current !== dateKey;
+                      const showDate =
+                        refDateKey.current !== dateKey ||
+                        (i0 === messagesList.length - 1 && index === 0);
 
                       refDateKey.current = dateKey;
 
