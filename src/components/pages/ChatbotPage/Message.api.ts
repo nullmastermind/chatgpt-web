@@ -102,6 +102,10 @@ export async function requestChatStream(
   clearTimeout(TOKEN_TIMEOUT);
   TOKEN_TIMEOUT = setTimeout(() => localStorage.removeItem(':latestToken'), 1000 * 60);
 
+  Object.assign(req, {
+    overrideBaseUrl: localStorage.getItem(':overrideBaseUrl'),
+  });
+
   try {
     const res = await fetch('/api/chat-stream', {
       method: 'POST',
