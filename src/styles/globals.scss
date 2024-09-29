@@ -2,11 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Source Sans 3';
+  src: url('/fonts/SourceSans3VF-Roman.ttf.woff2') format('woff2-variations');
+  font-weight: 200 900;
+  font-stretch: 75% 125%;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Source Code Pro';
+  src: url('/fonts/SourceCodePro-Regular.ttf.woff2') format('woff2-variations');
+  font-weight: 200 900;
+  font-stretch: 75% 125%;
+  font-style: normal;
+}
+
 body {
   padding: 0;
   margin: 0;
   font-size: 15px !important;
   line-height: 1.5 !important;
+  font-family: 'Source Sans 3', sans-serif !important;
 }
 
 p,
