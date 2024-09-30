@@ -124,7 +124,11 @@ export async function requestChatStream(
     let responseText = '';
 
     const finish = () => {
-      options?.onMessage(responseText, true, res.headers.get('x-routed-model') || '');
+      options?.onMessage(
+        responseText,
+        true,
+        res.headers.get('x-routed-model') || options?.modelConfig?.model || '',
+      );
       controller.abort();
     };
 
@@ -143,7 +147,11 @@ export async function requestChatStream(
         responseText += text;
 
         const done = !content || content.done;
-        options?.onMessage(responseText, false, res.headers.get('x-routed-model') || '');
+        options?.onMessage(
+          responseText,
+          false,
+          res.headers.get('x-routed-model') || options?.modelConfig?.model || '',
+        );
 
         if (done) {
           break;
