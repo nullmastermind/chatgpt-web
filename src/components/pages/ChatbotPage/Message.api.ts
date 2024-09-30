@@ -60,7 +60,7 @@ export async function requestChatStream(
     token?: string;
     filterBot?: boolean;
     modelConfig?: ModelConfig;
-    onMessage: (message: string, done: boolean) => void;
+    onMessage: (message: string, done: boolean, model?: string) => void;
     onError: (error: Error, statusCode?: number) => void;
     onController?: (controller: AbortController) => void;
     insertModel?: boolean;
@@ -124,7 +124,7 @@ export async function requestChatStream(
     let responseText = '';
 
     const finish = () => {
-      options?.onMessage(responseText, true);
+      options?.onMessage(responseText, true, res.headers.get('x-routed-model') || '');
       controller.abort();
     };
 
@@ -143,7 +143,7 @@ export async function requestChatStream(
         responseText += text;
 
         const done = !content || content.done;
-        options?.onMessage(responseText, false);
+        options?.onMessage(responseText, false, res.headers.get('x-routed-model') || '');
 
         if (done) {
           break;

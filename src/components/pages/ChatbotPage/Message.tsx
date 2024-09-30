@@ -469,16 +469,19 @@ const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
         }
       }
 
-      const saveMessagesFn = async (message: string) => {
+      const saveMessagesFn = async (message: string, model?: string) => {
         const dbMessages: any[] = (await store.getItem(messagesKey(collectionId))) || [];
         const dbMsgIndex = findIndex(dbMessages, (v: any) => v.id === assistantPreMessage.id);
         if (dbMsgIndex >= 0) {
           dbMessages[dbMsgIndex].content = message;
+          if (model) {
+            dbMessages[dbMsgIndex].model = model;
+          }
           await store.setItem(messagesKey(collectionId), dbMessages);
         }
       };
-      const saveMessagesThr = throttle((message: string) => {
-        saveMessagesFn(message);
+      const saveMessagesThr = throttle((message: string, model?: string) => {
+        saveMessagesFn(message, model);
       }, 1000);
 
       const apiMessages = requestMessages
@@ -550,7 +553,7 @@ const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
 
       requestChatStream('v1/chat/completions', finalMessages, {
         insertModel: true,
-        onMessage(message: string, done: boolean): void {
+        onMessage(message: string, done: boolean, model): void {
           if (done) {
             message = postprocessAnswer(message, done);
             if (prompt.wrapSingleLine) {
@@ -562,13 +565,13 @@ const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
             message = processTaggedMessage(prompt.customXmlTag as string, message, done);
           }
 
-          saveMessagesThr(message);
+          saveMessagesThr(message, model);
 
           if (messageRefs.current[assistantPreMessage.id]) {
             messageRefs.current[assistantPreMessage.id].editMessage(message, done);
           }
           if (done) {
-            saveMessagesFn(message);
+            saveMessagesFn(message, model);
             delete messageRefs.current[assistantPreMessage.id];
             setIsDone(assistantPreMessage.id, true);
           }
