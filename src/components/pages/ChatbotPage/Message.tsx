@@ -549,6 +549,7 @@ const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
       }
 
       requestChatStream('v1/chat/completions', finalMessages, {
+        insertModel: true,
         onMessage(message: string, done: boolean): void {
           if (done) {
             message = postprocessAnswer(message, done);

@@ -63,6 +63,7 @@ export async function requestChatStream(
     onMessage: (message: string, done: boolean) => void;
     onError: (error: Error, statusCode?: number) => void;
     onController?: (controller: AbortController) => void;
+    insertModel?: boolean;
   },
 ) {
   if (!Array.isArray(messages)) {
@@ -83,6 +84,7 @@ export async function requestChatStream(
       filterBot: options?.filterBot,
     }),
     ...(options?.modelConfig || {}),
+    insertModel: options?.insertModel,
   };
 
   console.log('[Request] ', req);

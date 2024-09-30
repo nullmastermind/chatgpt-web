@@ -63,6 +63,7 @@ export async function requestOpenai(req: NextRequest) {
   }
 
   delete reqBody.overrideBaseUrl;
+  delete reqBody.insertModel;
 
   return fetch(`${PROTOCOL}://${baseUrl}/${openaiPath}`, {
     headers,

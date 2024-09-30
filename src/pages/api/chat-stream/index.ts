@@ -13,51 +13,56 @@ async function createStream(req: NextRequest) {
   if (!contentType.includes('stream')) {
     const content = (await res.text()).replace(/provided:.*. You/, 'provided: ***. You');
     console.log('[Stream] error ', content);
-    return '```json\n' + content + '```';
+    return { body: '```json\n' + content + '```', model: res.headers.get('x-routed-model') };
   }
 
-  return new ReadableStream({
-    async start(controller) {
-      function onParse(event: any) {
-        if (event.type === 'event') {
-          const data = event.data;
-          let json: Record<any, any> = {};
+  return {
+    body: new ReadableStream({
+      async start(controller) {
+        function onParse(event: any) {
+          if (event.type === 'event') {
+            const data = event.data;
+            let json: Record<any, any> = {};
 
-          try {
-            json = JSON.parse(data);
-          } catch {}
+            try {
+              json = JSON.parse(data);
+            } catch {}
 
-          // https://beta.openai.com/docs/api-reference/completions/create#completions/create-stream
-          if (data === '[DONE]' || json.type === 'message_stop') {
-            controller.close();
-            return;
-          }
-          try {
-            const text =
-              json.choices?.[0]?.text ||
-              json.choices?.[0]?.delta?.content ||
-              json.delta?.text ||
-              '';
-            const queue = encoder.encode(text);
-            controller.enqueue(queue);
-          } catch (e) {
-            controller.error(e);
+            // https://beta.openai.com/docs/api-reference/completions/create#completions/create-stream
+            if (data === '[DONE]' || json.type === 'message_stop') {
+              controller.close();
+              return;
+            }
+            try {
+              const text =
+                json.choices?.[0]?.text ||
+                json.choices?.[0]?.delta?.content ||
+                json.delta?.text ||
+                '';
+              const queue = encoder.encode(text);
+              controller.enqueue(queue);
+            } catch (e) {
+              controller.error(e);
+            }
           }
         }
-      }
 
-      const parser = createParser(onParse);
-      for await (const chunk of res.body as any) {
-        parser.feed(decoder.decode(chunk));
-      }
-    },
-  });
+        const parser = createParser(onParse);
+        for await (const chunk of res.body as any) {
+          parser.feed(decoder.decode(chunk));
+        }
+      },
+    }),
+    model: res.headers.get('x-routed-model'),
+  };
 }
 
 export default async function POST(req: NextRequest) {
   try {
-    const stream = await createStream(req);
-    return new Response(stream);
+    const { body: stream, model } = await createStream(req);
+    const response = new Response(stream);
+    response.headers.set('x-routed-model', model || ''); // Adding the "hello" header
+    return response;
   } catch (error) {
     console.error('[Chat Stream]', error);
     return new Response(['```json\n', JSON.stringify(error, null, '  '), '\n```'].join(''));
