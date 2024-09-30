@@ -11,13 +11,7 @@ import {
   px,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import {
-  IconCopy,
-  IconMoodPuzzled,
-  IconUser,
-  IconUserQuestion,
-  IconVolume,
-} from '@tabler/icons-react';
+import { IconCopy, IconUser, IconVolume } from '@tabler/icons-react';
 import classNames from 'classnames';
 import { cloneDeep, find, findIndex, map } from 'lodash';
 import React, {
@@ -37,7 +31,7 @@ import FunnyEmoji from '@/components/misc/FunnyEmoji';
 import PreviewAttach from '@/components/misc/PreviewAttach';
 import TextToSpeech from '@/components/misc/TextToSpeech';
 import TypingBlinkCursor from '@/components/misc/TypingBlinkCursor';
-import { AttachItem } from '@/components/misc/types';
+import { AttachItem, AttachItemType } from '@/components/misc/types';
 import AttachName from '@/components/pages/ChatbotPage/Attach/AttachName';
 import DateInfo from '@/components/pages/ChatbotPage/DateInfo';
 import MemoizedReactMarkdown from '@/components/pages/ChatbotPage/MemoizedReactMarkdown';
@@ -130,14 +124,20 @@ const MessageItem = forwardRef(
     };
 
     useImperativeHandle(ref, () => ({
-      editMessage(newMessage: string, isDone: boolean) {
+      editMessage(newMessage: string, isDone: boolean, model?: string) {
         messages[index].content = newMessage;
+
+        if (model) {
+          messages[index].model = model;
+        }
+
         clearInterval(smoothIntervalId.current);
 
         if (document.hidden) {
           setMessage({
             ...message,
             content: newMessage,
+            model,
           });
           if (isDone) {
             setIsTyping(false);
@@ -181,6 +181,7 @@ const MessageItem = forwardRef(
             setMessage((prevState) => ({
               ...prevState,
               content: smoothCurrentContent.current,
+              model,
             }));
 
             setIsTyping(true);
@@ -195,6 +196,7 @@ const MessageItem = forwardRef(
             setMessage({
               ...message,
               content: newMessage,
+              model,
             });
             doneMessages.current[message.id] = true;
             clearInterval(smoothIntervalId.current);
@@ -502,7 +504,7 @@ const MessageItem = forwardRef(
               )}
               <Transition
                 transition={'slide-up'}
-                mounted={attachItems.length > 0}
+                mounted={attachItems.length > 0 || inputMessage.model}
                 duration={200}
                 timingFunction="ease"
               >
@@ -510,20 +512,34 @@ const MessageItem = forwardRef(
                   <div style={styles} className={'flex flex-row relative px-2 mt-2'}>
                     <div className={'flex-grow'}>
                       <div className={'flex flex-row w-full gap-1 items-center flex-wrap'}>
-                        {map(attachItems, (item) => {
-                          return (
-                            <div
-                              key={item.id}
-                              className={'flex items-center cursor-pointer'}
-                              title={'Preview'}
-                              onClick={() => {
-                                setPreviewAttachItem(item);
-                              }}
-                            >
-                              <AttachName name={item.name} type={item.type} />
-                            </div>
-                          );
-                        })}
+                        {map(
+                          [
+                            ...attachItems,
+                            {
+                              id: inputMessage.model,
+                              type: AttachItemType.MODEL,
+                              name: inputMessage.model,
+                              data: inputMessage.model,
+                              createdAt: new Date(),
+                              isFile: false,
+                            } as any as AttachItem,
+                          ],
+                          (item) => {
+                            return (
+                              <div
+                                key={item.id}
+                                className={'flex items-center cursor-pointer'}
+                                title={'Preview'}
+                                onClick={() => {
+                                  if (item.type !== AttachItemType.MODEL)
+                                    setPreviewAttachItem(item);
+                                }}
+                              >
+                                <AttachName name={item.name} type={item.type} />
+                              </div>
+                            );
+                          },
+                        )}
                       </div>
                     </div>
                   </div>

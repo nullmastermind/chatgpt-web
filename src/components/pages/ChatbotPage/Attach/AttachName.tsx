@@ -1,6 +1,7 @@
 import { ActionIcon, Badge, Transition } from '@mantine/core';
 import {
   IconBlockquote,
+  IconBrandOpenai,
   IconBrandShazam,
   IconCsv,
   IconFileStack,
@@ -35,6 +36,7 @@ const AttachName = memo<{
               {type === AttachItemType.Image && <IconPhotoEdit size="1rem" />}
               {type === AttachItemType.Audio && <IconBrandShazam size="1rem" />}
               {type === AttachItemType.Website && <IconUnlink size="1rem" />}
+              {type === AttachItemType.MODEL && <IconBrandOpenai size="1rem" />}
             </div>
           }
           variant={'dot'}
@@ -42,7 +44,7 @@ const AttachName = memo<{
             'pr-0': !!onRemove,
           })}
           rightSection={
-            onRemove ? (
+            onRemove && type !== AttachItemType.MODEL ? (
               <ActionIcon
                 size="xs"
                 color="blue"

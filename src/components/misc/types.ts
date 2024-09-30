@@ -7,6 +7,7 @@ export enum AttachItemType {
   Image = 'IMAGE',
   Audio = 'AUDIO',
   Website = 'WEBSITE',
+  MODEL = 'MODEL',
 }
 
 export type AttachItem = {

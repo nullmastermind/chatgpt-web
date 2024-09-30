@@ -64,6 +64,7 @@ export type MessageItemType = {
   docId?: string;
   docs?: string[];
   docHashes?: string[];
+  model?: string;
 };
 
 const disableBodyScroll = () => {
@@ -94,6 +95,8 @@ const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
   const [model] = useModel();
   const isIdle = useIdle(60000);
   const messagesList = useMemo<MessageItemType[][]>(() => {
+    console.log('messages', messages);
+
     const result: any[] = [];
     let replyMessages0: any[] = [];
     forEach(messages, (message, index) => {
@@ -240,6 +243,7 @@ const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
       }
     });
     if (canSave) {
+      const messages: MessageItemType[] = (await store.getItem(messagesKey(collectionId))) || [];
       const maxMessages = parseInt(localStorage.getItem(':maxMessages') || '10');
       const saveMessages = messages.splice(-maxMessages);
       if (saveMessages.length > 0) await store.setItem(messagesKey(collectionId), saveMessages);
@@ -568,7 +572,7 @@ const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
           saveMessagesThr(message, model);
 
           if (messageRefs.current[assistantPreMessage.id]) {
-            messageRefs.current[assistantPreMessage.id].editMessage(message, done);
+            messageRefs.current[assistantPreMessage.id].editMessage(message, done, model);
           }
           if (done) {
             saveMessagesFn(message, model);
