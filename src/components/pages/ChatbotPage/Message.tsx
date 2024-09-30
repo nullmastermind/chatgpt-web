@@ -95,8 +95,6 @@ const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
   const [model] = useModel();
   const isIdle = useIdle(60000);
   const messagesList = useMemo<MessageItemType[][]>(() => {
-    console.log('messages', messages);
-
     const result: any[] = [];
     let replyMessages0: any[] = [];
     forEach(messages, (message, index) => {
