@@ -514,15 +514,19 @@ const MessageItem = forwardRef(
                       <div className={'flex flex-row w-full gap-1 items-center flex-wrap'}>
                         {map(
                           [
+                            ...(inputMessage.model
+                              ? [
+                                  {
+                                    id: inputMessage.model,
+                                    type: AttachItemType.MODEL,
+                                    name: inputMessage.model,
+                                    data: inputMessage.model,
+                                    createdAt: new Date(),
+                                    isFile: false,
+                                  } as any as AttachItem,
+                                ]
+                              : []),
                             ...attachItems,
-                            {
-                              id: inputMessage.model,
-                              type: AttachItemType.MODEL,
-                              name: inputMessage.model,
-                              data: inputMessage.model,
-                              createdAt: new Date(),
-                              isFile: false,
-                            } as any as AttachItem,
                           ],
                           (item) => {
                             return (
