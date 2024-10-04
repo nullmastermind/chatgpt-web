@@ -25,7 +25,7 @@ const ModelSelect = () => {
       const openaiKey = openaiKeys[0] || '';
 
       axios
-        .get(`${baseUrl}/models`, {
+        .get(`${baseUrl}/v1/models`, {
           headers: {
             Authorization: `Bearer ${openaiKey}`,
           },
