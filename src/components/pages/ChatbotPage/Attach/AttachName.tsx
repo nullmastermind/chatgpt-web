@@ -1,7 +1,6 @@
 import { ActionIcon, Badge, Transition } from '@mantine/core';
 import {
   IconBlockquote,
-  IconBrandOpenai,
   IconBrandShazam,
   IconCsv,
   IconFileStack,
@@ -13,6 +12,7 @@ import {
 import classNames from 'classnames';
 import React, { memo } from 'react';
 
+import IconAIModel from '@/components/misc/icons/IconAIModel';
 import { AttachItemType } from '@/components/misc/types';
 
 const AttachName = memo<{
@@ -36,7 +36,7 @@ const AttachName = memo<{
               {type === AttachItemType.Image && <IconPhotoEdit size="1rem" />}
               {type === AttachItemType.Audio && <IconBrandShazam size="1rem" />}
               {type === AttachItemType.Website && <IconUnlink size="1rem" />}
-              {type === AttachItemType.MODEL && <IconBrandOpenai size="1rem" />}
+              {type === AttachItemType.MODEL && <IconAIModel className="w-3.5 h-3.5" />}
             </div>
           }
           variant={'dot'}
