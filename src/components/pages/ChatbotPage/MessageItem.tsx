@@ -30,6 +30,7 @@ import { useMount, useUnmount } from 'react-use';
 import FunnyEmoji from '@/components/misc/FunnyEmoji';
 import PreviewAttach from '@/components/misc/PreviewAttach';
 import TextToSpeech from '@/components/misc/TextToSpeech';
+import ThinkingCursor from '@/components/misc/ThinkingCursor';
 import TypingBlinkCursor from '@/components/misc/TypingBlinkCursor';
 import { AttachItem, AttachItemType } from '@/components/misc/types';
 import AttachName from '@/components/pages/ChatbotPage/Attach/AttachName';
@@ -468,7 +469,7 @@ const MessageItem = forwardRef(
                     messagePageScroll={messagePageScroll}
                   />
                 )}
-                {message.content === '...' && <TypingBlinkCursor />}
+                {message.content === '...' && <ThinkingCursor />}
               </div>
               {hasDocs && (
                 <div className="mx-2">
