@@ -469,7 +469,7 @@ const MessageItem = forwardRef(
                     messagePageScroll={messagePageScroll}
                   />
                 )}
-                {message.content === '...' && <ThinkingCursor />}
+                {message.content === '...' && <ThinkingCursor model={message.model} />}
               </div>
               {hasDocs && (
                 <div className="mx-2">
