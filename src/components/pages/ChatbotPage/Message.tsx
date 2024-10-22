@@ -17,6 +17,7 @@ import {
   uniqueId,
 } from 'lodash';
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { isMobile } from 'react-device-detect';
 import { useDebounce, useList, useMap, useMeasure, useUnmount } from 'react-use';
 
 import { AttachItem, TMessageItem } from '@/components/misc/types';
@@ -69,11 +70,11 @@ export type MessageItemType = {
 
 const disableBodyScroll = () => {
   window.scrollTo(0, 0);
-  // document.body.style.overflowY = 'hidden';
+  document.body.style.overflowY = 'hidden';
 };
 
 const enableBodyScroll = () => {
-  // document.body.style.overflow = '';
+  document.body.style.overflow = '';
 };
 
 const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
@@ -251,7 +252,7 @@ const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
   };
 
   useEffect(() => {
-    if (!isDialog) {
+    if (!isDialog && !isMobile) {
       disableBodyScroll();
       return () => enableBodyScroll();
     }

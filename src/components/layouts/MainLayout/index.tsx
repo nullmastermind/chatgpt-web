@@ -1,5 +1,7 @@
 import dynamic from 'next/dynamic';
 
-export default dynamic(() => import('./MainLayout'), {
+const MainLayout = dynamic(() => import('./MainLayout'), {
   ssr: false,
 });
+
+export default MainLayout;
