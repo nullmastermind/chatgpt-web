@@ -13,24 +13,19 @@ import {
   TextInput,
   Title,
 } from '@mantine/core';
-import { useDebouncedState } from '@mantine/hooks';
-import { IconCornerDownLeft, IconFileStack, IconX } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
+import {useDebouncedState} from '@mantine/hooks';
+import {IconCornerDownLeft, IconFileStack, IconX} from '@tabler/icons-react';
+import {useQuery} from '@tanstack/react-query';
 import axios from 'axios';
-import { filter, findIndex, map, uniqBy } from 'lodash';
-import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
-import { useDebounce, useLocalStorage, useSetState } from 'react-use';
-import { v4 } from 'uuid';
+import {filter, findIndex, map, uniqBy} from 'lodash';
+import React, {memo, useEffect, useMemo, useRef, useState} from 'react';
+import {useDebounce, useLocalStorage, useSetState} from 'react-use';
+import {v4} from 'uuid';
 
-import {
-  AttachItem,
-  AttachItemType,
-  TDocumentItem,
-  TIndexedDocumentItem,
-} from '@/components/misc/types';
+import {AttachItem, AttachItemType, TDocumentItem, TIndexedDocumentItem,} from '@/components/misc/types';
 import AttachDocumentItem from '@/components/pages/ChatbotPage/Attach/AttachDocumentItem';
-import { indexerHost } from '@/config';
-import { useOpenaiAPIKey } from '@/states/states';
+import {indexerHost} from '@/config';
+import {useOpenaiAPIKey} from '@/states/states';
 
 const AttachDocument = memo<{
   opened: boolean;
