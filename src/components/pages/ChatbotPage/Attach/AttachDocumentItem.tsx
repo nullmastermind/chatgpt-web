@@ -2,8 +2,6 @@ import { Button, Card, Divider, ScrollArea } from '@mantine/core';
 import React, { ReactNode, memo } from 'react';
 
 import { TIndexedDocumentItem } from '@/components/misc/types';
-import MemoizedReactMarkdown from '@/components/pages/ChatbotPage/MemoizedReactMarkdown';
-import { isCDocumentCode, trimDocumentContent } from '@/utility/utility';
 
 const AttachDocumentItem = memo<{
   item: TIndexedDocumentItem;
@@ -27,14 +25,17 @@ const AttachDocumentItem = memo<{
         <Card.Section className={'px-3'}>
           <div className={'flex flex-col sm:flex-row gap-2'}>
             <ScrollArea.Autosize mah={256} maw={500} className={'flex-grow'}>
-              <MemoizedReactMarkdown
-                smallText={true}
-                content={
-                  isCDocumentCode(item[0].pageContent)
-                    ? `\`\`\`${trimDocumentContent(item[0].pageContent)}`
-                    : trimDocumentContent(item[0].pageContent)
-                }
-              />
+              {/*<MemoizedReactMarkdown*/}
+              {/*  smallText={true}*/}
+              {/*  content={*/}
+              {/*    isCDocumentCode(item[0].pageContent)*/}
+              {/*      ? `\`\`\`${trimDocumentContent(item[0].pageContent)}`*/}
+              {/*      : trimDocumentContent(item[0].pageContent)*/}
+              {/*  }*/}
+              {/*/>*/}
+              <pre className={'text-xs'} style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+                {item[0].pageContent}
+              </pre>
             </ScrollArea.Autosize>
             <div className={'py-3'}>
               <Button size={'xs'} variant={'default'} onClick={() => onClickButton()}>

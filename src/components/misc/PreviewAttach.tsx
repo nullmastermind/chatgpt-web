@@ -4,8 +4,6 @@ import { map } from 'lodash';
 import React, { memo } from 'react';
 
 import { AttachItem, AttachItemType } from '@/components/misc/types';
-import MemoizedReactMarkdown from '@/components/pages/ChatbotPage/MemoizedReactMarkdown';
-import { isCDocumentCode, trimDocumentContent } from '@/utility/utility';
 
 const PreviewAttach = memo<{
   attachItem: AttachItem;
