@@ -13,9 +13,12 @@ const AttachDocumentItem = memo<{
       <Card>
         <Card.Section>
           <div
-            className={'px-2 text-xs font-bold line-clamp-1'}
+            className={'px-2 text-xs font-bold whitespace-normal break-words'}
             style={{
               color: 'rgb(77, 171, 247)',
+              maxWidth: '100%',
+              overflowWrap: 'break-word',
+              wordBreak: 'break-all',
             }}
           >
             {`${item[0].metadata.source}:${item[0].metadata?.loc?.lines?.from}:${item[0].metadata?.loc?.lines?.to}`}

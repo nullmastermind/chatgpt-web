@@ -42,9 +42,12 @@ const PreviewAttach = memo<{
                   <>
                     <Card.Section>
                       <div
-                        className={'text-xs font-bold px-2'}
+                        className={'px-2 text-xs font-bold whitespace-normal break-words'}
                         style={{
                           color: 'rgb(77, 171, 247)',
+                          maxWidth: '100%',
+                          overflowWrap: 'break-word',
+                          wordBreak: 'break-all',
                         }}
                       >
                         {value.name}
