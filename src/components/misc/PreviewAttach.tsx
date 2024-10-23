@@ -62,19 +62,25 @@ const PreviewAttach = memo<{
                         maxWidth: 570,
                       }}
                     >
-                      <MemoizedReactMarkdown
-                        smallText={true}
-                        content={
-                          (() => {
-                            if (value.isDocument) {
-                              return isCDocumentCode(value.content)
-                                ? `\`\`\`${trimDocumentContent(value.content)}`
-                                : trimDocumentContent(value.content);
-                            }
-                            return value.content;
-                          })() as any
-                        }
-                      />
+                      <pre
+                        className={'text-xs'}
+                        style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
+                      >
+                        {value.content}
+                      </pre>
+                      {/*<MemoizedReactMarkdown*/}
+                      {/*  smallText={true}*/}
+                      {/*  content={*/}
+                      {/*    (() => {*/}
+                      {/*      if (value.isDocument) {*/}
+                      {/*        return isCDocumentCode(value.content)*/}
+                      {/*          ? `\`\`\`${trimDocumentContent(value.content)}`*/}
+                      {/*          : trimDocumentContent(value.content);*/}
+                      {/*      }*/}
+                      {/*      return value.content;*/}
+                      {/*    })() as any*/}
+                      {/*  }*/}
+                      {/*/>*/}
                     </div>
                   </ScrollArea.Autosize>
                 </Card.Section>
