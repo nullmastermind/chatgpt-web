@@ -58,25 +58,26 @@ const AttachDocument = memo<{
   const [addedItems, setAddedItems] = useState<TIndexedDocumentItem[]>([]);
   const [activeTab, setActiveTab] = useState<'query' | 'added'>('query');
 
-  const queryDocuments = (query: string) => {
-    setLoadings({ query: true });
-    axios
-      .post(`${indexerHost}/api/query`, {
+  const queryDocuments = async (query: string) => {
+    try {
+      setLoadings({ query: true });
+
+      const response = await axios.post(`${indexerHost}/api/query`, {
         doc_id: documentId,
         query,
         apiKey,
-        maxScore: 0.6,
-        k: 5,
-        includeAllIfKLessThanScore: 0.3,
-        ignoreHashes: [],
-      })
-      .then(({ data: { data } }) => {
-        setQueryDocumentItems(data);
-      })
-      .finally(() => {
-        setLoadings({ query: false });
-        setActiveTab('query');
+        k: 20,
+        minScore: 0.3,
+        ignoreHashes: addedItems.map((item) => item?.[0]?.metadata?.hash),
       });
+
+      setQueryDocumentItems(response.data.data);
+    } catch (error) {
+      console.error('Error querying documents:', error);
+    } finally {
+      setLoadings({ query: false });
+      setActiveTab('query');
+    }
   };
 
   useEffect(() => {
