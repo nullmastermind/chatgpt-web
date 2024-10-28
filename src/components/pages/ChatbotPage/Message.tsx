@@ -31,10 +31,8 @@ import store, { attachKey, messagesKey } from '@/utility/store';
 import {
   countTokens,
   htmlEncode,
-  isCDocumentCode,
   postprocessAnswer,
   processTaggedMessage,
-  trimDocumentContent,
   unWrapRawContent,
   wrapRawContent,
 } from '@/utility/utility';
