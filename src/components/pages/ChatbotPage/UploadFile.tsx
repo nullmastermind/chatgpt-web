@@ -42,6 +42,7 @@ const UploadFile = memo<{
     else data.push(item);
     onChange(clone(data));
     resetEdit();
+    editorRef.current?.focus();
   };
 
   // useDoubleShiftHotkey(() => {
