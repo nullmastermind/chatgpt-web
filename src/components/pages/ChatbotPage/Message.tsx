@@ -472,7 +472,7 @@ ${value.content}
             ...[
               {
                 role: 'user',
-                content: `<|BEGIN_ATTACHMENTS|>\n${attachMessages.map((m) => m.content).join('\n\n')}\n<|END_ATTACHMENTS|>\nPlease use the information from the attachments to inform your responses, but respond naturally without explicitly referencing them.`,
+                content: `<|BEGIN_ATTACHMENTS|>\n${attachMessages.map((m) => m.content).join('\n\n')}\n<|END_ATTACHMENTS|>\nPlease use the information from the attachments to inform your responses, but respond naturally as if it's your own knowledge.`,
               },
             ],
           );
