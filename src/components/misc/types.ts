@@ -27,7 +27,7 @@ export type AttachItem = {
 };
 
 export type TMessageItem = {
-  role: 'system' | 'user' | 'assistant';
+  role: 'system' | 'user' | 'assistant' | string;
   content: string;
   name?: string;
   id?: string | number;

@@ -1,8 +1,7 @@
 'use client';
 
-import { Container, Divider, ScrollArea, Transition } from '@mantine/core';
+import { Divider, ScrollArea, Transition } from '@mantine/core';
 import { useIdle } from '@mantine/hooks';
-import axios from 'axios';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
 import {
@@ -27,14 +26,10 @@ import useStyles from '@/components/pages/ChatbotPage/Message.style';
 import MessageItem from '@/components/pages/ChatbotPage/MessageItem';
 import ReplyItem from '@/components/pages/ChatbotPage/ReplyItem';
 import { TypeBox } from '@/components/pages/ChatbotPage/TypeBox';
-import { indexerHost } from '@/config';
 import { useLastMessageByCollection, useModel, useOpenaiAPIKey } from '@/states/states';
 import store, { attachKey, messagesKey } from '@/utility/store';
 import {
-  Docs,
   countTokens,
-  doc2ChatContent,
-  filterDocs,
   htmlEncode,
   isCDocumentCode,
   postprocessAnswer,
@@ -448,7 +443,7 @@ const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
                     header += `\n\n${value.name}`;
                   }
                 } else if (value.isDocument) {
-                  header = `# Reference: ${value.name}`;
+                  header = `# Document: ${value.name}`;
                   const isCode = isCDocumentCode(value.content);
                   value.content = trimDocumentContent(value.content);
                   value.content = isCode ? '```\n' + value.content + '\n```' : value.content;
@@ -464,8 +459,20 @@ const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
             });
           });
 
-          requestMessages.splice(i, 0, ...attachMessages);
-          i += attachMessages.length; // Adjust index to account for newly inserted messages
+          // requestMessages.splice(i, 0, ...attachMessages);
+          // i += attachMessages.length; // Adjust index to account for newly inserted messages
+
+          requestMessages.splice(
+            i,
+            0,
+            ...[
+              {
+                role: 'user',
+                content: `<|BEGIN_ATTACHMENTS|>\n${attachMessages.map((m) => m.content).join('\n\n')}\n<|END_ATTACHMENTS|>\nPlease use the information from the attachments to inform your responses, but respond naturally without explicitly referencing them. Avoid phrases like "Based on the attachments..." or "According to the documents..."`,
+              },
+            ],
+          );
+          i += 1;
         }
       }
 
