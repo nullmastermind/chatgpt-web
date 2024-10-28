@@ -309,64 +309,61 @@ const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
       const userMessage = messages[streamIndex - 2];
       const assistantPreMessage: MessageItemType = messages[streamIndex - 1];
 
-      if (userMessage.docId) {
-        try {
-          const ignoreHashes: string[] = [];
-
-          forEach(includes, (m) => {
-            if (Array.isArray(m.docHashes)) {
-              ignoreHashes.push(...m.docHashes);
-            }
-          });
-
-          let lastAssistantMessage = undefined;
-
-          if (userMessage.isChild) {
-            lastAssistantMessage =
-              messages[
-                findIndex(messages, (value) => {
-                  return value.id === userMessage.id;
-                }) - 1
-              ];
-          }
-
-          const {
-            data: query,
-          }: {
-            data: Docs;
-          } = await axios.post(`${indexerHost}/api/query`, {
-            doc_id: userMessage.docId,
-            query: [
-              ...includes.filter((v) => v.source === 'user').map((v) => v.content),
-              lastAssistantMessage?.content,
-              userMessage.content,
-            ]
-              .filter((v) => typeof v === 'string' && v.length > 0)
-              .join('\n'),
-            apiKey: openaiAPIKey.split(',')[0], // maxScore: includes.length > 0 ? 0.4 : 0.45,
-            maxScore: 0.6,
-            k: includes.length > 0 ? 1 : 5,
-            includeAllIfKLessThanScore: 0.3,
-            ignoreHashes,
-          });
-
-          const filteredDocs = filterDocs(query.data, 0.06);
-
-          messages[streamIndex - 2].docHashes = filteredDocs.map((v) => v[0].metadata.hash);
-          messages[streamIndex - 2].docs = map(filteredDocs, (value) => {
-            return doc2ChatContent(value[0], 1.0 - value[1]);
-          });
-          userMessage.docHashes = messages[streamIndex - 2].docHashes;
-          userMessage.docs = messages[streamIndex - 2].docs;
-        } catch (e) {}
-
-        messages[streamIndex - 2].docId = undefined;
-        userMessage.docId = undefined;
-        needRefreshMessageIds.current[userMessage.id] = userMessage;
-        if (messages.length > 0) await store.setItem(messagesKey(collectionId), messages);
-        setMessages(clone(messages));
-        return;
-      }
+      // if (userMessage.docId) {
+      //   try {
+      //     const ignoreHashes: string[] = [];
+      //
+      //     forEach(includes, (m) => {
+      //       if (Array.isArray(m.docHashes)) {
+      //         ignoreHashes.push(...m.docHashes);
+      //       }
+      //     });
+      //
+      //     let lastAssistantMessage = undefined;
+      //
+      //     if (userMessage.isChild) {
+      //       lastAssistantMessage =
+      //         messages[
+      //           findIndex(messages, (value) => {
+      //             return value.id === userMessage.id;
+      //           }) - 1
+      //         ];
+      //     }
+      //
+      //     const {
+      //       data: query,
+      //     }: {
+      //       data: Docs;
+      //     } = await axios.post(`${indexerHost}/api/query`, {
+      //       doc_id: userMessage.docId,
+      //       query: [
+      //         ...includes.filter((v) => v.source === 'user').map((v) => v.content),
+      //         lastAssistantMessage?.content,
+      //         userMessage.content,
+      //       ]
+      //         .filter((v) => typeof v === 'string' && v.length > 0)
+      //         .join('\n'),
+      //       apiKey: openaiAPIKey.split(',')[0], // maxScore: includes.length > 0 ? 0.4 : 0.45,
+      //       ignoreHashes,
+      //     });
+      //
+      //     const filteredDocs = filterDocs(query.data, 0.06);
+      //
+      //     messages[streamIndex - 2].docHashes = filteredDocs.map((v) => v[0].metadata.hash);
+      //     messages[streamIndex - 2].docs = map(filteredDocs, (value) => {
+      //       return doc2ChatContent(value[0], 1.0 - value[1]);
+      //     });
+      //     userMessage.docHashes = messages[streamIndex - 2].docHashes;
+      //     userMessage.docs = messages[streamIndex - 2].docs;
+      //   } catch (e) {}
+      //
+      //   messages[streamIndex - 2].docId = undefined;
+      //   userMessage.docId = undefined;
+      //   needRefreshMessageIds.current[userMessage.id] = userMessage;
+      //   if (messages.length > 0) await store.setItem(messagesKey(collectionId), messages);
+      //   setMessages(clone(messages));
+      //   return;
+      // }
 
       if (streamIndex === messages.length) {
         setDoScroll(true);
