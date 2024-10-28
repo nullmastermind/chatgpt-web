@@ -13,26 +13,32 @@ import {
   TextInput,
   Title,
 } from '@mantine/core';
-import {useDebouncedState} from '@mantine/hooks';
-import {IconCornerDownLeft, IconFileStack, IconX} from '@tabler/icons-react';
-import {useQuery} from '@tanstack/react-query';
+import { useDebouncedState } from '@mantine/hooks';
+import { IconCornerDownLeft, IconFileStack, IconX } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import {filter, findIndex, map, uniqBy} from 'lodash';
-import React, {memo, useEffect, useMemo, useRef, useState} from 'react';
-import {useDebounce, useLocalStorage, useSetState} from 'react-use';
-import {v4} from 'uuid';
+import { filter, findIndex, map, uniqBy } from 'lodash';
+import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { useDebounce, useLocalStorage, useSetState } from 'react-use';
+import { v4 } from 'uuid';
 
-import {AttachItem, AttachItemType, TDocumentItem, TIndexedDocumentItem,} from '@/components/misc/types';
+import {
+  AttachItem,
+  AttachItemType,
+  TDocumentItem,
+  TIndexedDocumentItem,
+} from '@/components/misc/types';
 import AttachDocumentItem from '@/components/pages/ChatbotPage/Attach/AttachDocumentItem';
-import {indexerHost} from '@/config';
-import {useOpenaiAPIKey} from '@/states/states';
+import { indexerHost } from '@/config';
+import { useOpenaiAPIKey } from '@/states/states';
 
 const AttachDocument = memo<{
   opened: boolean;
   onClose: () => any;
   value?: AttachItem | null;
   onSubmit: (value: AttachItem) => any;
-}>(({ opened, onClose, value, onSubmit }) => {
+  searchValue?: string;
+}>(({ opened, onClose, value, onSubmit, searchValue: propsSearchValue }) => {
   const [attachItem, setAttachItem] = useState<AttachItem | null>(null);
   const [searchValue, setSearchValue] = useDebouncedState<string>('', 100);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -127,6 +133,18 @@ const AttachDocument = memo<{
       }
     }
   }, [documents, documentId]);
+  useDebounce(
+    () => {
+      if (propsSearchValue && inputRef.current) {
+        inputRef.current.value = propsSearchValue;
+        setSearchValue(propsSearchValue);
+        inputRef.current.focus();
+        inputRef.current.select();
+      }
+    },
+    100,
+    [propsSearchValue],
+  );
 
   if (!attachItem) return null;
 

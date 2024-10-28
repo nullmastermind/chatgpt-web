@@ -391,6 +391,7 @@ export const TypeBox = forwardRef(
               data={attachItems}
               onChange={(value) => setAttachItems(value)}
               onClear={() => setAttachItems([])}
+              editorRef={editorRef}
             />
           </div>
         </div>

@@ -1,6 +1,6 @@
-import {Button, Kbd, Menu, ScrollArea} from '@mantine/core';
-import {useElementSize} from '@mantine/hooks';
-import {modals} from '@mantine/modals';
+import { Button, Kbd, Menu, ScrollArea } from '@mantine/core';
+import { useElementSize } from '@mantine/hooks';
+import { modals } from '@mantine/modals';
 import {
   IconBlockquote,
   IconBrandShazam,
@@ -12,10 +12,11 @@ import {
   IconPlus,
   IconUnlink,
 } from '@tabler/icons-react';
-import {clone, findIndex, map} from 'lodash';
-import React, {memo, useState} from 'react';
+import { clone, findIndex, map } from 'lodash';
+import React, { RefObject, memo, useState } from 'react';
 
-import {AttachItem, AttachItemType} from '@/components/misc/types';
+import { EditorCommands } from '@/components/misc/UserInput';
+import { AttachItem, AttachItemType } from '@/components/misc/types';
 import AttachDocument from '@/components/pages/ChatbotPage/Attach/AttachDocument';
 import AttachExcel from '@/components/pages/ChatbotPage/Attach/AttachExcel';
 import AttachName from '@/components/pages/ChatbotPage/Attach/AttachName';
@@ -25,7 +26,8 @@ const UploadFile = memo<{
   onChange: (value: AttachItem[]) => any;
   data: AttachItem[];
   onClear: () => any;
-}>(({ onChange, data, onClear }) => {
+  editorRef: RefObject<EditorCommands>;
+}>(({ onChange, data, onClear, editorRef }) => {
   const [showAttach, setShowAttach] = useState<AttachItemType | null>(null);
   const [editItem, setEditItem] = useState<AttachItem | null>(null);
   const { ref: attachContainerRef, width: attachContainerWidth } = useElementSize();
@@ -56,6 +58,7 @@ const UploadFile = memo<{
           }}
           value={editItem}
           onSubmit={onSubmit}
+          searchValue={editorRef.current?.getText()}
         />
       )}
       {showAttach === AttachItemType.TextData && (
