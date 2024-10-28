@@ -442,15 +442,13 @@ const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
                   }
                 } else if (value.isDocument) {
                   header = `# Document Section: ${value.name}`;
-                  value.content = `<|BEGIN_DOCUMENT_CHUNK|>
-<metadata>
+                  value.content = `<metadata>
   type: documentation
   format: "{CHUNK_CONTEXT} --- {CHUNK_DATA}"
 </metadata>
 <content>
 ${value.content}
-</content>
-<|END_DOCUMENT_CHUNK|>`;
+</content>`;
                 } else {
                   header = '# Text data';
                 }
