@@ -443,10 +443,16 @@ const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
                     header += `\n\n${value.name}`;
                   }
                 } else if (value.isDocument) {
-                  header = `# Document: ${value.name}`;
-                  const isCode = isCDocumentCode(value.content);
-                  value.content = trimDocumentContent(value.content);
-                  value.content = isCode ? '```\n' + value.content + '\n```' : value.content;
+                  header = `# Document Section: ${value.name}`;
+                  value.content = `<|BEGIN_DOCUMENT_CHUNK|>
+<metadata>
+  type: documentation
+  format: "{CHUNK_CONTEXT} --- {CHUNK_DATA}"
+</metadata>
+<content>
+${value.content}
+</content>
+<|END_DOCUMENT_CHUNK|>`;
                 } else {
                   header = '# Text data';
                 }

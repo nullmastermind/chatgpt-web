@@ -31,7 +31,7 @@ const TextToSpeech = memo<{
     }
 
     void audioRef.current?.pause();
-    window.speechSynthesis.cancel();
+    window.speechSynthesis?.cancel();
 
     if (voiceId === 'local') {
       if ('speechSynthesis' in window) {
@@ -71,7 +71,7 @@ const TextToSpeech = memo<{
   useEffect(() => {
     return () => {
       void audioRef.current?.pause();
-      window.speechSynthesis.cancel();
+      window.speechSynthesis?.cancel();
     };
   }, []);
 

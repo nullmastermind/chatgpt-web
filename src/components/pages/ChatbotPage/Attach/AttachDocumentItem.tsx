@@ -2,8 +2,6 @@ import { Button, Card, Divider, ScrollArea } from '@mantine/core';
 import React, { ReactNode, memo } from 'react';
 
 import { TIndexedDocumentItem } from '@/components/misc/types';
-import MemoizedReactMarkdown from '@/components/pages/ChatbotPage/MemoizedReactMarkdown';
-import { isCDocumentCode, trimDocumentContent } from '@/utility/utility';
 
 const AttachDocumentItem = memo<{
   item: TIndexedDocumentItem;
@@ -15,9 +13,12 @@ const AttachDocumentItem = memo<{
       <Card>
         <Card.Section>
           <div
-            className={'px-2 text-xs font-bold line-clamp-1'}
+            className={'px-2 text-xs font-bold whitespace-normal break-words'}
             style={{
               color: 'rgb(77, 171, 247)',
+              maxWidth: '100%',
+              overflowWrap: 'break-word',
+              wordBreak: 'break-all',
             }}
           >
             {`${item[0].metadata.source}:${item[0].metadata?.loc?.lines?.from}:${item[0].metadata?.loc?.lines?.to}`}
@@ -27,14 +28,17 @@ const AttachDocumentItem = memo<{
         <Card.Section className={'px-3'}>
           <div className={'flex flex-col sm:flex-row gap-2'}>
             <ScrollArea.Autosize mah={256} maw={500} className={'flex-grow'}>
-              <MemoizedReactMarkdown
-                smallText={true}
-                content={
-                  isCDocumentCode(item[0].pageContent)
-                    ? `\`\`\`${trimDocumentContent(item[0].pageContent)}`
-                    : trimDocumentContent(item[0].pageContent)
-                }
-              />
+              {/*<MemoizedReactMarkdown*/}
+              {/*  smallText={true}*/}
+              {/*  content={*/}
+              {/*    isCDocumentCode(item[0].pageContent)*/}
+              {/*      ? `\`\`\`${trimDocumentContent(item[0].pageContent)}`*/}
+              {/*      : trimDocumentContent(item[0].pageContent)*/}
+              {/*  }*/}
+              {/*/>*/}
+              <pre className={'text-xs'} style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+                {item[0].pageContent}
+              </pre>
             </ScrollArea.Autosize>
             <div className={'py-3'}>
               <Button size={'xs'} variant={'default'} onClick={() => onClickButton()}>

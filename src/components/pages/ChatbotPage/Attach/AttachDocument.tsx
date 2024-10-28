@@ -13,24 +13,19 @@ import {
   TextInput,
   Title,
 } from '@mantine/core';
-import { useDebouncedState } from '@mantine/hooks';
-import { IconCornerDownLeft, IconFileStack, IconX } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
+import {useDebouncedState} from '@mantine/hooks';
+import {IconCornerDownLeft, IconFileStack, IconX} from '@tabler/icons-react';
+import {useQuery} from '@tanstack/react-query';
 import axios from 'axios';
-import { filter, findIndex, map, uniqBy } from 'lodash';
-import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
-import { useDebounce, useLocalStorage, useSetState } from 'react-use';
-import { v4 } from 'uuid';
+import {filter, findIndex, map, uniqBy} from 'lodash';
+import React, {memo, useEffect, useMemo, useRef, useState} from 'react';
+import {useDebounce, useLocalStorage, useSetState} from 'react-use';
+import {v4} from 'uuid';
 
-import {
-  AttachItem,
-  AttachItemType,
-  TDocumentItem,
-  TIndexedDocumentItem,
-} from '@/components/misc/types';
+import {AttachItem, AttachItemType, TDocumentItem, TIndexedDocumentItem,} from '@/components/misc/types';
 import AttachDocumentItem from '@/components/pages/ChatbotPage/Attach/AttachDocumentItem';
-import { indexerHost } from '@/config';
-import { useOpenaiAPIKey } from '@/states/states';
+import {indexerHost} from '@/config';
+import {useOpenaiAPIKey} from '@/states/states';
 
 const AttachDocument = memo<{
   opened: boolean;
@@ -63,25 +58,26 @@ const AttachDocument = memo<{
   const [addedItems, setAddedItems] = useState<TIndexedDocumentItem[]>([]);
   const [activeTab, setActiveTab] = useState<'query' | 'added'>('query');
 
-  const queryDocuments = (query: string) => {
-    setLoadings({ query: true });
-    axios
-      .post(`${indexerHost}/api/query`, {
+  const queryDocuments = async (query: string) => {
+    try {
+      setLoadings({ query: true });
+
+      const response = await axios.post(`${indexerHost}/api/query`, {
         doc_id: documentId,
         query,
         apiKey,
-        maxScore: 0.6,
-        k: 5,
-        includeAllIfKLessThanScore: 0.3,
-        ignoreHashes: [],
-      })
-      .then(({ data: { data } }) => {
-        setQueryDocumentItems(data);
-      })
-      .finally(() => {
-        setLoadings({ query: false });
-        setActiveTab('query');
+        k: 20,
+        minScore: 0.3,
+        ignoreHashes: addedItems.map((item) => item?.[0]?.metadata?.hash),
       });
+
+      setQueryDocumentItems(response.data.data);
+    } catch (error) {
+      console.error('Error querying documents:', error);
+    } finally {
+      setLoadings({ query: false });
+      setActiveTab('query');
+    }
   };
 
   useEffect(() => {
