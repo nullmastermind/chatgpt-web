@@ -472,32 +472,41 @@ ${value.content}
           // requestMessages.splice(i, 0, ...attachMessages);
           // i += attachMessages.length; // Adjust index to account for newly inserted messages
 
-          requestMessages.splice(
-            i,
-            0,
-            ...[
-              attachImages.length
-                ? {
-                    role: 'user',
-                    content: [
-                      {
-                        type: 'text',
-                        text: `<|BEGIN_ATTACHMENTS|>\n${attachMessages.map((m) => `<attachment>\n${m.content}\n</attachment>`).join('\n\n')}\n<|END_ATTACHMENTS|>\nPlease use the information from the attachments to inform your responses, but respond naturally as if it's your own knowledge.`,
-                      },
-                      ...attachImages.map((url) => ({
-                        type: 'image_url',
-                        image_url: {
-                          url,
-                        },
-                      })),
-                    ] as any,
-                  }
-                : {
-                    role: 'user',
-                    content: `<|BEGIN_ATTACHMENTS|>\n${attachMessages.map((m) => `<attachment>\n${m.content}\n</attachment>`).join('\n\n')}\n<|END_ATTACHMENTS|>\nPlease use the information from the attachments to inform your responses, but respond naturally as if it's your own knowledge.`,
-                  },
-            ],
-          );
+          if (attachMessages.length || attachImages.length) {
+            const documentContent = `<|BEGIN_ATTACHMENTS|>\n${attachMessages.map((m) => `<attachment>\n${m.content}\n</attachment>`).join('\n\n')}\n<|END_ATTACHMENTS|>\nPlease use the information from the attachments to inform your responses, but respond naturally as if it's your own knowledge.`;
+
+            requestMessages.splice(
+              i,
+              0,
+              ...[
+                attachImages.length
+                  ? {
+                      role: 'user',
+                      content: [
+                        ...(attachMessages.length
+                          ? [
+                              {
+                                type: 'text',
+                                text: documentContent,
+                              },
+                            ]
+                          : []),
+                        ...attachImages.map((url) => ({
+                          type: 'image_url',
+                          image_url: {
+                            url,
+                          },
+                        })),
+                      ] as any,
+                    }
+                  : {
+                      role: 'user',
+                      content: documentContent,
+                    },
+              ],
+            );
+          }
+
           i += 1;
         }
       }
