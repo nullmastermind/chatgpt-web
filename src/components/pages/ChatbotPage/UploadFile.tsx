@@ -3,14 +3,11 @@ import { useElementSize } from '@mantine/hooks';
 import { modals } from '@mantine/modals';
 import {
   IconBlockquote,
-  IconBrandShazam,
   IconClearAll,
   IconCsv,
   IconFileStack,
-  IconPdf,
   IconPhotoEdit,
   IconPlus,
-  IconUnlink,
 } from '@tabler/icons-react';
 import { clone, findIndex, map } from 'lodash';
 import React, { RefObject, memo, useState } from 'react';
@@ -19,6 +16,7 @@ import { EditorCommands } from '@/components/misc/UserInput';
 import { AttachItem, AttachItemType } from '@/components/misc/types';
 import AttachDocument from '@/components/pages/ChatbotPage/Attach/AttachDocument';
 import AttachExcel from '@/components/pages/ChatbotPage/Attach/AttachExcel';
+import AttachImage from '@/components/pages/ChatbotPage/Attach/AttachImage';
 import AttachName from '@/components/pages/ChatbotPage/Attach/AttachName';
 import AttachTextData from '@/components/pages/ChatbotPage/Attach/AttachTextData';
 
@@ -82,6 +80,16 @@ const UploadFile = memo<{
           onSubmit={onSubmit}
         />
       )}
+      {showAttach === AttachItemType.Image && (
+        <AttachImage
+          opened={showAttach === AttachItemType.Image}
+          onClose={() => {
+            resetEdit();
+          }}
+          value={editItem}
+          onSubmit={onSubmit}
+        />
+      )}
       <div className="flex flex-row gap-2 items-center h-[20px]">
         <Menu>
           <Menu.Target>
@@ -127,30 +135,30 @@ const UploadFile = memo<{
                 <div>Excel/Word/Text</div>
               </div>
             </Menu.Item>
-            <Menu.Item className={'p-1'} disabled={true}>
-              <div className={'flex flex-row gap-1 items-center'}>
-                <IconPdf size={'1.3rem'} />
-                <div>OCR - Pdf/Image</div>
-              </div>
-            </Menu.Item>
-            <Menu.Item className={'p-1'} disabled={true}>
+            {/*<Menu.Item className={'p-1'} disabled={true}>*/}
+            {/*  <div className={'flex flex-row gap-1 items-center'}>*/}
+            {/*    <IconPdf size={'1.3rem'} />*/}
+            {/*    <div>OCR - Pdf/Image</div>*/}
+            {/*  </div>*/}
+            {/*</Menu.Item>*/}
+            <Menu.Item className={'p-1'} onClick={() => setShowAttach(AttachItemType.Image)}>
               <div className={'flex flex-row gap-1 items-center'}>
                 <IconPhotoEdit size={'1.3rem'} />
                 <div>Image</div>
               </div>
             </Menu.Item>
-            <Menu.Item className={'p-1'} disabled={true}>
-              <div className={'flex flex-row gap-1 items-center'}>
-                <IconBrandShazam size={'1.3rem'} />
-                <div>Audio</div>
-              </div>
-            </Menu.Item>
-            <Menu.Item className={'p-1'} disabled={true}>
-              <div className={'flex flex-row gap-1 items-center'}>
-                <IconUnlink size={'1.3rem'} />
-                <div>Website URL</div>
-              </div>
-            </Menu.Item>
+            {/*<Menu.Item className={'p-1'} disabled={true}>*/}
+            {/*  <div className={'flex flex-row gap-1 items-center'}>*/}
+            {/*    <IconBrandShazam size={'1.3rem'} />*/}
+            {/*    <div>Audio</div>*/}
+            {/*  </div>*/}
+            {/*</Menu.Item>*/}
+            {/*<Menu.Item className={'p-1'} disabled={true}>*/}
+            {/*  <div className={'flex flex-row gap-1 items-center'}>*/}
+            {/*    <IconUnlink size={'1.3rem'} />*/}
+            {/*    <div>Website URL</div>*/}
+            {/*  </div>*/}
+            {/*</Menu.Item>*/}
             <Menu.Divider />
             <Menu.Item className={'p-1'} onClick={() => onClear()}>
               <div className={'flex flex-row gap-1 items-center'}>
