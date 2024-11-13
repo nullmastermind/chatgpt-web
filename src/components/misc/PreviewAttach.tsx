@@ -63,12 +63,16 @@ const PreviewAttach = memo<{
                         maxWidth: 570,
                       }}
                     >
-                      <pre
-                        className={'text-xs'}
-                        style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
-                      >
-                        {value.content}
-                      </pre>
+                      {value.content.startsWith('data:image/') ? (
+                        <img src={value.content} alt={value.name} />
+                      ) : (
+                        <pre
+                          className={'text-xs'}
+                          style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
+                        >
+                          {value.content}
+                        </pre>
+                      )}
                       {/*<MemoizedReactMarkdown*/}
                       {/*  smallText={true}*/}
                       {/*  content={*/}
