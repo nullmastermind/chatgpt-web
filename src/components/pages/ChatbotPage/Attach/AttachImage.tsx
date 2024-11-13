@@ -218,7 +218,9 @@ const AttachImage = memo<{
           <Card className="flex items-baseline flex-row gap-2">
             <IconCheck color="green" className="-mb-1" />
             <div className="flex-grow">
-              <div className="font-bold">{attachItem.name}</div>
+              <div className="font-bold whitespace-pre-wrap max-w-full overflow-ellipsis line-clamp-1">
+                {attachItem.name}
+              </div>
               <img
                 src={attachItem.data[0].content}
                 alt={attachItem.name}

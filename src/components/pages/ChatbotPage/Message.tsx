@@ -429,13 +429,18 @@ const Message = memo<MessageProps>(({ collectionId, prompt, isDialog }) => {
         const attachItems = await store.getItem(attachKey(collectionId, messageItem.id));
         if (attachItems) {
           const attachMessages: TMessageItem[] = [];
+          const attachImages: string[] = [];
+
           forEach(attachItems, (item: AttachItem) => {
             forEach(item.data, (value) => {
               value = cloneDeep(value);
 
               if (!value.disabled) {
-                let header: string;
-                if (item.isFile) {
+                let header: string | undefined = undefined;
+
+                if (value.content.startsWith('data:image/')) {
+                  attachImages.push(value.content);
+                } else if (item.isFile) {
                   header = `# File: ${item.name}`;
                   if (value.name) {
                     header += `\n\n${value.name}`;
@@ -452,11 +457,14 @@ ${value.content}
                 } else {
                   header = '# Text data';
                 }
-                attachMessages.push({
-                  role: 'user',
-                  content: `${header}\n\n---\n\n${value.content}`,
-                  name: value.isDocument ? 'Documentation' : 'Attachment',
-                });
+
+                if (header) {
+                  attachMessages.push({
+                    role: 'user',
+                    content: `${header}\n\n---\n\n${value.content}`,
+                    name: value.isDocument ? 'Documentation' : 'Attachment',
+                  });
+                }
               }
             });
           });
@@ -468,10 +476,26 @@ ${value.content}
             i,
             0,
             ...[
-              {
-                role: 'user',
-                content: `<|BEGIN_ATTACHMENTS|>\n${attachMessages.map((m) => `<attachment>\n${m.content}\n</attachment>`).join('\n\n')}\n<|END_ATTACHMENTS|>\nPlease use the information from the attachments to inform your responses, but respond naturally as if it's your own knowledge.`,
-              },
+              attachImages.length
+                ? {
+                    role: 'user',
+                    content: [
+                      {
+                        type: 'text',
+                        text: `<|BEGIN_ATTACHMENTS|>\n${attachMessages.map((m) => `<attachment>\n${m.content}\n</attachment>`).join('\n\n')}\n<|END_ATTACHMENTS|>\nPlease use the information from the attachments to inform your responses, but respond naturally as if it's your own knowledge.`,
+                      },
+                      ...attachImages.map((url) => ({
+                        type: 'image_url',
+                        image_url: {
+                          url,
+                        },
+                      })),
+                    ] as any,
+                  }
+                : {
+                    role: 'user',
+                    content: `<|BEGIN_ATTACHMENTS|>\n${attachMessages.map((m) => `<attachment>\n${m.content}\n</attachment>`).join('\n\n')}\n<|END_ATTACHMENTS|>\nPlease use the information from the attachments to inform your responses, but respond naturally as if it's your own knowledge.`,
+                  },
             ],
           );
           i += 1;
