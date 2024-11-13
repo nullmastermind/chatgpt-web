@@ -210,7 +210,7 @@ const AttachImage = memo<{
           />
 
           <Text size="xs" color="dimmed">
-            Or upload an image file
+            Or upload an image file, or paste from clipboard
           </Text>
 
           <Dropzone
