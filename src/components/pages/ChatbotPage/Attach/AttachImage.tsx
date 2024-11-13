@@ -22,7 +22,7 @@ import {
 } from '@tabler/icons-react';
 import axios from 'axios';
 import { clone } from 'lodash';
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import { v4 } from 'uuid';
 
 import { AttachItem, AttachItemType } from '@/components/misc/types';
@@ -117,6 +117,38 @@ const AttachImage = memo<{
     setLoading(false);
   };
 
+  const handlePaste = useCallback(
+    async (event: ClipboardEvent) => {
+      const items = event.clipboardData?.items;
+      if (!items) return;
+
+      for (const item of items) {
+        if (item.type.startsWith('image/')) {
+          const file = item.getAsFile();
+          if (file) {
+            setLoading(true);
+            try {
+              const base64Data = await convertToBase64(file);
+
+              attachItem!.data = [
+                {
+                  content: base64Data,
+                  name: 'Pasted Image',
+                },
+              ];
+              attachItem!.name = 'Pasted Image';
+              attachItem!.isFile = false;
+              setAttachItem(clone(attachItem));
+            } catch (e: any) {}
+            setLoading(false);
+            break;
+          }
+        }
+      }
+    },
+    [attachItem],
+  );
+
   useEffect(() => {
     if (opened) {
       setAttachItem(
@@ -129,7 +161,14 @@ const AttachImage = memo<{
         },
       );
     }
-  }, [value, opened]);
+  }, [opened, value]);
+
+  useEffect(() => {
+    document.addEventListener('paste', handlePaste);
+    return () => {
+      document.removeEventListener('paste', handlePaste);
+    };
+  }, [attachItem]);
 
   if (!attachItem) return null;
 
