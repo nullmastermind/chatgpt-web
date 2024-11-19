@@ -1,4 +1,6 @@
 import { ActionIcon, Badge, Transition } from '@mantine/core';
+import { useClipboard } from '@mantine/hooks';
+import { notifications } from '@mantine/notifications';
 import {
   IconBlockquote,
   IconBrandShazam,
@@ -20,10 +22,22 @@ const AttachName = memo<{
   type: AttachItemType;
   onRemove?: (e: MouseEvent) => any;
 }>(({ name, type, onRemove }) => {
+  const clipboard = useClipboard();
+
   return (
     <Transition transition={'slide-up'} mounted={true}>
       {(styles) => (
         <Badge
+          onClick={() => {
+            if (type === AttachItemType.MODEL) {
+              clipboard.copy(name);
+              notifications.show({
+                title: 'Copied',
+                message: 'Model name copied to clipboard',
+                color: 'green',
+              });
+            }
+          }}
           style={styles}
           title={type}
           size={'xs'}
